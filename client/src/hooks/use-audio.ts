@@ -291,6 +291,7 @@ export function useAudio() {
     isPlaying, 
     isPaused,
     currentText,
-    remainingText 
+    remainingText,
+    currentUtterance 
   };
 }

@@ -45,7 +45,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
   const textRef = useRef<HTMLDivElement>(null);
   const autoReadingTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const { playText, pauseAudio, resumeAudio, stopAudio, isPlaying, isPaused: isAudioPaused } = useAudio();
+  const { playText, pauseAudio, resumeAudio, stopAudio, isPlaying, isPaused: isAudioPaused, currentUtterance } = useAudio();
   const { 
     isListening, 
     transcript, 
@@ -145,33 +145,52 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
   const resumeAutoReading = useCallback(() => {
     if (!isAutoReading) return;
     
-    // Primeiro tenta retomar o áudio atual
-    if (isAudioPaused) {
-      resumeAudio();
+    // Primeiro tenta retomar o áudio atual se estiver pausado
+    if (isAudioPaused && currentUtterance) {
+      try {
+        resumeAudio();
+        setIsPaused(false);
+        toast({
+          title: "🎯 Professor Tommy retomando",
+          description: "Continuando de onde parou",
+        });
+        return;
+      } catch (error) {
+        console.warn("Erro ao retomar áudio:", error);
+        // Se falhar, continua para reiniciar do ponto atual
+      }
+    }
+    
+    // Se não há áudio pausado ou falhou ao retomar, reinicia do ponto atual
+    setIsPaused(false);
+    
+    const words = text.split(/\s+/).filter(word => word.length > 0);
+    
+    // Se estamos no final, não há nada para retomar
+    if (currentWordIndex >= words.length - 1) {
+      setIsAutoReading(false);
       setIsPaused(false);
+      setCurrentWordIndex(0);
       toast({
-        title: "🎯 Professor Tommy retomando",
-        description: "Continuando de onde parou",
+        title: "🎉 Leitura já foi concluída!",
+        description: "Use o botão de play para reiniciar.",
       });
       return;
     }
     
-    // Se não há áudio pausado, reinicia do ponto atual
-    setIsPaused(false);
-    
-    const words = text.split(/\s+/).filter(word => word.length > 0);
-    const remainingWords = words.slice(currentWordIndex);
+    // Continuar da próxima palavra
+    const startIndex = Math.max(0, currentWordIndex + 1);
+    const remainingWords = words.slice(startIndex);
     const remainingText = remainingWords.join(' ');
     
     if (remainingText.trim()) {
       const handleWordBoundary = (word: string, index: number) => {
-        const adjustedIndex = currentWordIndex + index;
+        const adjustedIndex = startIndex + index;
         if (adjustedIndex >= 0 && adjustedIndex < words.length) {
           setCurrentWordIndex(adjustedIndex);
 
           // Verificar se chegou ao final do texto
           if (adjustedIndex >= words.length - 1) {
-            // Aguardar um pouco para mostrar a última palavra destacada
             setTimeout(() => {
               setIsAutoReading(false);
               setIsPaused(false);
@@ -202,13 +221,13 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
       };
 
       playText(remainingText, "en-US", 0, handleWordBoundary);
+      
+      toast({
+        title: "🎯 Professor Tommy retomando",
+        description: "Continuando de onde parou",
+      });
     }
-    
-    toast({
-      title: "🎯 Professor Tommy retomando",
-      description: "Continuando de onde parou",
-    });
-  }, [isAutoReading, isAudioPaused, currentWordIndex, text, playText, resumeAudio, toast]);
+  }, [isAutoReading, isAudioPaused, currentUtterance, currentWordIndex, text, playText, resumeAudio, toast]);
 
   const stopAutoReading = useCallback(() => {
     setIsAutoReading(false);
