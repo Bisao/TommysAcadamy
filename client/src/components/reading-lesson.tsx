@@ -557,9 +557,16 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
         <CardContent className="relative p-3 sm:p-6">
           <div
             ref={textRef}
-            className="text-base sm:text-lg leading-relaxed p-3 sm:p-4 bg-white rounded-lg border border-gray-200 cursor-text select-text break-words whitespace-pre-wrap overflow-wrap-anywhere min-h-[200px] sm:min-h-[300px]"
+            className="text-base sm:text-lg leading-relaxed p-3 sm:p-4 bg-white dark:bg-gray-50 rounded-lg border border-gray-200 dark:border-gray-300 cursor-text select-text break-words whitespace-pre-wrap overflow-wrap-anywhere min-h-[200px] sm:min-h-[300px] mobile-scroll"
             onMouseUp={handleTextSelection}
-            style={{ userSelect: 'text', wordBreak: 'break-word', overflowWrap: 'break-word' }}
+            onTouchEnd={handleTextSelection}
+            style={{ 
+              userSelect: 'text', 
+              wordBreak: 'break-word', 
+              overflowWrap: 'break-word',
+              WebkitTouchCallout: 'none',
+              WebkitUserSelect: 'text'
+            }}
           >
             {text.split(/\s+/).map((word, index) => {
               const feedback = wordFeedback[index];
@@ -568,20 +575,20 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
 
               // Priority: Current word highlighting > feedback status
               if (isCurrentWord) {
-                colorClass = 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-xl scale-110 font-bold border-2 border-blue-300 transform';
+                colorClass = 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg sm:shadow-xl scale-105 sm:scale-110 font-bold border-2 border-blue-300 transform animate-pulse';
               } else {
                 switch (feedback?.status) {
                   case 'correct':
-                    colorClass = 'bg-green-200 text-green-800';
+                    colorClass = 'bg-green-200 dark:bg-green-300 text-green-800 dark:text-green-900 border border-green-300 dark:border-green-400';
                     break;
                   case 'close':
-                    colorClass = 'bg-yellow-200 text-yellow-800';
+                    colorClass = 'bg-yellow-200 dark:bg-yellow-300 text-yellow-800 dark:text-yellow-900 border border-yellow-300 dark:border-yellow-400';
                     break;
                   case 'incorrect':
-                    colorClass = 'bg-red-200 text-red-800';
+                    colorClass = 'bg-red-200 dark:bg-red-300 text-red-800 dark:text-red-900 border border-red-300 dark:border-red-400';
                     break;
                   default:
-                    colorClass = 'text-gray-800';
+                    colorClass = 'text-gray-800 dark:text-gray-700 hover:bg-blue-50 dark:hover:bg-blue-100';
                 }
               }
 
@@ -589,10 +596,19 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
                 <span
                   key={index}
                   data-word-index={index}
-                  className={`${colorClass} px-1 py-0.5 rounded transition-colors duration-150 mr-1 inline-block cursor-pointer hover:bg-blue-100 touch-manipulation select-none`}
-                  style={{ wordBreak: 'break-word', userSelect: 'none' }}
+                  className={`${colorClass} px-1 sm:px-2 py-0.5 sm:py-1 rounded-md transition-all duration-200 mr-1 sm:mr-2 mb-1 inline-block cursor-pointer touch-target touch-manipulation select-none min-h-[32px] sm:min-h-[36px] flex items-center justify-center text-center`}
+                  style={{ 
+                    wordBreak: 'break-word', 
+                    userSelect: 'none',
+                    minWidth: '24px',
+                    WebkitTapHighlightColor: 'transparent'
+                  }}
                   onClick={(e) => handleWordClick(word, e)}
-                  onTouchEnd={(e) => handleWordClick(word, e)}
+                  onTouchStart={(e) => e.preventDefault()}
+                  onTouchEnd={(e) => {
+                    e.preventDefault();
+                    handleWordClick(word, e);
+                  }}
                 >
                   {word}
                 </span>
@@ -606,54 +622,59 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ 
                 opacity: 1, 
-                scale: [1, 1.2, 1],
+                scale: [1, 1.1, 1],
               }}
               exit={{ opacity: 0, scale: 0.5 }}
               transition={{
                 scale: {
-                  duration: 0.6,
+                  duration: 0.8,
                   repeat: Infinity,
                   ease: "easeInOut"
                 }
               }}
-              className="fixed z-50 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full p-3 shadow-2xl cursor-pointer hover:from-blue-600 hover:to-blue-700 transition-all border-2 border-white"
+              className="fixed z-50 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full p-2 sm:p-3 shadow-2xl cursor-pointer hover:from-blue-600 hover:to-blue-700 transition-all border-2 border-white touch-target"
               style={{
-                left: `${iconPosition.x - 24}px`,
-                top: `${iconPosition.y}px`,
-                transform: 'translateX(-50%)'
+                left: `${Math.max(20, Math.min(window.innerWidth - 60, iconPosition.x - 20))}px`,
+                top: `${Math.max(80, iconPosition.y)}px`,
+                transform: 'translateX(-50%)',
+                WebkitTapHighlightColor: 'transparent'
               }}
               onClick={(e) => playSelectedText(e)}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                playSelectedText(e);
+              }}
             >
-              <Volume2 size={24} className="drop-shadow-sm" />
+              <Volume2 size={20} className="sm:w-6 sm:h-6 drop-shadow-sm" />
             </motion.div>
           )}
 
           {/* Legenda das Cores */}
           {(isReadingMode || isAutoReading) && (
-            <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
-              <p className="text-sm font-semibold text-gray-700 mb-2">Legenda de Cores:</p>
-              <div className="flex flex-wrap gap-4 text-sm">
+            <div className="mt-4 p-3 sm:p-4 bg-gray-50 dark:bg-gray-100 rounded-lg border border-gray-200 dark:border-gray-300">
+              <p className="text-sm sm:text-base font-semibold text-gray-700 dark:text-gray-800 mb-2 sm:mb-3">Legenda de Cores:</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-4 text-xs sm:text-sm">
                 {isAutoReading && (
-                  <div className="flex items-center gap-2">
-                    <span className="w-4 h-4 bg-blue-500 rounded shadow-lg"></span>
-                    <span className="font-semibold">Palavra Atual</span>
+                  <div className="flex items-center gap-1 sm:gap-2 col-span-2 sm:col-span-1">
+                    <span className="w-3 h-3 sm:w-4 sm:h-4 bg-blue-500 rounded shadow-lg animate-pulse"></span>
+                    <span className="font-semibold text-blue-700">Palavra Atual</span>
                   </div>
                 )}
-                <div className="flex items-center gap-2">
-                  <span className="w-4 h-4 bg-green-200 rounded"></span>
-                  <span>Pronuncia Correta</span>
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <span className="w-3 h-3 sm:w-4 sm:h-4 bg-green-200 dark:bg-green-300 rounded border border-green-300"></span>
+                  <span className="text-green-700">Correta</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-4 h-4 bg-yellow-200 rounded"></span>
-                  <span>Pronuncia Próxima</span>
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <span className="w-3 h-3 sm:w-4 sm:h-4 bg-yellow-200 dark:bg-yellow-300 rounded border border-yellow-300"></span>
+                  <span className="text-yellow-700">Próxima</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-4 h-4 bg-red-200 rounded"></span>
-                  <span>Precisa Melhorar</span>
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <span className="w-3 h-3 sm:w-4 sm:h-4 bg-red-200 dark:bg-red-300 rounded border border-red-300"></span>
+                  <span className="text-red-700">Melhorar</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-4 h-4 bg-gray-200 rounded"></span>
-                  <span>Não Lida</span>
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <span className="w-3 h-3 sm:w-4 sm:h-4 bg-gray-200 dark:bg-gray-300 rounded border border-gray-300"></span>
+                  <span className="text-gray-700">Não Lida</span>
                 </div>
               </div>
             </div>
@@ -664,26 +685,42 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
       {/* Status do Microfone */}
       {isListening && (
         <Card className="border-2 border-cartoon-coral mt-4">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-center gap-2 text-cartoon-coral">
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 text-cartoon-coral">
               <motion.div
                 animate={{ scale: [1, 1.2, 1] }}
                 transition={{ repeat: Infinity, duration: 1 }}
+                className="flex items-center justify-center"
               >
-                <Mic size={20} />
+                <Mic size={20} className="sm:w-6 sm:h-6" />
               </motion.div>
-              <span className="font-medium">Ouvindo... Leia o texto!</span>
+              <div className="text-center sm:text-left">
+                <span className="font-medium text-sm sm:text-base block">Ouvindo... Leia o texto!</span>
+                <span className="text-xs sm:text-sm text-cartoon-coral/80 hidden sm:block">Pronuncie as palavras claramente</span>
+              </div>
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Transcript */}
+      {/* Transcript e Progresso */}
       {transcript && (
-        <Card className="border-2 border-blue-200 mt-4">
-          <CardContent className="p-4">
-            <p className="text-sm text-gray-600 mb-2">O que você disse:</p>
-            <p className="text-gray-800">{transcript}</p>
+        <Card className="border-2 border-blue-200 dark:border-blue-300 mt-4">
+          <CardContent className="p-3 sm:p-4">
+            <div className="space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-700 font-medium">O que você disse:</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs sm:text-sm text-blue-600 dark:text-blue-700 font-semibold">
+                    Progresso: {Math.round(readingProgress)}%
+                  </span>
+                  <Progress value={readingProgress} className="w-20 sm:w-24 h-2" />
+                </div>
+              </div>
+              <div className="bg-blue-50 dark:bg-blue-100 p-3 rounded-lg border border-blue-200 dark:border-blue-300">
+                <p className="text-gray-800 dark:text-gray-900 text-sm sm:text-base break-words">{transcript}</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       )}
