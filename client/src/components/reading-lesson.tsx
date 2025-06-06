@@ -433,112 +433,101 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6 pt-32 sm:pt-36">
+    <div className="max-w-4xl mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6 pt-20 pr-24">
 
 
-      {/* Controles de Áudio e Leitura */}
-      <Card className="border-2 border-cartoon-gray fixed top-0 left-0 right-0 z-50 bg-white shadow-lg mx-auto max-w-4xl">
-        <CardContent className="p-3 sm:p-6">
-          {/* Mobile-optimized layout */}
-          <div className="space-y-4">
-            {/* Primary Controls Row */}
-            <div className="flex flex-wrap justify-center gap-3">
-              {/* Audio Control with Pause/Resume */}
-              {!isPlaying && !isAudioPaused ? (
-                <Button
-                  onClick={playFullText}
-                  className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
-                >
-                  <Volume2 size={24} />
-                </Button>
-              ) : isPlaying ? (
-                <Button
-                  onClick={pauseAudio}
-                  className="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
-                >
-                  <Pause size={24} />
-                </Button>
-              ) : (
-                <Button
-                  onClick={resumeAudio}
-                  className="w-16 h-16 rounded-full bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
-                >
-                  <Play size={24} />
-                </Button>
-              )}
+      {/* Controles de Áudio e Leitura - Lateral Direita */}
+      <Card className="border-2 border-cartoon-gray fixed top-20 right-4 z-50 bg-white shadow-lg w-20">
+        <CardContent className="p-3">
+          {/* Botões empilhados verticalmente */}
+          <div className="flex flex-col gap-3">
+            {/* Audio Control with Pause/Resume */}
+            {!isPlaying && !isAudioPaused ? (
+              <Button
+                onClick={playFullText}
+                className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
+              >
+                <Volume2 size={20} />
+              </Button>
+            ) : isPlaying ? (
+              <Button
+                onClick={pauseAudio}
+                className="w-14 h-14 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
+              >
+                <Pause size={20} />
+              </Button>
+            ) : (
+              <Button
+                onClick={resumeAudio}
+                className="w-14 h-14 rounded-full bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
+              >
+                <Play size={20} />
+              </Button>
+            )}
 
-              {(isPlaying || isAudioPaused) && (
-                <Button
-                  onClick={stopAudio}
-                  className="w-16 h-16 rounded-full bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
-                >
-                  <VolumeX size={24} />
-                </Button>
-              )}
+            {(isPlaying || isAudioPaused) && (
+              <Button
+                onClick={stopAudio}
+                className="w-14 h-14 rounded-full bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
+              >
+                <VolumeX size={20} />
+              </Button>
+            )}
 
-              {/* Auto Reading Controls */}
-              {!isAutoReading ? (
-                <Button
-                  onClick={startAutoReading}
-                  className="w-16 h-16 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
-                >
-                  <Play size={24} />
-                </Button>
-              ) : (
-                <>
-                  {isPaused ? (
-                    <Button
-                      onClick={resumeAutoReading}
-                      className="w-16 h-16 rounded-full bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
-                    >
-                      <Play size={24} />
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={pauseAutoReading}
-                      className="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
-                    >
-                      <Pause size={24} />
-                    </Button>
-                  )}
+            {/* Auto Reading Controls */}
+            {!isAutoReading ? (
+              <Button
+                onClick={startAutoReading}
+                className="w-14 h-14 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
+              >
+                <Play size={20} />
+              </Button>
+            ) : (
+              <>
+                {isPaused ? (
                   <Button
-                    onClick={stopAutoReading}
-                    className="w-16 h-16 rounded-full bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
+                    onClick={resumeAutoReading}
+                    className="w-14 h-14 rounded-full bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
                   >
-                    <VolumeX size={24} />
+                    <Play size={20} />
                   </Button>
-                </>
-              )}
+                ) : (
+                  <Button
+                    onClick={pauseAutoReading}
+                    className="w-14 h-14 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
+                  >
+                    <Pause size={20} />
+                  </Button>
+                )}
+                <Button
+                  onClick={stopAutoReading}
+                  className="w-14 h-14 rounded-full bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
+                >
+                  <VolumeX size={20} />
+                </Button>
+              </>
+            )}
 
-              {/* Reading Mode Control */}
-              <Button
-                onClick={toggleReadingMode}
-                className={`w-16 h-16 rounded-full ${
-                  isReadingMode 
-                    ? "bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700" 
-                    : "bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
-                } text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white`}
-              >
-                {isReadingMode ? <MicOff size={24} /> : <Mic size={24} />}
-              </Button>
+            {/* Reading Mode Control */}
+            <Button
+              onClick={toggleReadingMode}
+              className={`w-14 h-14 rounded-full ${
+                isReadingMode 
+                  ? "bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700" 
+                  : "bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
+              } text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white`}
+            >
+              {isReadingMode ? <MicOff size={20} /> : <Mic size={20} />}
+            </Button>
 
-              {/* Reset Button */}
-              <Button
-                onClick={resetReading}
-                disabled={!transcript}
-                className="w-16 h-16 rounded-full bg-gradient-to-br from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 disabled:from-gray-300 disabled:to-gray-400 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white disabled:opacity-50"
-              >
-                <RotateCcw size={24} />
-              </Button>
-            </div>
-
-            {/* Labels Row */}
-            <div className="flex flex-wrap justify-center gap-3 text-xs text-gray-600">
-
-              <span className="text-center w-16">Guiada</span>
-              <span className="text-center w-16">{isReadingMode ? "Parar" : "Ler"}</span>
-              <span className="text-center w-16">Repetir</span>
-            </div>
+            {/* Reset Button */}
+            <Button
+              onClick={resetReading}
+              disabled={!transcript}
+              className="w-14 h-14 rounded-full bg-gradient-to-br from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 disabled:from-gray-300 disabled:to-gray-400 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white disabled:opacity-50"
+            >
+              <RotateCcw size={20} />
+            </Button>
           </div>
 
           {/* Speed Control for Auto Reading */}
@@ -638,7 +627,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
       </Card>
 
       {/* Área de Texto */}
-      <Card className="border-2 border-cartoon-gray mt-32">
+      <Card className="border-2 border-cartoon-gray">
         <CardHeader className="pb-3 sm:pb-6">
           <div className="text-center">
             <CardTitle className="text-xl sm:text-2xl text-cartoon-dark">{title}</CardTitle>
