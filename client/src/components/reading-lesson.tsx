@@ -59,13 +59,15 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
 
   // Initialize word feedback array
   useEffect(() => {
-    const words = text.split(/\s+/).filter(word => word.length > 0);
-    const initialFeedback = words.map(word => ({
+    const titleWords = title.split(/\s+/).filter(word => word.length > 0);
+    const textWords = text.split(/\s+/).filter(word => word.length > 0);
+    const allWords = [...titleWords, ...textWords];
+    const initialFeedback = allWords.map(word => ({
       word: word.replace(/[.,!?;:]/g, ''),
       status: 'unread' as const
     }));
     setWordFeedback(initialFeedback);
-  }, [text]);
+  }, [title, text]);
 
   const startAutoReading = useCallback(() => {
     setIsAutoReading(true);
@@ -272,8 +274,10 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
   const resetReading = useCallback(() => {
     resetTranscript();
     setReadingProgress(0);
-    const words = text.split(/\s+/).filter(word => word.length > 0);
-    const resetFeedback = words.map(word => ({
+    const titleWords = title.split(/\s+/).filter(word => word.length > 0);
+    const textWords = text.split(/\s+/).filter(word => word.length > 0);
+    const allWords = [...titleWords, ...textWords];
+    const resetFeedback = allWords.map(word => ({
       word: word.replace(/[.,!?;:]/g, ''),
       status: 'unread' as const
     }));
@@ -282,7 +286,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
       title: "🔄 Leitura reiniciada",
       description: "Comece novamente a leitura do texto.",
     });
-  }, [text, resetTranscript, toast]);
+  }, [title, text, resetTranscript, toast]);
 
   const createAudioControls = useCallback(() => (
     <div className="flex items-center gap-1 sm:gap-2">
@@ -395,7 +399,9 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
   // Análise de pronuncia do transcript
   const analyzeTranscript = useCallback((transcript: string) => {
     const spokenWords = transcript.toLowerCase().split(/\s+/).filter(word => word.length > 0);
+    const titleWords = title.split(/\s+/).filter(word => word.length > 0);
     const textWords = text.split(/\s+/).filter(word => word.length > 0);
+    const allWords = [...titleWords, ...textWords];
 
     setWordFeedback(prevFeedback => {
       const newFeedback = [...prevFeedback];
@@ -404,8 +410,8 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
         let bestMatch = -1;
         let bestSimilarity = 0;
 
-        textWords.forEach((textWord, index) => {
-          const similarity = calculateSimilarity(textWord, spokenWord);
+        allWords.forEach((word, index) => {
+          const similarity = calculateSimilarity(word, spokenWord);
           if (similarity > bestSimilarity && similarity > 0.3) {
             bestSimilarity = similarity;
             bestMatch = index;
@@ -425,14 +431,16 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
 
       return newFeedback;
     });
-  }, [text]);
+  }, [title, text]);
 
   // Simular progresso de leitura baseado no texto falado
   const calculateReadingProgress = useCallback((spokenText: string) => {
-    const wordsInText = text.split(/\s+/).length;
+    const titleWords = title.split(/\s+/).length;
+    const textWords = text.split(/\s+/).length;
+    const totalWords = titleWords + textWords;
     const wordsSpoken = spokenText.split(/\s+/).filter(word => word.length > 0).length;
-    return Math.min((wordsSpoken / wordsInText) * 100, 100);
-  }, [text]);
+    return Math.min((wordsSpoken / totalWords) * 100, 100);
+  }, [title, text]);
 
   // Atualizar progresso e análise quando o transcript muda
   useEffect(() => {
@@ -519,19 +527,6 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
     <div className="max-w-4xl mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6 pt-20">
       {/* Área de Texto */}
       <Card className="border-2 border-cartoon-gray">
-        <CardHeader className="pb-3 sm:pb-6">
-          <div className="text-center">
-            <CardTitle 
-              className={`text-xl sm:text-2xl text-cartoon-dark transition-all duration-300 ${
-                isAutoReading && currentWordIndex === -1 
-                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg shadow-xl scale-105 transform' 
-                  : ''
-              }`}
-            >
-              {title}
-            </CardTitle>
-          </div>
-        </CardHeader>
         <CardContent className="relative p-3 sm:p-6">
           <div
             ref={textRef}
@@ -546,7 +541,107 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
               WebkitUserSelect: 'text'
             }}
           >
-            {text.split(/\s+/).map((word, index) => {
+            {/* Título integrado ao texto */}
+            <div className="mb-4 text-center">
+              <h2 className="text-xl sm:text-2xl font-bold text-cartoon-dark mb-3">
+                {title.split(/\s+/).map((word, index) => {
+                  const titleWordsCount = title.split(/\s+/).length;
+                  const isCurrentWord = isAutoReading && currentWordIndex === index;
+                  const feedback = wordFeedback[index];
+                  let colorClass = '';
+
+                  if (isCurrentWord) {
+                    colorClass = 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg sm:shadow-xl scale-105 sm:scale-110 font-bold border-2 border-blue-300 transform animate-pulse';
+                  } else {
+                    switch (feedback?.status) {
+                      case 'correct':
+                        colorClass = 'bg-green-200 dark:bg-green-300 text-green-800 dark:text-green-900 border border-green-300 dark:border-green-400';
+                        break;
+                      case 'close':
+                        colorClass = 'bg-yellow-200 dark:bg-yellow-300 text-yellow-800 dark:text-yellow-900 border border-yellow-300 dark:border-yellow-400';
+                        break;
+                      case 'incorrect':
+                        colorClass = 'bg-red-200 dark:bg-red-300 text-red-800 dark:text-red-900 border border-red-300 dark:border-red-400';
+                        break;
+                      default:
+                        colorClass = 'text-gray-800 dark:text-gray-700 hover:bg-blue-50 dark:hover:bg-blue-100';
+                    }
+                  }
+
+                  return (
+                    <span
+                      key={`title-${index}`}
+                      data-word-index={index}
+                      className={`${colorClass} px-1 sm:px-2 py-0.5 sm:py-1 rounded-md transition-all duration-200 mr-1 sm:mr-2 mb-1 inline-block cursor-pointer touch-manipulation select-none min-h-[28px] sm:min-h-[32px] flex items-center justify-center text-center`}
+                      style={{ 
+                        wordBreak: 'break-word', 
+                        userSelect: 'none',
+                        minWidth: '20px',
+                        WebkitTapHighlightColor: 'transparent'
+                      }}
+                      onClick={(e) => handleWordClick(word, e)}
+                      onTouchStart={(e) => e.preventDefault()}
+                      onTouchEnd={(e) => {
+                        e.preventDefault();
+                        handleWordClick(word, e);
+                      }}
+                    >
+                      {word}
+                    </span>
+                  );
+                })}
+              </h2>
+            </div>
+
+            {/* Texto principal */}
+            {text.split(/\s+/).map((word, textIndex) => {
+              const titleWordsCount = title.split(/\s+/).length;
+              const globalIndex = titleWordsCount + textIndex;
+              const feedback = wordFeedback[globalIndex];
+              const isCurrentWord = isAutoReading && currentWordIndex === globalIndex;
+              let colorClass = '';
+
+              if (isCurrentWord) {
+                colorClass = 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg sm:shadow-xl scale-105 sm:scale-110 font-bold border-2 border-blue-300 transform animate-pulse';
+              } else {
+                switch (feedback?.status) {
+                  case 'correct':
+                    colorClass = 'bg-green-200 dark:bg-green-300 text-green-800 dark:text-green-900 border border-green-300 dark:border-green-400';
+                    break;
+                  case 'close':
+                    colorClass = 'bg-yellow-200 dark:bg-yellow-300 text-yellow-800 dark:text-yellow-900 border border-yellow-300 dark:border-yellow-400';
+                    break;
+                  case 'incorrect':
+                    colorClass = 'bg-red-200 dark:bg-red-300 text-red-800 dark:text-red-900 border border-red-300 dark:border-red-400';
+                    break;
+                  default:
+                    colorClass = 'text-gray-800 dark:text-gray-700 hover:bg-blue-50 dark:hover:bg-blue-100';
+                }
+              }
+
+              return (
+                <span
+                  key={`text-${textIndex}`}
+                  data-word-index={globalIndex}
+                  className={`${colorClass} px-1 sm:px-2 py-0.5 sm:py-1 rounded-md transition-all duration-200 mr-1 sm:mr-2 mb-1 inline-block cursor-pointer touch-manipulation select-none min-h-[28px] sm:min-h-[32px] flex items-center justify-center text-center`}
+                  style={{ 
+                    wordBreak: 'break-word', 
+                    userSelect: 'none',
+                    minWidth: '20px',
+                    WebkitTapHighlightColor: 'transparent'
+                  }}
+                  onClick={(e) => handleWordClick(word, e)}
+                  onTouchStart={(e) => e.preventDefault()}
+                  onTouchEnd={(e) => {
+                    e.preventDefault();
+                    handleWordClick(word, e);
+                  }}
+                >
+                  {word}
+                </span>
+              );
+            })}
+          </div>
               const feedback = wordFeedback[index];
               const isCurrentWord = isAutoReading && currentWordIndex === index;
               let colorClass = '';
