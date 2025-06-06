@@ -56,7 +56,7 @@ export default function LessonModal({ lessonId, onClose }: LessonModalProps) {
         [currentQuestion.id]: data.correct
       }));
       setShowFeedback(true);
-      
+
       // Invalidate user cache immediately if XP was earned
       if (data.correct && data.xpEarned > 0) {
         queryClient.invalidateQueries({ queryKey: ["/api/user"] });
@@ -74,7 +74,7 @@ export default function LessonModal({ lessonId, onClose }: LessonModalProps) {
     onSuccess: (data) => {
       const correct = Object.values(answers).filter(Boolean).length;
       const incorrect = Object.values(answers).length - correct;
-      
+
       setLessonResults({
         score: data.score,
         totalQuestions: questions.length,
@@ -83,7 +83,7 @@ export default function LessonModal({ lessonId, onClose }: LessonModalProps) {
         incorrect,
       });
       setShowCompletion(true);
-      
+
       // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       queryClient.invalidateQueries({ queryKey: ["/api/progress"] });
@@ -115,7 +115,7 @@ export default function LessonModal({ lessonId, onClose }: LessonModalProps) {
       // Complete lesson
       const timeSpent = Math.round((Date.now() - startTime) / 1000);
       const score = Object.values(answers).filter(Boolean).length;
-      
+
       completeLessonMutation.mutate({
         lessonId: currentLessonId,
         score,
@@ -149,7 +149,7 @@ export default function LessonModal({ lessonId, onClose }: LessonModalProps) {
     setLessonResults(null);
     setAnswers({});
     setStartTime(Date.now());
-    
+
     // Update URL without page reload
     window.history.pushState({}, '', `/lesson/${nextLessonId}`);
   };
@@ -178,12 +178,12 @@ export default function LessonModal({ lessonId, onClose }: LessonModalProps) {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 pt-20">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.9 }}
-          className="bg-white rounded-2xl shadow-2xl border-4 border-cartoon-teal max-w-2xl w-full max-h-screen overflow-y-auto"
+          className="bg-white rounded-2xl shadow-2xl border-4 border-cartoon-teal max-w-2xl w-full max-h-[calc(100vh - 5rem)] overflow-y-auto"
         >
           {/* Modal Header */}
           <div className="flex justify-between items-center p-6 border-b-2 border-cartoon-gray">
