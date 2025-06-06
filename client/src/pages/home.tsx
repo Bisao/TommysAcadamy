@@ -101,7 +101,7 @@ export default function Home() {
             <Mascot />
           </div>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold gradient-text mb-4 px-2">
-            Olá {user?.username}! Vamos aprender inglês hoje?
+            Olá {(user as any)?.username}! Vamos aprender inglês hoje?
           </h2>
           <p className="text-base sm:text-lg lg:text-xl text-muted-foreground px-4 mb-6">Continue sua jornada de aprendizado com lições divertidas!</p>
           
@@ -123,7 +123,7 @@ export default function Home() {
             </div>
             <Progress value={dailyProgress} className="h-3 mb-2" />
             <p className="text-sm text-muted-foreground">
-              {dailyStats?.lessonsCompleted || 0} de {user?.dailyGoal || 4} lições completadas hoje
+              {(dailyStats as any)?.lessonsCompleted || 0} de {(user as any)?.dailyGoal || 4} lições completadas hoje
             </p>
           </motion.div>
         </motion.div>
@@ -140,7 +140,7 @@ export default function Home() {
               <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-2">
                 <Flame className="text-white" size={24} />
               </div>
-              <p className="text-2xl font-bold text-foreground">{user?.streak || 0}</p>
+              <p className="text-2xl font-bold text-foreground">{(user as any)?.streak || 0}</p>
               <p className="text-sm text-muted-foreground">Dias seguidos</p>
             </CardContent>
           </Card>
@@ -150,7 +150,7 @@ export default function Home() {
               <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-2">
                 <Star className="text-white" size={24} />
               </div>
-              <p className="text-2xl font-bold text-foreground">{user?.totalXP || 0}</p>
+              <p className="text-2xl font-bold text-foreground">{(user as any)?.totalXP || 0}</p>
               <p className="text-sm text-muted-foreground">XP Total</p>
             </CardContent>
           </Card>
@@ -160,7 +160,7 @@ export default function Home() {
               <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-2">
                 <Trophy className="text-white" size={24} />
               </div>
-              <p className="text-2xl font-bold text-foreground">{user?.level || 1}</p>
+              <p className="text-2xl font-bold text-foreground">{(user as any)?.level || 1}</p>
               <p className="text-sm text-muted-foreground">Nível</p>
             </CardContent>
           </Card>
@@ -170,7 +170,7 @@ export default function Home() {
               <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full flex items-center justify-center mx-auto mb-2">
                 <Brain className="text-white" size={24} />
               </div>
-              <p className="text-2xl font-bold text-foreground">{lessons.filter((l: any) => l.completed).length}</p>
+              <p className="text-2xl font-bold text-foreground">{Array.isArray(lessons) ? (lessons as any[]).filter((l: any) => l.completed).length : 0}</p>
               <p className="text-sm text-muted-foreground">Lições</p>
             </CardContent>
           </Card>
