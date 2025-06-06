@@ -8,6 +8,7 @@ import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import Mascot from "./mascot";
+import tommyLogoPath from "@assets/Tommy logo.png";
 
 interface HeaderProps {
   user?: {
@@ -54,46 +55,47 @@ export default function Header({ user }: HeaderProps) {
 
   return (
     <header className="bg-white shadow-lg border-b-4 border-cartoon-teal">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
+        <div className="flex justify-between items-center py-2 sm:py-4">
           {/* Logo Section */}
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex items-center space-x-3"
+            className="flex items-center space-x-2 sm:space-x-3"
           >
             <img 
-              src="/tommy-logo.png" 
+              src={tommyLogoPath} 
               alt="Tommy's Academy Logo" 
-              className="w-12 h-12 object-contain"
+              className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 object-contain"
             />
-            <h1 className="text-2xl font-bold text-cartoon-dark">Tommy's Academy</h1>
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-cartoon-dark hidden sm:block">Tommy's Academy</h1>
+            <h1 className="text-base font-bold text-cartoon-dark sm:hidden">Tommy's</h1>
           </motion.div>
 
           {/* Progress and Stats */}
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex items-center space-x-6"
+            className="flex items-center space-x-2 sm:space-x-4 lg:space-x-6"
           >
             {/* Streak Counter */}
-            <Badge className="bg-cartoon-yellow hover:bg-cartoon-yellow/80 text-cartoon-dark font-bold px-4 py-2">
-              <Flame className="text-cartoon-red mr-1 wiggle" size={16} />
+            <Badge className="bg-cartoon-yellow hover:bg-cartoon-yellow/80 text-cartoon-dark font-bold px-2 sm:px-3 lg:px-4 py-1 sm:py-2 text-xs sm:text-sm">
+              <Flame className="text-cartoon-red mr-1 wiggle" size={14} />
               <span>{user?.streak || 0}</span>
             </Badge>
 
             {/* XP Points */}
-            <Badge className="bg-cartoon-mint hover:bg-cartoon-mint/80 text-cartoon-dark font-bold px-4 py-2">
-              <Star className="text-cartoon-yellow mr-1" size={16} />
+            <Badge className="bg-cartoon-mint hover:bg-cartoon-mint/80 text-cartoon-dark font-bold px-2 sm:px-3 lg:px-4 py-1 sm:py-2 text-xs sm:text-sm hidden sm:flex">
+              <Star className="text-cartoon-yellow mr-1" size={14} />
               <span>{user?.totalXP || 0} XP</span>
             </Badge>
 
             {/* Hearts */}
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center space-x-1 hidden md:flex">
               {[...Array(5)].map((_, i) => (
                 <Heart
                   key={i}
-                  className={`w-5 h-5 ${
+                  className={`w-4 h-4 lg:w-5 lg:h-5 ${
                     i < (user?.hearts || 0)
                       ? "text-red-500 fill-red-500"
                       : "text-gray-300"
@@ -102,15 +104,21 @@ export default function Header({ user }: HeaderProps) {
               ))}
             </div>
 
+            {/* Mobile Hearts Counter */}
+            <Badge className="bg-red-100 text-red-600 font-bold px-2 py-1 text-xs md:hidden">
+              <Heart className="text-red-500 fill-red-500 mr-1" size={12} />
+              <span>{user?.hearts || 0}</span>
+            </Badge>
+
             {/* Profile Avatar */}
-            <Avatar className="w-10 h-10 bg-cartoon-blue cursor-pointer transform hover:scale-110 transition-transform">
-              <AvatarFallback className="bg-cartoon-blue text-white font-bold">
+            <Avatar className="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 bg-cartoon-blue cursor-pointer transform hover:scale-110 transition-transform">
+              <AvatarFallback className="bg-cartoon-blue text-white font-bold text-xs sm:text-sm">
                 {user?.username?.charAt(0).toUpperCase() || "U"}
               </AvatarFallback>
             </Avatar>
             
-            <Badge variant="secondary" className="bg-cartoon-yellow text-cartoon-dark">
-              <Trophy size={16} className="mr-1" />
+            <Badge variant="secondary" className="bg-cartoon-yellow text-cartoon-dark hidden lg:flex">
+              <Trophy size={14} className="mr-1" />
               Nível {user.level}
             </Badge>
 
@@ -119,10 +127,10 @@ export default function Header({ user }: HeaderProps) {
               size="sm"
               onClick={handleLogout}
               disabled={logoutMutation.isPending}
-              className="text-gray-600 hover:text-gray-800"
+              className="text-gray-600 hover:text-gray-800 px-2 sm:px-3 text-xs sm:text-sm"
             >
-              <LogOut size={16} className="mr-1" />
-              Sair
+              <LogOut size={14} className="mr-0 sm:mr-1" />
+              <span className="hidden sm:inline">Sair</span>
             </Button>
           </motion.div>
         </div>

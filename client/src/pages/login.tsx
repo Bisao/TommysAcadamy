@@ -93,38 +93,38 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 to-teal-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 to-teal-50 flex items-center justify-center p-4 sm:p-6 lg:p-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md"
+        className="w-full max-w-md mx-auto"
       >
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center space-x-3 mb-4">
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-3 mb-4">
             <img 
               src={tommyLogoPath} 
               alt="Tommy's Academy Logo" 
-              className="w-24 h-24 object-contain"
+              className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 object-contain"
             />
-            <h1 className="text-3xl font-bold text-cartoon-dark">Tommy's Academy</h1>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-cartoon-dark text-center sm:text-left">Tommy's Academy</h1>
           </div>
           <div className="flex justify-center mb-4">
             <Mascot />
           </div>
-          <p className="text-gray-600">
+          <p className="text-sm sm:text-base text-gray-600 px-2">
             {isLogin ? "Entre na sua conta" : "Crie sua conta"} e continue sua jornada de aprendizado!
           </p>
         </div>
 
         {/* Login/Register Card */}
-        <Card className="cartoon-card border-cartoon-teal">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-cartoon-dark">
+        <Card className="cartoon-card border-cartoon-teal shadow-lg">
+          <CardHeader className="text-center pb-4">
+            <CardTitle className="text-xl sm:text-2xl font-bold text-cartoon-dark">
               {isLogin ? "Entrar" : "Criar Conta"}
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-4 sm:px-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Username */}
               <div className="space-y-2">
@@ -137,7 +137,7 @@ export default function Login() {
                     id="username"
                     type="text"
                     placeholder="Digite seu nome de usuário"
-                    className="pl-10 h-12 border-2 border-gray-300 focus:border-cartoon-teal"
+                    className="pl-10 h-10 sm:h-12 text-sm sm:text-base border-2 border-gray-300 focus:border-cartoon-teal"
                     value={formData.username}
                     onChange={(e) => handleInputChange("username", e.target.value)}
                   />
@@ -156,7 +156,7 @@ export default function Login() {
                       id="email"
                       type="email"
                       placeholder="Digite seu email"
-                      className="pl-10 h-12 border-2 border-gray-300 focus:border-cartoon-teal"
+                      className="pl-10 h-10 sm:h-12 text-sm sm:text-base border-2 border-gray-300 focus:border-cartoon-teal"
                       value={formData.email}
                       onChange={(e) => handleInputChange("email", e.target.value)}
                     />
@@ -175,7 +175,7 @@ export default function Login() {
                     id="password"
                     type="password"
                     placeholder="Digite sua senha"
-                    className="pl-10 h-12 border-2 border-gray-300 focus:border-cartoon-teal"
+                    className="pl-10 h-10 sm:h-12 text-sm sm:text-base border-2 border-gray-300 focus:border-cartoon-teal"
                     value={formData.password}
                     onChange={(e) => handleInputChange("password", e.target.value)}
                   />
@@ -195,7 +195,7 @@ export default function Login() {
               <Button
                 type="submit"
                 disabled={loginMutation.isPending || registerMutation.isPending}
-                className="w-full cartoon-button h-12 text-lg"
+                className="w-full cartoon-button h-10 sm:h-12 text-base sm:text-lg"
               >
                 {loginMutation.isPending || registerMutation.isPending
                   ? "Processando..."
@@ -206,8 +206,8 @@ export default function Login() {
             </form>
 
             {/* Toggle Login/Register */}
-            <div className="text-center mt-6">
-              <p className="text-gray-600">
+            <div className="text-center mt-4 sm:mt-6">
+              <p className="text-sm sm:text-base text-gray-600">
                 {isLogin ? "Não tem uma conta?" : "Já tem uma conta?"}
               </p>
               <Button
@@ -217,7 +217,7 @@ export default function Login() {
                   setError("");
                   setFormData({ username: "", email: "", password: "" });
                 }}
-                className="text-cartoon-teal font-semibold"
+                className="text-cartoon-teal font-semibold text-sm sm:text-base"
               >
                 {isLogin ? "Criar nova conta" : "Fazer login"}
               </Button>
