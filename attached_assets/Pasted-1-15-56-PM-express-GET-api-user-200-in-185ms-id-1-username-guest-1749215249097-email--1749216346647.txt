@@ -1,0 +1,28 @@
+1:15:56 PM [express] GET /api/user 200 in 185ms :: {"id":1,"username":"guest_1749215249097","email":…
+1:16:34 PM [express] GET /api/user 200 in 158ms :: {"id":1,"username":"guest_1749215249097","email":…
+1:18:10 PM [express] GET /api/user 304 in 2543ms :: {"id":1,"username":"guest_1749215249097","email"…
+1:18:13 PM [express] POST /api/auth/guest 200 in 57ms :: {"user":{"id":2,"username":"guest_174921589…
+1:18:14 PM [express] GET /api/user 200 in 41ms :: {"id":1,"username":"guest_1749215249097","email":"…
+1:18:14 PM [express] GET /api/progress 304 in 247ms :: {"progress":[],"totalXP":0,"lessonsCompleted"…
+1:18:16 PM [express] GET /api/stats/daily 304 in 2185ms :: {"lessonsCompleted":0,"xpEarned":0,"timeS…
+1:18:16 PM [express] GET /api/lessons 304 in 2219ms :: []
+1:23:19 PM [vite] hmr update /src/components/reading-lesson.tsx, /src/index.css?v=5LWxBzXBLLDfqkCp-tu6h
+1:23:22 PM [vite] Internal server error: Failed to resolve import "@/hooks/use-reading-controls" from "client/src/components/reading-lesson.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/runner/workspace/client/src/components/reading-lesson.tsx:21:35
+  25 |  import { useAudio } from "@/hooks/use-audio";
+  26 |  import { useToast } from "@/hooks/use-toast";
+  27 |  import { useReadingControls } from "@/hooks/use-reading-controls";
+     |                                      ^
+  28 |  export default function ReadingLesson({ title, text, onComplete, onControlsReady }) {
+  29 |    _s();
+      at TransformPluginContext._formatError (/home/runner/workspace/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:49257:41)
+      at TransformPluginContext.error (/home/runner/workspace/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:49252:16)
+      at normalizeUrl (/home/runner/workspace/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:64199:23)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async <anonymous> (/home/runner/workspace/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:64331:39)
+      at async Promise.all (index 9)
+      at async TransformPluginContext.transform (/home/runner/workspace/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:64258:7)
+      at async PluginContainer.transform (/home/runner/workspace/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:49098:18)
+      at async loadAndTransform (/home/runner/workspace/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:51931:27)
+      at async viteTransformMiddleware (/home/runner/workspace/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:62031:24)
