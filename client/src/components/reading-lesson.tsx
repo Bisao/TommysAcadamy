@@ -636,45 +636,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
                 </div>
               )}
 
-              {/* Speed Control for Auto Reading */}
-              {isAutoReading && (
-                <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                  <div className="flex flex-col gap-2">
-                    <span className="text-sm font-semibold text-blue-700 text-center">
-                      ⚡ Velocidade da Marcação:
-                    </span>
-                    <div className="flex gap-2 justify-center">
-                      <Button
-                        onClick={() => setAutoReadingSpeed(700)}
-                        variant={autoReadingSpeed === 700 ? "default" : "outline"}
-                        size="sm"
-                        className="text-xs"
-                      >
-                        🐢 Lenta
-                      </Button>
-                      <Button
-                        onClick={() => setAutoReadingSpeed(500)}
-                        variant={autoReadingSpeed === 500 ? "default" : "outline"}
-                        size="sm"
-                        className="text-xs"
-                      >
-                        🚶 Normal
-                      </Button>
-                      <Button
-                        onClick={() => setAutoReadingSpeed(300)}
-                        variant={autoReadingSpeed === 300 ? "default" : "outline"}
-                        size="sm"
-                        className="text-xs"
-                      >
-                        🏃 Rápida
-                      </Button>
-                    </div>
-                    <div className="text-xs text-center text-blue-600">
-                      Sincronizado com Professor Tommy (🇺🇸)
-                    </div>
-                  </div>
-                </div>
-              )}
+
 
               {(readingProgress >= 80 || (isAutoReading && currentWordIndex >= text.split(/\s+/).length * 0.8)) && (
                 <motion.div
