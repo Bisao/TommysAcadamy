@@ -350,6 +350,10 @@ export class MemStorage implements IStorage {
     
     const updatedUser = { ...user, ...updates };
     this.users.set(id, updatedUser);
+    
+    // Log updates for debugging
+    console.log(`User ${id} updated:`, updates);
+    
     return updatedUser;
   }
 
@@ -485,12 +489,21 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUser(id: number, updates: Partial<User>): Promise<User | undefined> {
-    const [user] = await db
-      .update(users)
-      .set(updates)
-      .where(eq(users.id, id))
-      .returning();
-    return user || undefined;
+    try {
+      const [user] = await db
+        .update(users)
+        .set(updates)
+        .where(eq(users.id, id))
+        .returning();
+      
+      // Log updates for debugging
+      console.log(`User ${id} updated in database:`, updates);
+      
+      return user || undefined;
+    } catch (error) {
+      console.error(`Error updating user ${id}:`, error);
+      throw error;
+    }
   }
 
   async getAllLessons(): Promise<Lesson[]> {

@@ -67,6 +67,95 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.createUser(userData);
 
       // Store user session
+
+  // Update user profile data in real-time
+  app.patch("/api/user/profile", async (req, res) => {
+    try {
+      const userId = req.session?.userId || 1;
+      const updates = req.body;
+      
+      // Only allow certain fields to be updated
+      const allowedFields = ['username', 'email', 'dailyGoal'];
+      const filteredUpdates = Object.keys(updates)
+        .filter(key => allowedFields.includes(key))
+        .reduce((obj, key) => {
+          obj[key] = updates[key];
+          return obj;
+        }, {} as any);
+
+      if (Object.keys(filteredUpdates).length === 0) {
+        return res.status(400).json({ message: "No valid fields to update" });
+      }
+
+      const user = await storage.updateUser(userId, filteredUpdates);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.json({ ...user, password: undefined });
+    } catch (error) {
+      console.error("Error updating user profile:", error);
+      res.status(500).json({ message: "Failed to update user profile" });
+    }
+  });
+
+  // Force streak update (for daily check-ins)
+  app.post("/api/user/checkin", async (req, res) => {
+    try {
+      const userId = req.session?.userId || 1;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const today = new Date().toISOString().split('T')[0];
+      const lastActiveDate = user.lastActiveDate;
+      let newStreak = user.streak || 0;
+      
+      if (!lastActiveDate || lastActiveDate !== today) {
+        if (lastActiveDate) {
+          const lastDate = new Date(lastActiveDate);
+          const todayDate = new Date(today);
+          const diffTime = todayDate.getTime() - lastDate.getTime();
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          
+          if (diffDays === 1) {
+            // Consecutive day
+            newStreak += 1;
+          } else if (diffDays > 1) {
+            // Streak broken
+            newStreak = 1;
+          }
+        } else {
+          // First activity
+          newStreak = 1;
+        }
+
+        const updatedUser = await storage.updateUser(userId, {
+          streak: newStreak,
+          lastActiveDate: today
+        });
+
+        res.json({ 
+          streak: newStreak, 
+          lastActiveDate: today,
+          user: { ...updatedUser, password: undefined }
+        });
+      } else {
+        res.json({ 
+          streak: newStreak, 
+          lastActiveDate: today,
+          user: { ...user, password: undefined }
+        });
+      }
+    } catch (error) {
+      console.error("Error updating check-in:", error);
+      res.status(500).json({ message: "Failed to update check-in" });
+    }
+  });
+
+
       req.session = { userId: user.id };
 
       res.json({ user: { ...user, password: undefined } });
@@ -185,13 +274,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const isCorrect = question.correctAnswer === answer;
       const xpEarned = isCorrect ? 10 : 0;
 
-      // Update user XP immediately if answer is correct
+      // Update user XP, level, and streak in real-time if answer is correct
       if (isCorrect && xpEarned > 0) {
         const user = await storage.getUser(userId);
         if (user) {
-          await storage.updateUser(userId, {
-            totalXP: (user.totalXP || 0) + xpEarned
-          });
+          const newTotalXP = (user.totalXP || 0) + xpEarned;
+          const newLevel = Math.max(1, Math.floor(newTotalXP / 100) + 1);
+          
+          // Update streak and last active date
+          const today = new Date().toISOString().split('T')[0];
+          const lastActiveDate = user.lastActiveDate;
+          let newStreak = user.streak || 0;
+          
+          if (!lastActiveDate || lastActiveDate !== today) {
+            if (lastActiveDate) {
+              const lastDate = new Date(lastActiveDate);
+              const todayDate = new Date(today);
+              const diffTime = todayDate.getTime() - lastDate.getTime();
+              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+              
+              if (diffDays === 1) {
+                // Consecutive day
+                newStreak += 1;
+              } else if (diffDays > 1) {
+                // Streak broken
+                newStreak = 1;
+              }
+            } else {
+              // First activity
+              newStreak = 1;
+            }
+            
+            await storage.updateUser(userId, {
+              totalXP: newTotalXP,
+              level: newLevel,
+              streak: newStreak,
+              lastActiveDate: today
+            });
+          } else {
+            // Same day, just update XP and level
+            await storage.updateUser(userId, {
+              totalXP: newTotalXP,
+              level: newLevel
+            });
+          }
         }
 
         // Update daily stats
@@ -209,6 +335,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         xpEarned
       });
     } catch (error) {
+      console.error("Error submitting answer:", error);
       res.status(400).json({ message: "Invalid request data" });
     }
   });
@@ -217,6 +344,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/lessons/complete", async (req, res) => {
     try {
       const { lessonId, score, totalQuestions, timeSpent } = completeQuizSchema.parse(req.body);
+      const userId = req.session?.userId || 1;
 
       const lesson = await storage.getLesson(lessonId);
       if (!lesson) {
@@ -227,15 +355,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const completed = percentage >= 70; // 70% to pass
 
       // Update lesson progress
-      const existingProgress = await storage.getLessonProgress(1, lessonId);
+      const existingProgress = await storage.getLessonProgress(userId, lessonId);
       const attempts = (existingProgress?.attempts || 0) + 1;
       const wasAlreadyCompleted = existingProgress?.completed || false;
 
-      await storage.updateProgress(1, lessonId, {
+      await storage.updateProgress(userId, lessonId, {
         completed,
         score: percentage,
         timeSpent,
-        attempts
+        attempts,
+        lastAttempt: new Date()
       });
 
       // Calculate XP based on attempts (decrementing system)
@@ -244,28 +373,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const baseXP = lesson.xpReward || 25;
         
         if (!wasAlreadyCompleted) {
-          // First completion: full XP
+          // First completion: full XP based on score
           xpEarned = Math.round(baseXP * (percentage / 100));
         } else {
-          // Repeated completions: decreasing XP
+          // Repeated completions: decreasing XP (2 less per previous completion, minimum 1)
           const completedAttempts = existingProgress?.attempts || 0;
           const decreaseAmount = 2 * completedAttempts;
           const minXP = 1;
           xpEarned = Math.max(minXP, baseXP - decreaseAmount);
         }
 
-        // Update user XP immediately
-        const user = await storage.getUser(1);
+        // Update user XP, level, and streak in real-time
+        const user = await storage.getUser(userId);
         if (user) {
-          await storage.updateUser(1, {
-            totalXP: (user.totalXP || 0) + xpEarned
+          const newTotalXP = (user.totalXP || 0) + xpEarned;
+          const newLevel = Math.max(1, Math.floor(newTotalXP / 100) + 1);
+          
+          // Update streak logic
+          const today = new Date().toISOString().split('T')[0];
+          const lastActiveDate = user.lastActiveDate;
+          let newStreak = user.streak || 0;
+          
+          if (!lastActiveDate || lastActiveDate !== today) {
+            if (lastActiveDate) {
+              const lastDate = new Date(lastActiveDate);
+              const todayDate = new Date(today);
+              const diffTime = todayDate.getTime() - lastDate.getTime();
+              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+              
+              if (diffDays === 1) {
+                // Consecutive day
+                newStreak += 1;
+              } else if (diffDays > 1) {
+                // Streak broken
+                newStreak = 1;
+              }
+            } else {
+              // First activity
+              newStreak = 1;
+            }
+          }
+
+          await storage.updateUser(userId, {
+            totalXP: newTotalXP,
+            level: newLevel,
+            streak: newStreak,
+            lastActiveDate: today
           });
         }
 
         // Update daily stats
         const today = new Date().toISOString().split('T')[0];
-        const dailyStats = await storage.getUserStats(1, today);
-        await storage.updateStats(1, today, {
+        const dailyStats = await storage.getUserStats(userId, today);
+        await storage.updateStats(userId, today, {
           lessonsCompleted: !wasAlreadyCompleted ? (dailyStats?.lessonsCompleted || 0) + 1 : (dailyStats?.lessonsCompleted || 0),
           xpEarned: (dailyStats?.xpEarned || 0) + xpEarned,
           timeSpent: (dailyStats?.timeSpent || 0) + timeSpent
@@ -281,6 +441,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isRepeat: wasAlreadyCompleted
       });
     } catch (error) {
+      console.error("Error completing lesson:", error);
       res.status(400).json({ message: "Invalid request data" });
     }
   });
