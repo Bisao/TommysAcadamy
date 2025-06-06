@@ -70,13 +70,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/auth/logout", (req, res) => {
-    req.session.destroy((err) => {
-      if (err) {
-        return res.status(500).json({ message: "Could not log out" });
+  app.post("/api/auth/logout", async (req, res) => {
+    try {
+      if (req.session) {
+        req.session = null;
       }
-      res.json({ message: "Logout successful" });
-    });
+      res.json({ message: "Logged out successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Logout failed" });
+    }
   });
 
   // Get current user (check session)

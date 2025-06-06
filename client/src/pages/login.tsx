@@ -102,7 +102,7 @@ export default function Login() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-3 mb-4">
             <img 
-              src="/attached_assets/Tommy logo.png" 
+              src="/attached_assets/Tommy%20logo.png" 
               alt="Tommy's Academy Logo" 
               className="w-16 h-16 object-contain"
             />
