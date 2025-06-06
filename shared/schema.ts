@@ -15,6 +15,7 @@ export const users = pgTable("users", {
   dailyGoal: integer("daily_goal").default(15),
   lastActiveDate: text("last_active_date"),
   achievements: text("achievements").array().default([]),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const lessons = pgTable("lessons", {

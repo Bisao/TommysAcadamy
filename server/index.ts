@@ -37,6 +37,12 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Executar migração de usuários para garantir dados realistas
+  if (process.env.NODE_ENV === "development") {
+    const { migrateExistingUsers } = await import("./migrate-users");
+    await migrateExistingUsers();
+  }
+  
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

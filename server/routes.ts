@@ -219,14 +219,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         attempts
       });
 
-      // Update user stats
-      const user = await storage.getUser(1);
-      if (user && completed) {
-        await storage.updateUser(1, {
-          totalXP: (user.totalXP || 0) + xpEarned
-        });
-
-        // Update daily stats
+      // Update user stats - apenas atualize os stats diários, o XP total será calculado realisticamente
+      if (completed) {
         const today = new Date().toISOString().split('T')[0];
         const dailyStats = await storage.getUserStats(1, today);
         await storage.updateStats(1, today, {
@@ -234,6 +228,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           xpEarned: (dailyStats?.xpEarned || 0) + xpEarned,
           timeSpent: (dailyStats?.timeSpent || 0) + timeSpent
         });
+
+        // Forçar recálculo dos dados do usuário na próxima consulta
+        // O XP total, nível e streak serão calculados automaticamente pelo getUser()
       }
 
       res.json({

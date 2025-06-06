@@ -15,6 +15,7 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and } from "drizzle-orm";
+import { calculateRealisticUserData, getLastActiveDate } from "./user-utils";
 
 export interface IStorage {
   // User methods
@@ -456,7 +457,38 @@ export class MemStorage implements IStorage {
 export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user || undefined;
+    if (!user) return undefined;
+
+    // Calcular dados realistas baseado na data de criação e progresso
+    const progress = await this.getUserOverallStats(id);
+    const realisticData = calculateRealisticUserData(
+      user.createdAt || new Date(), 
+      progress
+    );
+
+    // Atualizar dados realistas se necessário
+    if (
+      user.totalXP !== realisticData.totalXP ||
+      user.level !== realisticData.level ||
+      user.streak !== realisticData.streak ||
+      JSON.stringify(user.achievements) !== JSON.stringify(realisticData.achievements)
+    ) {
+      const [updatedUser] = await db
+        .update(users)
+        .set({
+          totalXP: realisticData.totalXP,
+          level: realisticData.level,
+          streak: realisticData.streak,
+          achievements: realisticData.achievements,
+          lastActiveDate: getLastActiveDate(user.createdAt || new Date())
+        })
+        .where(eq(users.id, id))
+        .returning();
+      
+      return updatedUser;
+    }
+
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
@@ -473,7 +505,15 @@ export class DatabaseStorage implements IStorage {
   async createUser(insertUser: InsertUser): Promise<User> {
     const [user] = await db
       .insert(users)
-      .values(insertUser)
+      .values({
+        ...insertUser,
+        totalXP: 0,
+        level: 1,
+        streak: 0,
+        hearts: 5,
+        achievements: [],
+        lastActiveDate: new Date().toISOString().split('T')[0]
+      })
       .returning();
     return user;
   }
