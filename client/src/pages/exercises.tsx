@@ -49,11 +49,11 @@ export default function Exercises() {
     },
   ];
 
-  const dailyProgress = dailyStats ? Math.min((dailyStats.lessonsCompleted / 3) * 100, 100) : 0;
+  const dailyProgress = dailyStats ? Math.min(((dailyStats as any).lessonsCompleted / 3) * 100, 100) : 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-50 to-teal-50 pt-16 sm:pt-20">
-      <Header user={user} />
+      <Header user={user as any} />
       
       <main className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Page Header */}
@@ -110,7 +110,7 @@ export default function Exercises() {
                       Concluído!
                     </>
                   ) : (
-                    `${dailyStats?.lessonsCompleted || 0}/3`
+                    `${(dailyStats as any)?.lessonsCompleted || 0}/3`
                   )}
                 </Badge>
               </div>
@@ -188,25 +188,25 @@ export default function Exercises() {
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-center">
                 <div className="space-y-2">
                   <div className="text-2xl font-bold text-cartoon-blue">
-                    {user?.streak || 0}
+                    {(user as any)?.streak || 0}
                   </div>
                   <div className="text-sm text-gray-600">Dias Seguidos</div>
                 </div>
                 <div className="space-y-2">
                   <div className="text-2xl font-bold text-cartoon-mint">
-                    {user?.totalXP || 0}
+                    {(user as any)?.totalXP || 0}
                   </div>
                   <div className="text-sm text-gray-600">XP Total</div>
                 </div>
                 <div className="space-y-2">
                   <div className="text-2xl font-bold text-cartoon-yellow">
-                    {dailyStats?.lessonsCompleted || 0}
+                    {(dailyStats as any)?.lessonsCompleted || 0}
                   </div>
                   <div className="text-sm text-gray-600">Exercícios Hoje</div>
                 </div>
                 <div className="space-y-2">
                   <div className="text-2xl font-bold text-cartoon-coral">
-                    {user?.level || 1}
+                    {(user as any)?.level || 1}
                   </div>
                   <div className="text-sm text-gray-600">Nível</div>
                 </div>

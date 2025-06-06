@@ -59,7 +59,7 @@ export default function Lessons() {
   ];
 
   const getLessonStatus = (lessonId: number) => {
-    const lessonProgress = progress?.progress?.find((p: any) => p.lessonId === lessonId);
+    const lessonProgress = (progress as any)?.progress?.find((p: any) => p.lessonId === lessonId);
     if (lessonProgress?.completed) return "completed";
     if (lessonProgress?.inProgress) return "in-progress";
     return "locked";
@@ -78,7 +78,7 @@ export default function Lessons() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-50 to-teal-50 pt-16 sm:pt-20">
-      <Header user={user} />
+      <Header user={user as any} />
       
       <main className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Page Header */}
@@ -207,19 +207,19 @@ export default function Lessons() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                 <div className="space-y-2">
                   <div className="text-2xl font-bold text-cartoon-blue">
-                    {progress?.lessonsCompleted || 0}
+                    {(progress as any)?.lessonsCompleted || 0}
                   </div>
                   <div className="text-sm text-gray-600">Aulas Concluídas</div>
                 </div>
                 <div className="space-y-2">
                   <div className="text-2xl font-bold text-cartoon-mint">
-                    {progress?.totalXP || 0}
+                    {(progress as any)?.totalXP || 0}
                   </div>
                   <div className="text-sm text-gray-600">XP Total</div>
                 </div>
                 <div className="space-y-2">
                   <div className="text-2xl font-bold text-cartoon-yellow">
-                    {user?.streak || 0}
+                    {(user as any)?.streak || 0}
                   </div>
                   <div className="text-sm text-gray-600">Dias Seguidos</div>
                 </div>

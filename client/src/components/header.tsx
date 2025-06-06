@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Flame, Star, Trophy, LogOut, Home } from "lucide-react";
+import { Flame, Star, Trophy, LogOut, Home, BookOpen, Target } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
@@ -112,11 +112,31 @@ export default function Header({ user }: HeaderProps) {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setLocation("/")}
+              onClick={() => setLocation("/home")}
               className="text-gray-600 hover:text-gray-800 px-2 sm:px-3 text-xs sm:text-sm"
             >
               <Home size={14} className="mr-0 sm:mr-1" />
               <span className="hidden sm:inline">Início</span>
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setLocation("/lessons")}
+              className="text-gray-600 hover:text-gray-800 px-2 sm:px-3 text-xs sm:text-sm"
+            >
+              <BookOpen size={14} className="mr-0 sm:mr-1" />
+              <span className="hidden sm:inline">Aulas</span>
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setLocation("/exercises")}
+              className="text-gray-600 hover:text-gray-800 px-2 sm:px-3 text-xs sm:text-sm"
+            >
+              <Target size={14} className="mr-0 sm:mr-1" />
+              <span className="hidden sm:inline">Exercícios</span>
             </Button>
 
             <Button
