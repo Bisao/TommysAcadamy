@@ -61,7 +61,7 @@ export default function Header({ user }: HeaderProps) {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             className="flex items-center space-x-2 sm:space-x-3 cursor-pointer"
-            onClick={() => setLocation("/")}
+            onClick={() => setLocation("/home")}
           >
             <img 
               src={tommyLogoPath} 

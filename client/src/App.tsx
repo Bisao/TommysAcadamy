@@ -10,6 +10,8 @@ import Login from "@/pages/login";
 import Profile from "@/pages/profile";
 import Reference from "@/pages/reference";
 import Lesson from "@/pages/lesson";
+import Lessons from "@/pages/lessons";
+import Exercises from "@/pages/exercises";
 import Vocabulary from "@/pages/vocabulary";
 import Grammar from "@/pages/grammar";
 import Phrases from "@/pages/phrases";
@@ -20,6 +22,8 @@ function Router() {
     <Switch>
       <Route path="/" component={Login} />
       <Route path="/home" component={Home} />
+      <Route path="/lessons" component={Lessons} />
+      <Route path="/exercises" component={Exercises} />
       <Route path="/profile" component={Profile} />
       <Route path="/reference" component={Reference} />
       <Route path="/lesson/:id" component={Lesson} />
