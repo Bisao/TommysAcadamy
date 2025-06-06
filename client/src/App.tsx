@@ -11,6 +11,7 @@ import Login from "@/pages/login";
 function Router() {
   return (
     <Switch>
+      <Route path="/login" component={Login} />
       <Route path="/" component={Home} />
       <Route path="/lesson/:id" component={Lesson} />
       <Route component={NotFound} />
