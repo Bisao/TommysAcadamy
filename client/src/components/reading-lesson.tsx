@@ -41,7 +41,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
   const [wordFeedback, setWordFeedback] = useState<WordFeedback[]>([]);
   const [isAutoReading, setIsAutoReading] = useState(false);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(true); // Iniciar pausado
+  const [isPaused, setIsPaused] = useState(false);
   const textRef = useRef<HTMLDivElement>(null);
   const autoReadingTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -76,13 +76,16 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
 
     const titleWords = title.split(/\s+/).filter(word => word.length > 0);
     const textWords = text.split(/\s+/).filter(word => word.length > 0);
+    const fullContent = `${title}. ${text}`;
 
-    // Primeiro, ler apenas o título
-    const handleTitleWordBoundary = (word: string, wordIndex: number) => {
-      if (wordIndex < titleWords.length) {
+    // Função unificada para lidar com word boundaries
+    const handleWordBoundary = (word: string, wordIndex: number) => {
+      const totalTitleWords = titleWords.length;
+      
+      if (wordIndex < totalTitleWords) {
+        // Está no título
         setCurrentWordIndex(wordIndex);
         
-        // Scroll para a palavra do título
         setTimeout(() => {
           const wordElement = document.querySelector(`[data-word-index="title-${wordIndex}"]`);
           if (wordElement) {
@@ -98,19 +101,15 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
             });
           }
         }, 50);
-      }
-    };
-
-    // Função para ler o texto após o título
-    const readTextAfterTitle = () => {
-      setCurrentWordIndex(0); // Reset para o início do texto
-      
-      const handleTextWordBoundary = (word: string, wordIndex: number) => {
-        if (wordIndex < textWords.length) {
-          const globalIndex = titleWords.length + wordIndex;
+      } else {
+        // Está no texto principal
+        const textWordIndex = wordIndex - totalTitleWords - 1; // -1 por causa do ponto após o título
+        if (textWordIndex >= 0 && textWordIndex < textWords.length) {
+          const globalIndex = totalTitleWords + textWordIndex;
           setCurrentWordIndex(globalIndex);
 
-          if (wordIndex >= textWords.length - 1) {
+          // Verificar se é a última palavra
+          if (textWordIndex >= textWords.length - 1) {
             setTimeout(() => {
               setIsAutoReading(false);
               setIsPaused(false);
@@ -123,7 +122,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
           }
 
           setTimeout(() => {
-            const wordElement = document.querySelector(`[data-word-index="text-${wordIndex}"]`);
+            const wordElement = document.querySelector(`[data-word-index="text-${textWordIndex}"]`);
             if (wordElement) {
               const elementRect = wordElement.getBoundingClientRect();
               const headerHeight = window.innerWidth < 640 ? 60 : 80;
@@ -138,31 +137,21 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
             }
           }, 50);
         }
-      };
-
-      playText(text, "en-US", 0, handleTextWordBoundary);
+      }
     };
 
-    // Iniciar com o título
+    // Iniciar leitura do conteúdo completo
     setTimeout(() => {
       setCurrentWordIndex(0);
     }, 100);
 
-    // Ler o título primeiro
-    playText(title, "en-US", 0, handleTitleWordBoundary).then(() => {
-      // Pausa de 2 segundos após terminar o título
-      setTimeout(() => {
-        if (isAutoReading) {
-          readTextAfterTitle();
-        }
-      }, 2000);
-    });
+    playText(fullContent, "en-US", 0, handleWordBoundary);
 
     toast({
       title: "🎯 Professor Tommy lendo o texto",
-      description: "Começando pelo título, depois o texto principal",
+      description: "Acompanhe as palavras destacadas em tempo real",
     });
-  }, [title, text, playText, toast, isAutoReading]);
+  }, [title, text, playText, toast]);
 
   const pauseAutoReading = useCallback(() => {
     setIsPaused(true);
@@ -175,7 +164,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
     });
   }, [isPlaying, pauseAudio, toast]);
 
-  const resumeAutoReading = useCallback(async () => {
+  const resumeAutoReading = useCallback(() => {
     if (!isAutoReading) return;
     
     if (isPaused && speechSynthesis.paused && speechSynthesis.speaking && currentUtterance) {
@@ -193,73 +182,13 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
       }
     }
     
-    setIsPaused(false);
-    
-    const words = text.split(/\s+/).filter(word => word.length > 0);
-    
-    if (currentWordIndex >= words.length - 1) {
-      setIsAutoReading(false);
-      setIsPaused(false);
-      setCurrentWordIndex(0);
-      toast({
-        title: "🎉 Leitura já foi concluída!",
-        description: "Use o botão de play para reiniciar.",
-      });
-      return;
-    }
-    
-    const startIndex = Math.max(0, currentWordIndex);
-    const remainingWords = words.slice(startIndex);
-    const remainingText = remainingWords.join(' ');
-    
-    if (remainingText.trim()) {
-      const handleWordBoundary = (word: string, index: number) => {
-        const adjustedIndex = startIndex + index;
-        if (adjustedIndex >= 0 && adjustedIndex < words.length) {
-          setCurrentWordIndex(adjustedIndex);
-
-          if (adjustedIndex >= words.length - 1) {
-            setTimeout(() => {
-              setIsAutoReading(false);
-              setIsPaused(false);
-              setCurrentWordIndex(0);
-              toast({
-                title: "🎉 Leitura concluída!",
-                description: "Professor Tommy terminou de ler o texto.",
-              });
-            }, 1000);
-          }
-
-          setTimeout(() => {
-            const wordElement = document.querySelector(`[data-word-index="${adjustedIndex}"]`);
-            if (wordElement) {
-              const elementRect = wordElement.getBoundingClientRect();
-              const headerHeight = window.innerWidth < 640 ? 60 : 80;
-              const audioBarHeight = window.innerWidth < 640 ? 100 : 120;
-              const totalOffset = headerHeight + audioBarHeight + 20;
-              const targetY = window.scrollY + elementRect.top - totalOffset;
-
-              window.scrollTo({
-                top: Math.max(0, targetY),
-                behavior: 'smooth'
-              });
-            }
-          }, 50);
-        }
-      };
-
-      await playText(remainingText, "en-US", 0, handleWordBoundary);
-      
-      toast({
-        title: "🎯 Professor Tommy retomando",
-        description: "Continuando de onde parou",
-      });
-    }
-  }, [isAutoReading, isPaused, isAudioPaused, currentWordIndex, text, playText, resumeAudio, toast, currentUtterance, stopAudio]);
+    // Se não conseguiu retomar o áudio, reiniciar do início
+    startAutoReading();
+  }, [isAutoReading, isPaused, currentUtterance, resumeAudio, toast, stopAudio, startAutoReading]);
 
   const stopAutoReading = useCallback(() => {
     setIsAutoReading(false);
-    setIsPaused(true); // Voltar para pausado
+    setIsPaused(false);
     setCurrentWordIndex(0);
     if (autoReadingTimerRef.current) {
       clearTimeout(autoReadingTimerRef.current);
