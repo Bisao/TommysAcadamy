@@ -9,6 +9,7 @@ export function useAudio() {
   const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
   const wordTimerRef = useRef<NodeJS.Timeout | null>(null);
   const cleanupTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const boundaryCheckTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const cleanup = useCallback(() => {
     if (wordTimerRef.current) {
@@ -18,6 +19,10 @@ export function useAudio() {
     if (cleanupTimeoutRef.current) {
       clearTimeout(cleanupTimeoutRef.current);
       cleanupTimeoutRef.current = null;
+    }
+    if (boundaryCheckTimeoutRef.current) {
+      clearTimeout(boundaryCheckTimeoutRef.current);
+      boundaryCheckTimeoutRef.current = null;
     }
   }, []);
 
@@ -116,29 +121,7 @@ export function useAudio() {
       
       console.log(`Setting up word boundary sync - Words: ${words.length}`);
       
-      // Handler para eventos de boundary do navegador
-      utterance.onboundary = (event: SpeechSynthesisEvent) => {
-        if (event.name === 'word') {
-          boundaryEventsWorking = true;
-          const globalWordIndex = fromPosition + currentWordIndex;
-          const wordToHighlight = words[currentWordIndex] || '';
-          
-          console.log(`Boundary event highlighting word ${globalWordIndex}: "${wordToHighlight}"`);
-          
-          // Disparar callback IMEDIATAMENTE com a voz
-          onWordBoundary(wordToHighlight, globalWordIndex);
-          currentWordIndex++;
-          
-          // Limpar timer fallback se boundary events estão funcionando
-          if (wordTimerRef.current) {
-            console.log("Boundary event detected - clearing timer fallback");
-            clearInterval(wordTimerRef.current);
-            wordTimerRef.current = null;
-          }
-        }
-      };
-
-      // Timer fallback apenas se boundary events não funcionarem
+      // Timer fallback para sincronização
       const startWordTimer = () => {
         console.log("Starting word timer fallback for sync");
         const baseWordDuration = 600; // Duração base mais conservadora
@@ -162,58 +145,20 @@ export function useAudio() {
         }, adjustedWordDuration);
       };
 
-      // Verificar se boundary events funcionam após pequeno delay
-      setTimeout(() => {
-        if (!boundaryEventsWorking && speechSynthesis.speaking) {
-          console.log("Boundary events not working, starting timer fallback");
-          startWordTimer();
-        }
-      }, 1000);topped");
-            if (wordTimerRef.current) {
-              clearInterval(wordTimerRef.current);
-              wordTimerRef.current = null;
-            }
-          }
-        }, adjustedWordDuration);
-      };
-
-      utterance.onstart = () => {
-        setIsPlaying(true);
-        setIsPaused(false);
-        console.log("Speech started - triggering first word highlight");
-        
-        // Disparar primeira palavra imediatamente
-        onWordBoundary('', fromPosition);
-        currentWordIndex = 0;
-        boundaryEventsWorking = false;
-        
-        // Para mobile, iniciar timer imediatamente
-        if (isMobile) {
-          startWordTimer();
-        } else {
-          // Para desktop, aguardar para ver se boundary events funcionam
-          boundaryCheckTimeout = setTimeout(() => {
-            if (!boundaryEventsWorking && currentWordIndex <= 1 && speechSynthesis.speaking) {
-              console.log("Boundary events not working on desktop, starting timer fallback");
-              startWordTimer();
-            }
-          }, adjustedWordDuration * 0.8);
-        }
-      };
-      
-      utterance.onboundary = (event) => {
+      // Handler para eventos de boundary do navegador
+      utterance.onboundary = (event: SpeechSynthesisEvent) => {
         if (event.name === 'word') {
           boundaryEventsWorking = true;
           
           // Limpar timeout de verificação se boundary events funcionam
-          if (boundaryCheckTimeout) {
-            clearTimeout(boundaryCheckTimeout);
-            boundaryCheckTimeout = null;
+          if (boundaryCheckTimeoutRef.current) {
+            clearTimeout(boundaryCheckTimeoutRef.current);
+            boundaryCheckTimeoutRef.current = null;
           }
           
           // Limpar timer fallback se boundary events estão funcionando
           if (wordTimerRef.current) {
-            console.log("Boundary events working - clearing timer fallback");
+            console.log("Boundary event detected - clearing timer fallback");
             clearInterval(wordTimerRef.current);
             wordTimerRef.current = null;
           }
@@ -238,6 +183,31 @@ export function useAudio() {
           onWordBoundary(words[wordIndex] || '', globalWordIndex);
         }
       };
+
+      utterance.onstart = () => {
+        setIsPlaying(true);
+        setIsPaused(false);
+        console.log("Speech started - triggering first word highlight");
+        
+        // Disparar primeira palavra imediatamente
+        onWordBoundary('', fromPosition);
+        currentWordIndex = 0;
+        boundaryEventsWorking = false;
+        
+        // Para mobile, iniciar timer imediatamente
+        if (isMobile) {
+          startWordTimer();
+        } else {
+          // Para desktop, aguardar para ver se boundary events funcionam
+          const adjustedWordDuration = 600 * (1 / (utterance.rate || 0.8));
+          boundaryCheckTimeoutRef.current = setTimeout(() => {
+            if (!boundaryEventsWorking && currentWordIndex <= 1 && speechSynthesis.speaking) {
+              console.log("Boundary events not working on desktop, starting timer fallback");
+              startWordTimer();
+            }
+          }, adjustedWordDuration * 0.8);
+        }
+      };
       
       utterance.onend = () => {
         console.log("Speech ended - cleaning up");
@@ -247,20 +217,12 @@ export function useAudio() {
         setCurrentText("");
         setRemainingText("");
         cleanup();
-        if (boundaryCheckTimeout) {
-          clearTimeout(boundaryCheckTimeout);
-          boundaryCheckTimeout = null;
-        }
       };
       
       utterance.onerror = (event) => {
         console.error("Speech synthesis error:", event);
         
         cleanup();
-        if (boundaryCheckTimeout) {
-          clearTimeout(boundaryCheckTimeout);
-          boundaryCheckTimeout = null;
-        }
         
         // Tratamento específico para diferentes tipos de erro
         if (event.error === 'interrupted') {
