@@ -67,6 +67,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.createUser(userData);
 
       // Store user session
+      req.session = { userId: user.id };
+
+      res.json({ user: { ...user, password: undefined } });
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(400).json({ message: "Invalid request data" });
+    }
+  });
+
+  app.post("/api/auth/guest", async (req, res) => {
+    try {
+      // Generate a unique guest username
+      const timestamp = Date.now();
+      const guestUsername = `guest_${timestamp}`;
+      
+      // Create a temporary guest user
+      const guestUser = await storage.createUser({
+        username: guestUsername,
+        email: `${guestUsername}@guest.local`,
+        password: "guest_password_" + timestamp
+      });
+
+      // Store user session
+      req.session = { userId: guestUser.id };
+
+      res.json({ user: { ...guestUser, password: undefined } });
+    } catch (error) {
+      console.error("Guest login error:", error);
+      res.status(500).json({ message: "Failed to create guest account" });
+    }
+  });
 
   // Update user profile data in real-time
   app.patch("/api/user/profile", async (req, res) => {
@@ -152,15 +183,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating check-in:", error);
       res.status(500).json({ message: "Failed to update check-in" });
-    }
-  });
-
-
-      req.session = { userId: user.id };
-
-      res.json({ user: { ...user, password: undefined } });
-    } catch (error) {
-      res.status(400).json({ message: "Invalid request data" });
     }
   });
 

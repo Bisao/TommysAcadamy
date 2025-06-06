@@ -434,16 +434,7 @@ export default function Login() {
               </Button>
             </div>
 
-            {/* Demo Account Info */}
-            <div className="mt-6 p-4 bg-cartoon-yellow/20 rounded-lg">
-              <p className="text-sm text-cartoon-dark font-semibold mb-2">
-                Conta de demonstração:
-              </p>
-              <p className="text-sm text-gray-600">
-                Usuário: <span className="font-mono">learner</span><br />
-                Senha: <span className="font-mono">password123</span>
-              </p>
-            </div>
+
           </CardContent>
         </Card>
       </motion.div>
