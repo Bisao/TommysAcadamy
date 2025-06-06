@@ -130,15 +130,28 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
 
   const resumeAutoReading = useCallback(() => {
     if (!isAutoReading) return;
+    
+    // Primeiro tenta retomar o áudio atual
+    if (isAudioPaused) {
+      resumeAudio();
+      setIsPaused(false);
+      toast({
+        title: "🎯 Professor Tommy retomando",
+        description: "Continuando de onde parou",
+      });
+      return;
+    }
+    
+    // Se não há áudio pausado, reinicia do ponto atual
     setIsPaused(false);
     
     const words = text.split(/\s+/).filter(word => word.length > 0);
-    const remainingWords = words.slice(currentWordIndex + 1);
+    const remainingWords = words.slice(currentWordIndex);
     const remainingText = remainingWords.join(' ');
     
     if (remainingText.trim()) {
       const handleWordBoundary = (word: string, index: number) => {
-        const adjustedIndex = currentWordIndex + 1 + index;
+        const adjustedIndex = currentWordIndex + index;
         if (adjustedIndex >= 0 && adjustedIndex < words.length) {
           setCurrentWordIndex(adjustedIndex);
 
@@ -167,7 +180,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
       title: "🎯 Professor Tommy retomando",
       description: "Continuando de onde parou",
     });
-  }, [isAutoReading, currentWordIndex, text, playText, toast]);
+  }, [isAutoReading, isAudioPaused, currentWordIndex, text, playText, resumeAudio, toast]);
 
   const stopAutoReading = useCallback(() => {
     setIsAutoReading(false);

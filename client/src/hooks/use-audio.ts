@@ -90,6 +90,14 @@ export function useAudio() {
     
     utterance.onerror = (event) => {
       console.error("Speech synthesis error:", event);
+      
+      // Se o erro for 'interrupted', isso é esperado durante pausas/retomadas
+      if (event.error === 'interrupted') {
+        console.log("Speech synthesis was interrupted (this is expected during pause/resume)");
+      } else {
+        console.error("Unexpected speech synthesis error:", event.error);
+      }
+      
       setIsPlaying(false);
       setIsPaused(false);
       setCurrentUtterance(null);
@@ -249,9 +257,18 @@ export function useAudio() {
 
   const resumeAudio = useCallback(() => {
     if (speechSynthesis.paused) {
-      speechSynthesis.resume();
-      setIsPaused(false);
-      setIsPlaying(true);
+      try {
+        speechSynthesis.resume();
+        setIsPaused(false);
+        setIsPlaying(true);
+      } catch (error) {
+        console.warn("Error resuming speech synthesis:", error);
+        // Se falhar ao retomar, cancela e limpa o estado
+        speechSynthesis.cancel();
+        setIsPaused(false);
+        setIsPlaying(false);
+        setCurrentUtterance(null);
+      }
     }
   }, []);
 
