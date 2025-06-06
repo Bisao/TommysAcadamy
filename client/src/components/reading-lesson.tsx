@@ -79,15 +79,15 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     // Create word boundary callback for synchronization
     const handleWordBoundary = (word: string, index: number) => {
       // Adjust index to account for title words
-      const totalTitleWords = titleWords.length + 1; // +1 for pause after title
+      const totalTitleWords = titleWords.length;
       
-      if (index < totalTitleWords) {
-        // Still reading title
+      if (index <= totalTitleWords) {
+        // Still reading title or just finished
         setCurrentWordIndex(-1);
       } else {
-        // Reading main text
-        const textWordIndex = index - totalTitleWords;
-        if (textWordIndex < words.length) {
+        // Reading main text - adjust index by removing title words and the pause
+        const textWordIndex = index - totalTitleWords - 1;
+        if (textWordIndex >= 0 && textWordIndex < words.length) {
           setCurrentWordIndex(textWordIndex);
           
           // Scroll to current word
