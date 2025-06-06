@@ -65,7 +65,7 @@ export default function Header({ user }: HeaderProps) {
             <img 
               src="/tommy-logo.png" 
               alt="Tommy's Academy Logo" 
-              className="w-16 h-16 object-contain"
+              className="w-12 h-12 object-contain"
             />
             <h1 className="text-2xl font-bold text-cartoon-dark">Tommy's Academy</h1>
           </motion.div>
