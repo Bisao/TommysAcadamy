@@ -363,7 +363,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
         <CardContent className="relative">
           <div
             ref={textRef}
-            className="text-lg leading-relaxed p-4 bg-white rounded-lg border border-gray-200 cursor-text break-words whitespace-pre-wrap overflow-wrap-anywhere"
+            className="reading-text-area text-lg leading-relaxed p-4 bg-white rounded-lg border border-gray-200 cursor-text break-words whitespace-pre-wrap overflow-wrap-anywhere"
             onMouseUp={handleTextSelection}
             style={{ 
               userSelect: 'text', 

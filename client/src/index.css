@@ -69,6 +69,17 @@
     user-select: none;
   }
 
+  /* Custom selection styling for reading area */
+  .reading-text-area ::selection {
+    background-color: #60a5fa; /* Light blue similar to the image */
+    color: white;
+  }
+  
+  .reading-text-area ::-moz-selection {
+    background-color: #60a5fa;
+    color: white;
+  }
+
   body {
     @apply bg-background text-foreground font-sans antialiased;
     background: linear-gradient(135deg, hsl(var(--cartoon-blue) / 0.1), hsl(var(--cartoon-teal) / 0.1));
