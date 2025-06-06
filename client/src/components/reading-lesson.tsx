@@ -1,5 +1,5 @@
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,10 +26,16 @@ interface ReadingLessonProps {
   onComplete?: () => void;
 }
 
+interface WordFeedback {
+  word: string;
+  status: 'correct' | 'close' | 'incorrect' | 'unread';
+}
+
 export default function ReadingLesson({ title, text, onComplete }: ReadingLessonProps) {
   const [selectedText, setSelectedText] = useState("");
   const [isReadingMode, setIsReadingMode] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
+  const [wordFeedback, setWordFeedback] = useState<WordFeedback[]>([]);
   const textRef = useRef<HTMLDivElement>(null);
   
   const { playText, stopAudio, isPlaying } = useAudio();
@@ -44,6 +50,89 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
   
   const { toast } = useToast();
 
+  // Initialize word feedback array
+  useEffect(() => {
+    const words = text.split(/\s+/).filter(word => word.length > 0);
+    const initialFeedback = words.map(word => ({
+      word: word.replace(/[.,!?;:]/g, ''),
+      status: 'unread' as const
+    }));
+    setWordFeedback(initialFeedback);
+  }, [text]);
+
+  // Função para calcular similaridade entre duas palavras
+  const calculateSimilarity = (word1: string, word2: string): number => {
+    const w1 = word1.toLowerCase().replace(/[.,!?;:]/g, '');
+    const w2 = word2.toLowerCase().replace(/[.,!?;:]/g, '');
+    
+    if (w1 === w2) return 1;
+    
+    // Levenshtein distance simplified
+    const len1 = w1.length;
+    const len2 = w2.length;
+    const matrix = [];
+
+    for (let i = 0; i <= len2; i++) {
+      matrix[i] = [i];
+    }
+
+    for (let j = 0; j <= len1; j++) {
+      matrix[0][j] = j;
+    }
+
+    for (let i = 1; i <= len2; i++) {
+      for (let j = 1; j <= len1; j++) {
+        if (w2.charAt(i - 1) === w1.charAt(j - 1)) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j - 1] + 1,
+            matrix[i][j - 1] + 1,
+            matrix[i - 1][j] + 1
+          );
+        }
+      }
+    }
+
+    const distance = matrix[len2][len1];
+    const maxLen = Math.max(len1, len2);
+    return maxLen === 0 ? 1 : 1 - distance / maxLen;
+  };
+
+  // Análise de pronuncia do transcript
+  const analyzeTranscript = useCallback((transcript: string) => {
+    const spokenWords = transcript.toLowerCase().split(/\s+/).filter(word => word.length > 0);
+    const textWords = text.split(/\s+/).filter(word => word.length > 0);
+    
+    const newFeedback = [...wordFeedback];
+    
+    // Para cada palavra falada, encontrar a melhor correspondência no texto
+    spokenWords.forEach(spokenWord => {
+      let bestMatch = -1;
+      let bestSimilarity = 0;
+      
+      textWords.forEach((textWord, index) => {
+        const similarity = calculateSimilarity(textWord, spokenWord);
+        if (similarity > bestSimilarity && similarity > 0.3) {
+          bestSimilarity = similarity;
+          bestMatch = index;
+        }
+      });
+      
+      if (bestMatch !== -1 && newFeedback[bestMatch]) {
+        if (bestSimilarity >= 0.9) {
+          newFeedback[bestMatch].status = 'correct';
+        } else if (bestSimilarity >= 0.6) {
+          newFeedback[bestMatch].status = 'close';
+        } else {
+          newFeedback[bestMatch].status = 'incorrect';
+        }
+      }
+    });
+    
+    setWordFeedback(newFeedback);
+  }, [text, wordFeedback]);
+
   // Simular progresso de leitura baseado no texto falado
   const calculateReadingProgress = useCallback((spokenText: string) => {
     const wordsInText = text.split(/\s+/).length;
@@ -51,13 +140,14 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     return Math.min((wordsSpoken / wordsInText) * 100, 100);
   }, [text]);
 
-  // Atualizar progresso quando o transcript muda
-  useState(() => {
+  // Atualizar progresso e análise quando o transcript muda
+  useEffect(() => {
     if (transcript) {
       const progress = calculateReadingProgress(transcript);
       setReadingProgress(progress);
+      analyzeTranscript(transcript);
     }
-  });
+  }, [transcript, calculateReadingProgress, analyzeTranscript]);
 
   const handleTextSelection = () => {
     const selection = window.getSelection();
@@ -119,6 +209,12 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
   const resetReading = () => {
     resetTranscript();
     setReadingProgress(0);
+    const words = text.split(/\s+/).filter(word => word.length > 0);
+    const resetFeedback = words.map(word => ({
+      word: word.replace(/[.,!?;:]/g, ''),
+      status: 'unread' as const
+    }));
+    setWordFeedback(resetFeedback);
     toast({
       title: "🔄 Leitura reiniciada",
       description: "Comece novamente a leitura do texto.",
@@ -191,10 +287,12 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
       {/* Área de Texto */}
       <Card className="border-2 border-cartoon-gray">
         <CardHeader>
-          <CardTitle className="text-xl text-cartoon-dark">Texto da Lição</CardTitle>
-          <p className="text-sm text-gray-600">
-            Selecione palavras ou frases para ouvir a pronúncia do Professor Tommy
-          </p>
+          <div className="text-center mb-4">
+            <CardTitle className="text-2xl text-cartoon-dark mb-2">{title}</CardTitle>
+            <p className="text-sm text-gray-600">
+              Selecione palavras ou frases para ouvir a pronúncia do Professor Tommy
+            </p>
+          </div>
         </CardHeader>
         <CardContent>
           <div
@@ -203,8 +301,59 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
             onMouseUp={handleTextSelection}
             style={{ userSelect: 'text' }}
           >
-            {text}
+            {text.split(/\s+/).map((word, index) => {
+              const feedback = wordFeedback[index];
+              let colorClass = '';
+              
+              switch (feedback?.status) {
+                case 'correct':
+                  colorClass = 'bg-green-200 text-green-800';
+                  break;
+                case 'close':
+                  colorClass = 'bg-yellow-200 text-yellow-800';
+                  break;
+                case 'incorrect':
+                  colorClass = 'bg-red-200 text-red-800';
+                  break;
+                default:
+                  colorClass = 'text-gray-800';
+              }
+              
+              return (
+                <span
+                  key={index}
+                  className={`${colorClass} px-1 py-0.5 rounded transition-colors duration-300 mr-1`}
+                >
+                  {word}
+                </span>
+              );
+            })}
           </div>
+          
+          {/* Legenda das Cores */}
+          {isReadingMode && (
+            <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+              <p className="text-sm font-semibold text-gray-700 mb-2">Legenda de Cores:</p>
+              <div className="flex flex-wrap gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <span className="w-4 h-4 bg-green-200 rounded"></span>
+                  <span>Pronuncia Correta</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-4 h-4 bg-yellow-200 rounded"></span>
+                  <span>Pronuncia Próxima</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-4 h-4 bg-red-200 rounded"></span>
+                  <span>Precisa Melhorar</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-4 h-4 bg-gray-200 rounded"></span>
+                  <span>Não Lida</span>
+                </div>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

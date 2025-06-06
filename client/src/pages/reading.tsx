@@ -92,7 +92,7 @@ export default function Reading() {
 
         <ReadingLesson
           title="How Will We Eat in 2021?"
-          text={sampleLessonText}
+          text="How Will We Eat in 2021? The pandemic has changed our relationship with food in ways both subtle and dramatic. Restaurants have adapted with takeout and delivery, while home cooking has experienced a renaissance. Many people discovered the joy of baking bread, growing herbs, and preparing elaborate meals. Grocery shopping became a strategic mission, with masks and sanitizer as essential as shopping lists. Food delivery apps saw unprecedented growth as people sought convenience and safety. Local farmers markets found new ways to serve communities, often through online ordering and contactless pickup. The future of dining may include more outdoor seating, advanced air filtration systems, and continued emphasis on hygiene protocols. Virtual cooking classes and online food communities have flourished, connecting people through shared culinary experiences. As we move forward, our eating habits will likely reflect a blend of pre-pandemic traditions and pandemic-inspired innovations."
           onComplete={handleLessonComplete}
         />
       </div>
