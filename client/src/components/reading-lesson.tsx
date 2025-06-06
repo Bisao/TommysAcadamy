@@ -190,15 +190,24 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     setShowAudioIcon(true);
   };
 
-  const playSelectedText = (e: any) => {
+  const playSelectedText = async (e: any) => {
     if (selectedText) {
-      playText(selectedText);
-      setShowAudioIcon(false);
-      setSelectedText("");
-      toast({
-        title: "🔊 Reproduzindo seleção",
-        description: "Ouvindo o texto selecionado...",
-      });
+      try {
+        await playText(selectedText, "en-US");
+        setShowAudioIcon(false);
+        setSelectedText("");
+        toast({
+          title: "🔊 Reproduzindo seleção",
+          description: "Ouvindo o texto selecionado...",
+        });
+      } catch (error) {
+        console.error("Error playing audio:", error);
+        toast({
+          title: "❌ Erro no áudio",
+          description: "Não foi possível reproduzir o áudio.",
+          variant: "destructive"
+        });
+      }
     }
   };
 
@@ -275,110 +284,32 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
-
-
-      {/* Controles de Áudio e Leitura */}
-      <Card className="border-2 border-cartoon-gray">
-        <CardContent className="p-6">
-          <div className="flex flex-wrap gap-4 justify-center">
-            <Button
-              onClick={isPlaying ? stopAudio : playFullText}
-              className="cartoon-button bg-cartoon-blue hover:bg-cartoon-blue/80"
-            >
-              {isPlaying ? <Pause size={20} /> : <Volume2 size={20} />}
-              {isPlaying ? "Parar Áudio" : "Ouvir Texto Completo"}
-            </Button>
-
-            <Button
-              onClick={playSelectedText}
-              disabled={!selectedText || isPlaying}
-              variant="outline"
-              className="border-cartoon-teal text-cartoon-teal hover:bg-cartoon-teal hover:text-white"
-            >
-              <Play size={20} />
-              Ouvir Seleção
-            </Button>
-
-            <Button
-              onClick={toggleReadingMode}
-              className={`cartoon-button ${
-                isReadingMode 
-                  ? "bg-red-500 hover:bg-red-600" 
-                  : "bg-cartoon-coral hover:bg-cartoon-coral/80"
-              }`}
-            >
-              {isReadingMode ? <MicOff size={20} /> : <Mic size={20} />}
-              {isReadingMode ? "Parar Gravação" : "Começar a Ler"}
-            </Button>
-
-            <Button
-              onClick={resetReading}
-              variant="outline"
-              disabled={!transcript}
-              className="border-cartoon-coral text-cartoon-coral hover:bg-cartoon-coral hover:text-white"
-            >
-              <RotateCcw size={20} />
-              Recomeçar
-            </Button>
-          </div>
-
-          {/* Progresso da Leitura */}
-          {isReadingMode && (
-            <div className="space-y-2 mt-4">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Progresso da Leitura</span>
-                <span className="font-semibold text-cartoon-coral">
-                  {Math.round(readingProgress)}%
-                </span>
-              </div>
-              <Progress value={readingProgress} className="h-3" />
-
-              {readingProgress >= 80 && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="flex items-center gap-2 text-green-600 font-semibold"
-                >
-                  <CheckCircle size={20} />
-                  Excelente! Continue assim!
-                </motion.div>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
       {/* Área de Texto */}
       <Card className="border-2 border-cartoon-gray">
+        <CardHeader>
+          <div className="text-center mb-4">
+            <CardTitle className="text-2xl text-cartoon-dark mb-2">{title}</CardTitle>
+          </div>
+        </CardHeader>
         <CardContent className="relative">
           <div
             ref={textRef}
-            className="text-lg leading-relaxed p-4 bg-white rounded-lg border border-gray-200 cursor-text select-text break-words whitespace-pre-wrap overflow-wrap-anywhere"
+            className="reading-text-area text-lg leading-relaxed p-4 bg-white rounded-lg border border-gray-200 cursor-text break-words whitespace-pre-wrap overflow-wrap-anywhere"
             onMouseUp={handleTextSelection}
-            style={{ userSelect: 'text', wordBreak: 'break-word', overflowWrap: 'break-word' }}
+            style={{ 
+              userSelect: 'text', 
+              WebkitUserSelect: 'text',
+              MozUserSelect: 'text',
+              msUserSelect: 'text',
+              wordBreak: 'break-word', 
+              overflowWrap: 'break-word' 
+            }}
           >
             {text.split(/\s+/).map((word, index) => {
-              const feedback = wordFeedback[index];
-              let colorClass = '';
-
-              switch (feedback?.status) {
-                case 'correct':
-                  colorClass = 'bg-green-200 text-green-800';
-                  break;
-                case 'close':
-                  colorClass = 'bg-yellow-200 text-yellow-800';
-                  break;
-                case 'incorrect':
-                  colorClass = 'bg-red-200 text-red-800';
-                  break;
-                default:
-                  colorClass = 'text-gray-800';
-              }
-
               return (
                 <span
                   key={index}
-                  className={`${colorClass} px-1 py-0.5 rounded transition-colors duration-300 mr-1 inline-block cursor-pointer hover:bg-blue-100`}
+                  className="text-gray-800 px-1 py-0.5 rounded transition-colors duration-300 mr-1 inline-block cursor-pointer hover:bg-blue-100"
                   style={{ wordBreak: 'break-word' }}
                   onClick={(e) => handleWordClick(word, e)}
                 >
@@ -415,71 +346,8 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
               <Volume2 size={24} className="drop-shadow-sm" />
             </motion.div>
           )}
-
-          {/* Legenda das Cores */}
-          {isReadingMode && (
-            <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
-              <p className="text-sm font-semibold text-gray-700 mb-2">Legenda de Cores:</p>
-              <div className="flex flex-wrap gap-4 text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="w-4 h-4 bg-green-200 rounded"></span>
-                  <span>Pronuncia Correta</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-4 h-4 bg-yellow-200 rounded"></span>
-                  <span>Pronuncia Próxima</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-4 h-4 bg-red-200 rounded"></span>
-                  <span>Precisa Melhorar</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-4 h-4 bg-gray-200 rounded"></span>
-                  <span>Não Lida</span>
-                </div>
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
-
-      {/* Status do Microfone */}
-      {isListening && (
-        <Card className="border-2 border-cartoon-coral">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-center gap-2 text-cartoon-coral">
-              <motion.div
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ repeat: Infinity, duration: 1 }}
-              >
-                <Mic size={20} />
-              </motion.div>
-              <span className="font-medium">Ouvindo... Leia o texto!</span>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Transcript */}
-      {transcript && (
-        <Card className="border-2 border-blue-200">
-          <CardContent className="p-4">
-            <p className="text-sm text-gray-600 mb-2">O que você disse:</p>
-            <p className="text-gray-800">{transcript}</p>
-          </CardContent>
-        </Card>
-      )}
-
-      {!isSupported && (
-        <Card className="border-2 border-yellow-200">
-          <CardContent className="p-4">
-            <p className="text-yellow-800 text-sm">
-              Reconhecimento de voz não está disponível neste navegador. 
-              Recomendamos usar Chrome ou Edge para melhor experiência.
-            </p>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }
