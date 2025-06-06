@@ -41,7 +41,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
   const [wordFeedback, setWordFeedback] = useState<WordFeedback[]>([]);
   const [isAutoReading, setIsAutoReading] = useState(false);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+  const [isPaused, setIsPaused] = useState(true); // Iniciar pausado
   const textRef = useRef<HTMLDivElement>(null);
   const autoReadingTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -226,7 +226,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
 
   const stopAutoReading = useCallback(() => {
     setIsAutoReading(false);
-    setIsPaused(false);
+    setIsPaused(true); // Voltar para pausado
     setCurrentWordIndex(0);
     if (autoReadingTimerRef.current) {
       clearTimeout(autoReadingTimerRef.current);
@@ -290,41 +290,32 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
 
   const createAudioControls = useCallback(() => (
     <div className="flex items-center gap-1 sm:gap-2">
-      {!isAutoReading ? (
+      {!isAutoReading || isPaused ? (
         <Button
-          onClick={startAutoReading}
+          onClick={!isAutoReading ? startAutoReading : resumeAutoReading}
           className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-          title="Iniciar leitura guiada"
+          title={!isAutoReading ? "Iniciar leitura guiada" : "Continuar leitura guiada"}
         >
           <Play size={14} className="sm:w-4 sm:h-4" />
         </Button>
       ) : (
-        <>
-          {isPaused ? (
-            <Button
-              onClick={resumeAutoReading}
-              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-              title="Continuar leitura guiada"
-            >
-              <Play size={14} className="sm:w-4 sm:h-4" />
-            </Button>
-          ) : (
-            <Button
-              onClick={pauseAutoReading}
-              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-              title="Pausar leitura guiada"
-            >
-              <Pause size={14} className="sm:w-4 sm:h-4" />
-            </Button>
-          )}
-          <Button
-            onClick={stopAutoReading}
-            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-            title="Parar leitura guiada"
-          >
-            <VolumeX size={14} className="sm:w-4 sm:h-4" />
-          </Button>
-        </>
+        <Button
+          onClick={pauseAutoReading}
+          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+          title="Pausar leitura guiada"
+        >
+          <Pause size={14} className="sm:w-4 sm:h-4" />
+        </Button>
+      )}
+
+      {isAutoReading && (
+        <Button
+          onClick={stopAutoReading}
+          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+          title="Parar leitura guiada"
+        >
+          <VolumeX size={14} className="sm:w-4 sm:h-4" />
+        </Button>
       )}
 
       <Button
@@ -545,7 +536,6 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
             <div className="mb-4 text-center">
               <h2 className="text-xl sm:text-2xl font-bold text-cartoon-dark mb-3">
                 {title.split(/\s+/).map((word, index) => {
-                  const titleWordsCount = title.split(/\s+/).length;
                   const isCurrentWord = isAutoReading && currentWordIndex === index;
                   const feedback = wordFeedback[index];
                   let colorClass = '';
@@ -623,51 +613,6 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
                 <span
                   key={`text-${textIndex}`}
                   data-word-index={globalIndex}
-                  className={`${colorClass} px-1 sm:px-2 py-0.5 sm:py-1 rounded-md transition-all duration-200 mr-1 sm:mr-2 mb-1 inline-block cursor-pointer touch-manipulation select-none min-h-[28px] sm:min-h-[32px] flex items-center justify-center text-center`}
-                  style={{ 
-                    wordBreak: 'break-word', 
-                    userSelect: 'none',
-                    minWidth: '20px',
-                    WebkitTapHighlightColor: 'transparent'
-                  }}
-                  onClick={(e) => handleWordClick(word, e)}
-                  onTouchStart={(e) => e.preventDefault()}
-                  onTouchEnd={(e) => {
-                    e.preventDefault();
-                    handleWordClick(word, e);
-                  }}
-                >
-                  {word}
-                </span>
-              );
-            })}
-          </div>
-              const feedback = wordFeedback[index];
-              const isCurrentWord = isAutoReading && currentWordIndex === index;
-              let colorClass = '';
-
-              if (isCurrentWord) {
-                colorClass = 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg sm:shadow-xl scale-105 sm:scale-110 font-bold border-2 border-blue-300 transform animate-pulse';
-              } else {
-                switch (feedback?.status) {
-                  case 'correct':
-                    colorClass = 'bg-green-200 dark:bg-green-300 text-green-800 dark:text-green-900 border border-green-300 dark:border-green-400';
-                    break;
-                  case 'close':
-                    colorClass = 'bg-yellow-200 dark:bg-yellow-300 text-yellow-800 dark:text-yellow-900 border border-yellow-300 dark:border-yellow-400';
-                    break;
-                  case 'incorrect':
-                    colorClass = 'bg-red-200 dark:bg-red-300 text-red-800 dark:text-red-900 border border-red-300 dark:border-red-400';
-                    break;
-                  default:
-                    colorClass = 'text-gray-800 dark:text-gray-700 hover:bg-blue-50 dark:hover:bg-blue-100';
-                }
-              }
-
-              return (
-                <span
-                  key={index}
-                  data-word-index={index}
                   className={`${colorClass} px-1 sm:px-2 py-0.5 sm:py-1 rounded-md transition-all duration-200 mr-1 sm:mr-2 mb-1 inline-block cursor-pointer touch-manipulation select-none min-h-[28px] sm:min-h-[32px] flex items-center justify-center text-center`}
                   style={{ 
                     wordBreak: 'break-word', 
