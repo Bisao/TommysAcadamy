@@ -18,6 +18,7 @@ interface LessonModalProps {
 }
 
 export default function LessonModal({ lessonId, onClose }: LessonModalProps) {
+  const [currentLessonId, setCurrentLessonId] = useState(lessonId);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
@@ -30,14 +31,14 @@ export default function LessonModal({ lessonId, onClose }: LessonModalProps) {
     incorrect: number;
   } | null>(null);
   const [answers, setAnswers] = useState<{[key: string]: boolean}>({});
-  const [startTime] = useState(Date.now());
+  const [startTime, setStartTime] = useState(Date.now());
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { playText } = useAudio();
 
   const { data: lesson, isLoading } = useQuery({
-    queryKey: [`/api/lessons/${lessonId}`],
+    queryKey: [`/api/lessons/${currentLessonId}`],
   });
 
   const questions = lesson?.questions || [];
@@ -98,7 +99,7 @@ export default function LessonModal({ lessonId, onClose }: LessonModalProps) {
     if (!selectedAnswer || !currentQuestion) return;
 
     submitAnswerMutation.mutate({
-      lessonId,
+      lessonId: currentLessonId,
       questionId: currentQuestion.id,
       answer: selectedAnswer,
     });
@@ -116,7 +117,7 @@ export default function LessonModal({ lessonId, onClose }: LessonModalProps) {
       const score = Object.values(answers).filter(Boolean).length;
       
       completeLessonMutation.mutate({
-        lessonId,
+        lessonId: currentLessonId,
         score,
         totalQuestions: questions.length,
         timeSpent,
@@ -136,6 +137,21 @@ export default function LessonModal({ lessonId, onClose }: LessonModalProps) {
     if (currentQuestion?.question) {
       playText(currentQuestion.question.replace(/['"]/g, ''));
     }
+  };
+
+  const navigateToNextLesson = (nextLessonId: number) => {
+    // Reset all states for new lesson
+    setCurrentLessonId(nextLessonId);
+    setCurrentQuestionIndex(0);
+    setSelectedAnswer(null);
+    setShowFeedback(false);
+    setShowCompletion(false);
+    setLessonResults(null);
+    setAnswers({});
+    setStartTime(Date.now());
+    
+    // Update URL without page reload
+    window.history.pushState({}, '', `/lesson/${nextLessonId}`);
   };
 
   if (isLoading) {
@@ -271,12 +287,12 @@ export default function LessonModal({ lessonId, onClose }: LessonModalProps) {
           <CompletionModal
             results={lessonResults}
             lessonTitle={lesson.title}
-            currentLessonId={lessonId}
+            currentLessonId={currentLessonId}
             onNextLesson={(nextLessonId) => {
               setShowCompletion(false);
               if (nextLessonId) {
-                // Navigate to next lesson
-                window.location.href = `/lesson/${nextLessonId}`;
+                // Navigate to next lesson internally
+                navigateToNextLesson(nextLessonId);
               } else {
                 onClose();
               }

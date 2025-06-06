@@ -38,8 +38,9 @@ export default function CompletionModal({
   const findNextLesson = () => {
     if (!lessons || !progressData?.progress) return null;
     
-    // Find the next lesson that hasn't been completed
-    const nextLesson = lessons.find((lesson: any) => {
+    // Sort lessons by ID and find the next lesson that hasn't been completed
+    const sortedLessons = [...lessons].sort((a: any, b: any) => a.id - b.id);
+    const nextLesson = sortedLessons.find((lesson: any) => {
       const lessonProgress = progressData.progress.find((p: any) => p.lessonId === lesson.id);
       return lesson.id > currentLessonId && (!lessonProgress || !lessonProgress.completed);
     });
