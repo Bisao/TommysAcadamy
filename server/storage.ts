@@ -455,38 +455,7 @@ export class MemStorage implements IStorage {
 export class DatabaseStorage implements IStorage {
   async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
-    if (!user) return undefined;
-
-    // Calcular dados realistas baseado na data de criação e progresso
-    const progress = await this.getUserOverallStats(id);
-    const realisticData = calculateRealisticUserData(
-      user.createdAt || new Date(), 
-      progress
-    );
-
-    // Atualizar dados realistas se necessário
-    if (
-      user.totalXP !== realisticData.totalXP ||
-      user.level !== realisticData.level ||
-      user.streak !== realisticData.streak ||
-      JSON.stringify(user.achievements) !== JSON.stringify(realisticData.achievements)
-    ) {
-      const [updatedUser] = await db
-        .update(users)
-        .set({
-          totalXP: realisticData.totalXP,
-          level: realisticData.level,
-          streak: realisticData.streak,
-          achievements: realisticData.achievements,
-          lastActiveDate: getLastActiveDate(user.createdAt || new Date())
-        })
-        .where(eq(users.id, id))
-        .returning();
-      
-      return updatedUser;
-    }
-
-    return user;
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
