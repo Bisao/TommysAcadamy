@@ -37,7 +37,7 @@ export default function FeedbackModal({
           <Avatar className="w-16 h-16 border-4 border-cartoon-teal">
             <AvatarImage src="/teacher-tommy.png" alt="Teacher Tommy" />
             <AvatarFallback className="bg-cartoon-yellow text-cartoon-dark text-xl font-bold">
-              T
+              🧑‍🏫
             </AvatarFallback>
           </Avatar>
         </motion.div>
