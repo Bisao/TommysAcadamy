@@ -224,12 +224,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const percentage = Math.round((score / totalQuestions) * 100);
-      const xpEarned = Math.round((lesson.xpReward || 10) * (percentage / 100));
       const completed = percentage >= 70; // 70% to pass
 
       // Update lesson progress
       const existingProgress = await storage.getLessonProgress(1, lessonId);
       const attempts = (existingProgress?.attempts || 0) + 1;
+      const wasAlreadyCompleted = existingProgress?.completed || false;
 
       await storage.updateProgress(1, lessonId, {
         completed,
@@ -238,18 +238,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         attempts
       });
 
-      // Update user stats - apenas atualize os stats diários, o XP total será calculado realisticamente
+      // Calculate XP based on attempts (decrementing system)
+      let xpEarned = 0;
       if (completed) {
+        const baseXP = lesson.xpReward || 25;
+        
+        if (!wasAlreadyCompleted) {
+          // First completion: full XP
+          xpEarned = Math.round(baseXP * (percentage / 100));
+        } else {
+          // Repeated completions: decreasing XP
+          const completedAttempts = existingProgress?.attempts || 0;
+          const decreaseAmount = 2 * completedAttempts;
+          const minXP = 1;
+          xpEarned = Math.max(minXP, baseXP - decreaseAmount);
+        }
+
+        // Update user XP immediately
+        const user = await storage.getUser(1);
+        if (user) {
+          await storage.updateUser(1, {
+            totalXP: (user.totalXP || 0) + xpEarned
+          });
+        }
+
+        // Update daily stats
         const today = new Date().toISOString().split('T')[0];
         const dailyStats = await storage.getUserStats(1, today);
         await storage.updateStats(1, today, {
-          lessonsCompleted: (dailyStats?.lessonsCompleted || 0) + 1,
+          lessonsCompleted: !wasAlreadyCompleted ? (dailyStats?.lessonsCompleted || 0) + 1 : (dailyStats?.lessonsCompleted || 0),
           xpEarned: (dailyStats?.xpEarned || 0) + xpEarned,
           timeSpent: (dailyStats?.timeSpent || 0) + timeSpent
         });
-
-        // Forçar recálculo dos dados do usuário na próxima consulta
-        // O XP total, nível e streak serão calculados automaticamente pelo getUser()
       }
 
       res.json({
@@ -257,7 +277,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         score: percentage,
         xpEarned,
         passed: completed,
-        attempts
+        attempts,
+        isRepeat: wasAlreadyCompleted
       });
     } catch (error) {
       res.status(400).json({ message: "Invalid request data" });
