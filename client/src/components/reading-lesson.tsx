@@ -468,64 +468,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
             </div>
           </div>
 
-          {/* Progresso da Leitura */}
-          {(isReadingMode || isAutoReading) && (
-            <div className="space-y-3 mt-4 pt-4 border-t border-gray-200">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600 font-medium">
-                  {isAutoReading ? "🎯 Progresso da Leitura Guiada" : "🎤 Progresso da Sua Leitura"}
-                </span>
-                <span className="font-semibold text-blue-600">
-                  {isAutoReading ? 
-                    `${Math.round(currentWordIndex === -1 ? 5 : ((currentWordIndex + 1) / text.split(/\s+/).length) * 95 + 5)}%` :
-                    `${Math.round(readingProgress)}%`
-                  }
-                </span>
-              </div>
-              <Progress 
-                value={isAutoReading ? 
-                  currentWordIndex === -1 ? 5 : ((currentWordIndex + 1) / text.split(/\s+/).length) * 95 + 5 :
-                  readingProgress
-                } 
-                className="h-3" 
-              />
-
-              {/* Auto Reading Status */}
-              {isAutoReading && (
-                <div className="flex items-center justify-center gap-2 text-sm">
-                  {isPaused ? (
-                    <div className="flex items-center gap-2 text-yellow-600 font-semibold">
-                      <Pause size={16} />
-                      Leitura pausada - {currentWordIndex === -1 ? 'Título' : `Palavra ${currentWordIndex + 1} de ${text.split(/\s+/).length}`}
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2 text-blue-600 font-semibold">
-                      <motion.div
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{ repeat: Infinity, duration: 1 }}
-                      >
-                        <Play size={16} />
-                      </motion.div>
-                      {currentWordIndex === -1 ? 'Professor Tommy lendo título' : `Lendo palavra ${currentWordIndex + 1} de ${text.split(/\s+/).length}`}
-                    </div>
-                  )}
-                </div>
-              )}
-
-
-
-              {(readingProgress >= 80 || (isAutoReading && currentWordIndex >= text.split(/\s+/).length * 0.8)) && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="flex items-center justify-center gap-2 text-green-600 font-semibold"
-                >
-                  <CheckCircle size={20} />
-                  🎉 Excelente! Continue assim!
-                </motion.div>
-              )}
-            </div>
-          )}
+          
         </CardContent>
       </Card>
 
