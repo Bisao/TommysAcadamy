@@ -190,7 +190,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     setShowAudioIcon(true);
   };
 
-  const playSelectedText = () => {
+  const playSelectedText = (e: any) => {
     if (selectedText) {
       playText(selectedText);
       setShowAudioIcon(false);
@@ -274,10 +274,88 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-4 space-y-6">
-      {/* Área de Texto - Prioridade no topo */}
-      <Card className="border-2 border-cartoon-gray shadow-lg">
-        <CardContent className="relative p-6">
+    <div className="max-w-4xl mx-auto p-6 space-y-6">
+
+
+      {/* Controles de Áudio e Leitura */}
+      <Card className="border-2 border-cartoon-gray">
+        <CardContent className="p-6">
+          <div className="flex flex-wrap gap-4 justify-center">
+            <Button
+              onClick={isPlaying ? stopAudio : playFullText}
+              className="cartoon-button bg-cartoon-blue hover:bg-cartoon-blue/80"
+            >
+              {isPlaying ? <Pause size={20} /> : <Volume2 size={20} />}
+              {isPlaying ? "Parar Áudio" : "Ouvir Texto Completo"}
+            </Button>
+
+            <Button
+              onClick={playSelectedText}
+              disabled={!selectedText || isPlaying}
+              variant="outline"
+              className="border-cartoon-teal text-cartoon-teal hover:bg-cartoon-teal hover:text-white"
+            >
+              <Play size={20} />
+              Ouvir Seleção
+            </Button>
+
+            <Button
+              onClick={toggleReadingMode}
+              className={`cartoon-button ${
+                isReadingMode 
+                  ? "bg-red-500 hover:bg-red-600" 
+                  : "bg-cartoon-coral hover:bg-cartoon-coral/80"
+              }`}
+            >
+              {isReadingMode ? <MicOff size={20} /> : <Mic size={20} />}
+              {isReadingMode ? "Parar Gravação" : "Começar a Ler"}
+            </Button>
+
+            <Button
+              onClick={resetReading}
+              variant="outline"
+              disabled={!transcript}
+              className="border-cartoon-coral text-cartoon-coral hover:bg-cartoon-coral hover:text-white"
+            >
+              <RotateCcw size={20} />
+              Recomeçar
+            </Button>
+          </div>
+
+          {/* Progresso da Leitura */}
+          {isReadingMode && (
+            <div className="space-y-2 mt-4">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Progresso da Leitura</span>
+                <span className="font-semibold text-cartoon-coral">
+                  {Math.round(readingProgress)}%
+                </span>
+              </div>
+              <Progress value={readingProgress} className="h-3" />
+
+              {readingProgress >= 80 && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex items-center gap-2 text-green-600 font-semibold"
+                >
+                  <CheckCircle size={20} />
+                  Excelente! Continue assim!
+                </motion.div>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Área de Texto */}
+      <Card className="border-2 border-cartoon-gray">
+        <CardHeader>
+          <div className="text-center mb-4">
+            <CardTitle className="text-2xl text-cartoon-dark mb-2">{title}</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="relative">
           <div
             ref={textRef}
             className="text-lg leading-relaxed p-4 bg-white rounded-lg border border-gray-200 cursor-text select-text break-words whitespace-pre-wrap overflow-wrap-anywhere"
@@ -337,15 +415,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
                 top: `${iconPosition.y}px`,
                 transform: 'translateX(-50%)'
               }}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (selectedText) {
-                  playText(selectedText);
-                  setShowAudioIcon(false);
-                  setSelectedText("");
-                }
-              }}
+              onClick={(e) => playSelectedText(e)}
             >
               <Volume2 size={24} className="drop-shadow-sm" />
             </motion.div>
@@ -353,23 +423,23 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
 
           {/* Legenda das Cores */}
           {isReadingMode && (
-            <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-teal-50 rounded-lg border-2 border-blue-200">
-              <p className="text-sm font-semibold text-gray-700 mb-3">Legenda de Cores:</p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+            <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+              <p className="text-sm font-semibold text-gray-700 mb-2">Legenda de Cores:</p>
+              <div className="flex flex-wrap gap-4 text-sm">
                 <div className="flex items-center gap-2">
-                  <span className="w-4 h-4 bg-green-200 rounded border"></span>
+                  <span className="w-4 h-4 bg-green-200 rounded"></span>
                   <span>Pronuncia Correta</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="w-4 h-4 bg-yellow-200 rounded border"></span>
+                  <span className="w-4 h-4 bg-yellow-200 rounded"></span>
                   <span>Pronuncia Próxima</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="w-4 h-4 bg-red-200 rounded border"></span>
+                  <span className="w-4 h-4 bg-red-200 rounded"></span>
                   <span>Precisa Melhorar</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="w-4 h-4 bg-gray-200 rounded border"></span>
+                  <span className="w-4 h-4 bg-gray-200 rounded"></span>
                   <span>Não Lida</span>
                 </div>
               </div>
@@ -378,103 +448,18 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
         </CardContent>
       </Card>
 
-      {/* Controles de Áudio e Leitura */}
-      <Card className="border-2 border-cartoon-gray shadow-md">
-        <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Button
-              onClick={isPlaying ? stopAudio : playFullText}
-              className="cartoon-button bg-cartoon-blue hover:bg-cartoon-blue/80 flex items-center gap-2"
-              size="lg"
-            >
-              {isPlaying ? <Pause size={20} /> : <Volume2 size={20} />}
-              <span className="hidden sm:inline">
-                {isPlaying ? "Parar Áudio" : "Ouvir Texto"}
-              </span>
-            </Button>
-
-            <Button
-              onClick={toggleReadingMode}
-              className={`cartoon-button flex items-center gap-2 ${
-                isReadingMode 
-                  ? "bg-red-500 hover:bg-red-600" 
-                  : "bg-cartoon-coral hover:bg-cartoon-coral/80"
-              }`}
-              size="lg"
-            >
-              {isReadingMode ? <MicOff size={20} /> : <Mic size={20} />}
-              <span className="hidden sm:inline">
-                {isReadingMode ? "Parar" : "Começar a Ler"}
-              </span>
-            </Button>
-
-            <Button
-              onClick={resetReading}
-              variant="outline"
-              disabled={!transcript}
-              className="border-cartoon-coral text-cartoon-coral hover:bg-cartoon-coral hover:text-white flex items-center gap-2"
-              size="lg"
-            >
-              <RotateCcw size={20} />
-              <span className="hidden sm:inline">Recomeçar</span>
-            </Button>
-
-            <Button
-              onClick={() => {
-                if (selectedText) {
-                  playText(selectedText);
-                  setShowAudioIcon(false);
-                  setSelectedText("");
-                }
-              }}
-              disabled={!selectedText || isPlaying}
-              variant="outline"
-              className="border-cartoon-teal text-cartoon-teal hover:bg-cartoon-teal hover:text-white flex items-center gap-2"
-              size="lg"
-            >
-              <Play size={20} />
-              <span className="hidden sm:inline">Ouvir Seleção</span>
-            </Button>
-          </div>
-
-          {/* Progresso da Leitura */}
-          {isReadingMode && (
-            <div className="space-y-3 mt-6 p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border-2 border-orange-200">
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-gray-700 font-medium">Progresso da Leitura</span>
-                <span className="font-bold text-cartoon-coral text-lg">
-                  {Math.round(readingProgress)}%
-                </span>
-              </div>
-              <Progress value={readingProgress} className="h-4" />
-
-              {readingProgress >= 80 && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="flex items-center gap-2 text-green-600 font-semibold bg-green-50 p-3 rounded-lg border border-green-200"
-                >
-                  <CheckCircle size={20} />
-                  Excelente! Continue assim!
-                </motion.div>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
       {/* Status do Microfone */}
       {isListening && (
-        <Card className="border-2 border-cartoon-coral shadow-lg">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-center gap-3 text-cartoon-coral">
+        <Card className="border-2 border-cartoon-coral">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-center gap-2 text-cartoon-coral">
               <motion.div
                 animate={{ scale: [1, 1.2, 1] }}
                 transition={{ repeat: Infinity, duration: 1 }}
               >
-                <Mic size={24} />
+                <Mic size={20} />
               </motion.div>
-              <span className="font-medium text-lg">Ouvindo... Leia o texto!</span>
+              <span className="font-medium">Ouvindo... Leia o texto!</span>
             </div>
           </CardContent>
         </Card>
@@ -482,18 +467,18 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
 
       {/* Transcript */}
       {transcript && (
-        <Card className="border-2 border-blue-200 shadow-md">
-          <CardContent className="p-6">
-            <p className="text-sm text-gray-600 mb-3 font-medium">O que você disse:</p>
-            <p className="text-gray-800 bg-blue-50 p-4 rounded-lg border border-blue-200">{transcript}</p>
+        <Card className="border-2 border-blue-200">
+          <CardContent className="p-4">
+            <p className="text-sm text-gray-600 mb-2">O que você disse:</p>
+            <p className="text-gray-800">{transcript}</p>
           </CardContent>
         </Card>
       )}
 
       {!isSupported && (
-        <Card className="border-2 border-yellow-200 shadow-md">
-          <CardContent className="p-6">
-            <p className="text-yellow-800 text-sm bg-yellow-50 p-4 rounded-lg">
+        <Card className="border-2 border-yellow-200">
+          <CardContent className="p-4">
+            <p className="text-yellow-800 text-sm">
               Reconhecimento de voz não está disponível neste navegador. 
               Recomendamos usar Chrome ou Edge para melhor experiência.
             </p>
