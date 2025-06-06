@@ -125,6 +125,7 @@ export default function Header({ user }: HeaderProps) {
               Sair
             </Button>
           </motion.div>
+        </div>
       </div>
     </header>
   );
