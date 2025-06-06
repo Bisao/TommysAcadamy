@@ -109,27 +109,7 @@ export default function Home() {
           </h2>
           <p className="text-base sm:text-lg lg:text-xl text-muted-foreground px-4 mb-6">Continue sua jornada de aprendizado com lições divertidas!</p>
 
-          {/* Daily Progress */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="glass-card p-4 sm:p-6 max-w-md mx-auto mb-8"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-2">
-                <Target className="w-5 h-5 text-primary" />
-                <span className="font-semibold text-foreground">Meta Diária</span>
-              </div>
-              <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
-                {Math.round(dailyProgress)}%
-              </Badge>
-            </div>
-            <Progress value={dailyProgress} className="h-3 mb-2" />
-            <p className="text-sm text-muted-foreground">
-              {(dailyStats as any)?.lessonsCompleted || 0} de {(user as any)?.dailyGoal || 4} lições completadas hoje
-            </p>
-          </motion.div>
+          
         </motion.div>
 
         {/* Quick Stats Dashboard */}
