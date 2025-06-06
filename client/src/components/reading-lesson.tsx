@@ -584,53 +584,54 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
             </div>
 
             {/* Texto principal */}
-            {text.split(/\s+/).map((word, textIndex) => {
-              const titleWordsCount = title.split(/\s+/).length;
-              const globalIndex = titleWordsCount + textIndex;
-              const feedback = wordFeedback[globalIndex];
-              const isCurrentWord = isAutoReading && currentWordIndex === globalIndex;
-              let colorClass = '';
+            <div className="text-justify leading-relaxed">
+              {text.split(/\s+/).map((word, textIndex) => {
+                const titleWordsCount = title.split(/\s+/).length;
+                const globalIndex = titleWordsCount + textIndex;
+                const feedback = wordFeedback[globalIndex];
+                const isCurrentWord = isAutoReading && currentWordIndex === globalIndex;
+                let colorClass = '';
 
-              if (isCurrentWord) {
-                colorClass = 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg sm:shadow-xl scale-105 sm:scale-110 font-bold border-2 border-blue-300 transform animate-pulse';
-              } else {
-                switch (feedback?.status) {
-                  case 'correct':
-                    colorClass = 'bg-green-200 dark:bg-green-300 text-green-800 dark:text-green-900 border border-green-300 dark:border-green-400';
-                    break;
-                  case 'close':
-                    colorClass = 'bg-yellow-200 dark:bg-yellow-300 text-yellow-800 dark:text-yellow-900 border border-yellow-300 dark:border-yellow-400';
-                    break;
-                  case 'incorrect':
-                    colorClass = 'bg-red-200 dark:bg-red-300 text-red-800 dark:text-red-900 border border-red-300 dark:border-red-400';
-                    break;
-                  default:
-                    colorClass = 'text-gray-800 dark:text-gray-700 hover:bg-blue-50 dark:hover:bg-blue-100';
+                if (isCurrentWord) {
+                  colorClass = 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg sm:shadow-xl scale-105 sm:scale-110 font-bold border-2 border-blue-300 transform animate-pulse';
+                } else {
+                  switch (feedback?.status) {
+                    case 'correct':
+                      colorClass = 'bg-green-200 dark:bg-green-300 text-green-800 dark:text-green-900 border border-green-300 dark:border-green-400';
+                      break;
+                    case 'close':
+                      colorClass = 'bg-yellow-200 dark:bg-yellow-300 text-yellow-800 dark:text-yellow-900 border border-yellow-300 dark:border-yellow-400';
+                      break;
+                    case 'incorrect':
+                      colorClass = 'bg-red-200 dark:bg-red-300 text-red-800 dark:text-red-900 border border-red-300 dark:border-red-400';
+                      break;
+                    default:
+                      colorClass = 'text-gray-800 dark:text-gray-700 hover:bg-blue-50 dark:hover:bg-blue-100';
+                  }
                 }
-              }
 
-              return (
-                <span
-                  key={`text-${textIndex}`}
-                  data-word-index={globalIndex}
-                  className={`${colorClass} px-1 sm:px-2 py-0.5 sm:py-1 rounded-md transition-all duration-200 mr-1 sm:mr-2 mb-1 inline-block cursor-pointer touch-manipulation select-none min-h-[28px] sm:min-h-[32px] flex items-center justify-center text-center`}
-                  style={{ 
-                    wordBreak: 'break-word', 
-                    userSelect: 'none',
-                    minWidth: '20px',
-                    WebkitTapHighlightColor: 'transparent'
-                  }}
-                  onClick={(e) => handleWordClick(word, e)}
-                  onTouchStart={(e) => e.preventDefault()}
-                  onTouchEnd={(e) => {
-                    e.preventDefault();
-                    handleWordClick(word, e);
-                  }}
-                >
-                  {word}
-                </span>
-              );
-            })}
+                return (
+                  <span
+                    key={`text-${textIndex}`}
+                    data-word-index={globalIndex}
+                    className={`${colorClass} px-1 sm:px-2 py-0.5 sm:py-1 mx-0.5 rounded-md transition-all duration-200 cursor-pointer touch-manipulation select-none inline-flex items-center justify-center`}
+                    style={{ 
+                      wordBreak: 'keep-all', 
+                      userSelect: 'none',
+                      WebkitTapHighlightColor: 'transparent'
+                    }}
+                    onClick={(e) => handleWordClick(word, e)}
+                    onTouchStart={(e) => e.preventDefault()}
+                    onTouchEnd={(e) => {
+                      e.preventDefault();
+                      handleWordClick(word, e);
+                    }}
+                  >
+                    {word}
+                  </span>
+                );
+              })}
+            </div>
           </div>
 
           {/* Floating Audio Icon */}
