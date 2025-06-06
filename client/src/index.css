@@ -23,7 +23,7 @@
   --destructive-foreground: 0 0% 98%;
   --ring: 240 10% 4%;
   --radius: 0.5rem;
-  
+
   /* Cartoon theme colors */
   --cartoon-red: 11 91% 69%;
   --cartoon-teal: 177 70% 60%;
@@ -63,7 +63,7 @@
   * {
     @apply border-border;
   }
-  
+
   body {
     @apply bg-background text-foreground font-sans antialiased;
     background: linear-gradient(135deg, hsl(var(--cartoon-blue) / 0.1), hsl(var(--cartoon-teal) / 0.1));
@@ -75,19 +75,19 @@
   .cartoon-button {
     @apply bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold py-3 px-6 rounded-full shadow-lg transform transition-all duration-200 hover:scale-105 hover:shadow-xl;
   }
-  
+
   .cartoon-card {
     @apply bg-white rounded-2xl shadow-lg border-4 border-solid transition-all duration-300 hover:shadow-xl hover:scale-105;
   }
-  
+
   .progress-ring {
     transform: rotate(-90deg);
   }
-  
+
   .wiggle {
     animation: wiggle 1s ease-in-out infinite;
   }
-  
+
   .bounce-gentle {
     animation: bounce 2s infinite;
   }
@@ -150,3 +150,24 @@
 .border-cartoon-blue { border-color: hsl(var(--cartoon-blue)); }
 .border-cartoon-orange { border-color: hsl(var(--cartoon-orange)); }
 .border-cartoon-purple { border-color: hsl(var(--cartoon-purple)); }
+
+/* Profile page specific styles */
+.avatar-selector {
+  transition: all 0.2s ease-in-out;
+}
+
+.avatar-selector:hover {
+  transform: scale(1.1);
+}
+
+.profile-stat-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 2px solid;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.profile-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}

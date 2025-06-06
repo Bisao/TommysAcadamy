@@ -111,12 +111,19 @@ export default function Header({ user }: HeaderProps) {
             </Badge>
 
             {/* Profile Avatar */}
-            <Avatar className="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 bg-cartoon-blue cursor-pointer transform hover:scale-110 transition-transform">
-              <AvatarFallback className="bg-cartoon-blue text-white font-bold text-xs sm:text-sm">
-                {user?.username?.charAt(0).toUpperCase() || "U"}
-              </AvatarFallback>
-            </Avatar>
-            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setLocation("/profile")}
+              className="flex items-center space-x-1 sm:space-x-2 hover:bg-cartoon-teal/10"
+            >
+              <Avatar className="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 bg-cartoon-blue cursor-pointer transform hover:scale-110 transition-transform">
+                <AvatarFallback className="bg-cartoon-blue text-white font-bold text-xs sm:text-sm">
+                  {user?.username?.charAt(0).toUpperCase() || "U"}
+                </AvatarFallback>
+              </Avatar>
+            </Button>
+
             <Badge variant="secondary" className="bg-cartoon-yellow text-cartoon-dark hidden lg:flex">
               <Trophy size={14} className="mr-1" />
               Nível {user.level}
