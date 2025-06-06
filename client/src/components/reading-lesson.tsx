@@ -78,73 +78,60 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
     const textWords = text.split(/\s+/).filter(word => word.length > 0);
     const fullContent = `${title}. ${text}`;
 
-    // Função unificada para lidar com word boundaries
+    // Função para scroll automático melhorada
+    const scrollToWord = (wordIndex: number, isTitle: boolean) => {
+      const selector = isTitle ? `[data-word-index="title-${wordIndex}"]` : `[data-word-index="text-${wordIndex}"]`;
+      const wordElement = document.querySelector(selector);
+      
+      if (wordElement) {
+        const elementRect = wordElement.getBoundingClientRect();
+        const headerHeight = window.innerWidth < 640 ? 60 : 80;
+        const audioBarHeight = window.innerWidth < 640 ? 100 : 120;
+        const totalOffset = headerHeight + audioBarHeight + 20;
+        const targetY = window.scrollY + elementRect.top - totalOffset;
+
+        window.scrollTo({
+          top: Math.max(0, targetY),
+          behavior: 'smooth'
+        });
+      }
+    };
+
+    // Função unificada para lidar com word boundaries - sincronização perfeita
     const handleWordBoundary = (word: string, wordIndex: number) => {
       const totalTitleWords = titleWords.length;
       
+      // Sincronizar highlight imediatamente quando a palavra é falada
       if (wordIndex < totalTitleWords) {
         // Está no título
         setCurrentWordIndex(wordIndex);
-        
-        setTimeout(() => {
-          const wordElement = document.querySelector(`[data-word-index="title-${wordIndex}"]`);
-          if (wordElement) {
-            const elementRect = wordElement.getBoundingClientRect();
-            const headerHeight = window.innerWidth < 640 ? 60 : 80;
-            const audioBarHeight = window.innerWidth < 640 ? 100 : 120;
-            const totalOffset = headerHeight + audioBarHeight + 20;
-            const targetY = window.scrollY + elementRect.top - totalOffset;
-
-            window.scrollTo({
-              top: Math.max(0, targetY),
-              behavior: 'smooth'
-            });
-          }
-        }, 50);
+        scrollToWord(wordIndex, true);
       } else {
-        // Está no texto principal
-        const textWordIndex = wordIndex - totalTitleWords - 1; // -1 por causa do ponto após o título
+        // Está no texto principal (ajustar índice para compensar o ponto)
+        const textWordIndex = wordIndex - totalTitleWords - 1;
         if (textWordIndex >= 0 && textWordIndex < textWords.length) {
           const globalIndex = totalTitleWords + textWordIndex;
           setCurrentWordIndex(globalIndex);
+          scrollToWord(textWordIndex, false);
 
-          // Verificar se é a última palavra
+          // Verificar se é a última palavra e finalizar automaticamente
           if (textWordIndex >= textWords.length - 1) {
             setTimeout(() => {
               setIsAutoReading(false);
               setIsPaused(false);
-              setCurrentWordIndex(0);
+              setCurrentWordIndex(-1); // Reset para não destacar nenhuma palavra
               toast({
                 title: "🎉 Leitura concluída!",
                 description: "Professor Tommy terminou de ler o texto.",
               });
-            }, 1000);
+            }, 500); // Reduzido para 500ms para resposta mais rápida
           }
-
-          setTimeout(() => {
-            const wordElement = document.querySelector(`[data-word-index="text-${textWordIndex}"]`);
-            if (wordElement) {
-              const elementRect = wordElement.getBoundingClientRect();
-              const headerHeight = window.innerWidth < 640 ? 60 : 80;
-              const audioBarHeight = window.innerWidth < 640 ? 100 : 120;
-              const totalOffset = headerHeight + audioBarHeight + 20;
-              const targetY = window.scrollY + elementRect.top - totalOffset;
-
-              window.scrollTo({
-                top: Math.max(0, targetY),
-                behavior: 'smooth'
-              });
-            }
-          }, 50);
         }
       }
     };
 
-    // Iniciar leitura do conteúdo completo
-    setTimeout(() => {
-      setCurrentWordIndex(0);
-    }, 100);
-
+    // Iniciar leitura com primeira palavra destacada imediatamente
+    setCurrentWordIndex(0);
     playText(fullContent, "en-US", 0, handleWordBoundary);
 
     toast({
@@ -154,10 +141,12 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
   }, [title, text, playText, toast]);
 
   const pauseAutoReading = useCallback(() => {
+    // Pausar imediatamente tanto o áudio quanto o highlight
     setIsPaused(true);
     if (isPlaying) {
       pauseAudio();
     }
+    // Manter o highlight na palavra atual durante a pausa
     toast({
       title: "Professor Tommy pausado",
       description: "Clique em continuar para retomar",
@@ -167,6 +156,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
   const resumeAutoReading = useCallback(() => {
     if (!isAutoReading) return;
     
+    // Tentar retomar áudio pausado primeiro
     if (isPaused && speechSynthesis.paused && speechSynthesis.speaking && currentUtterance) {
       try {
         resumeAudio();
@@ -178,24 +168,36 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
         return;
       } catch (error) {
         console.warn("Erro ao retomar áudio:", error);
+        // Limpar estado antes de reiniciar
         stopAudio();
+        setIsPaused(false);
       }
     }
     
-    // Se não conseguiu retomar o áudio, reiniciar do início
+    // Se não conseguiu retomar, reiniciar do início com mensagem clara
+    toast({
+      title: "🔄 Reiniciando leitura",
+      description: "Começando desde o início",
+    });
     startAutoReading();
   }, [isAutoReading, isPaused, currentUtterance, resumeAudio, toast, stopAudio, startAutoReading]);
 
   const stopAutoReading = useCallback(() => {
+    // Parar tudo imediatamente e sincronizadamente
     setIsAutoReading(false);
     setIsPaused(false);
-    setCurrentWordIndex(0);
+    setCurrentWordIndex(-1); // Reset para não destacar nenhuma palavra
+    
+    // Limpar qualquer timer pendente
     if (autoReadingTimerRef.current) {
       clearTimeout(autoReadingTimerRef.current);
     }
+    
+    // Parar áudio se estiver tocando ou pausado
     if (isPlaying || isAudioPaused) {
       stopAudio();
     }
+    
     toast({
       title: "Professor Tommy parado",
       description: "Leitura automática foi interrompida",
