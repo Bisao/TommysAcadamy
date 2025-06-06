@@ -68,21 +68,27 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
   }, [text]);
 
   const startAutoReading = useCallback(() => {
+    // Garantir que qualquer síntese anterior seja cancelada
+    if (speechSynthesis.speaking) {
+      speechSynthesis.cancel();
+    }
+    
     setIsAutoReading(true);
     setIsPaused(false);
-    setCurrentWordIndex(0);
+    setCurrentWordIndex(-1); // Começar com -1 para o título
 
     const words = text.split(/\s+/).filter(word => word.length > 0);
     const titleWords = title.split(/\s+/).filter(word => word.length > 0);
     const fullContent = `${title}. ${text}`;
 
     const handleWordBoundary = (word: string, index: number) => {
-      const totalTitleWords = titleWords.length;
+      const totalTitleWords = titleWords.length + 1; // +1 para o ponto após o título
 
       if (index <= totalTitleWords) {
-        setCurrentWordIndex(0);
+        // Durante o título, manter o highlight em -1 ou 0
+        setCurrentWordIndex(-1);
       } else {
-        const textWordIndex = index - totalTitleWords - 1;
+        const textWordIndex = index - totalTitleWords;
         if (textWordIndex >= 0 && textWordIndex < words.length) {
           setCurrentWordIndex(textWordIndex);
 
@@ -105,11 +111,10 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
       }
     };
 
+    // Pequeno delay para garantir que a síntese anterior foi completamente cancelada
     setTimeout(() => {
-      setCurrentWordIndex(0);
+      playText(fullContent, "en-US", 0, handleWordBoundary);
     }, 100);
-
-    playText(fullContent, "en-US", 0, handleWordBoundary);
 
     toast({
       title: "🎯 Professor Tommy lendo o texto",
@@ -119,7 +124,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
 
   const pauseAutoReading = useCallback(() => {
     setIsPaused(true);
-    if (isPlaying) {
+    if (isPlaying && speechSynthesis.speaking && !speechSynthesis.paused) {
       pauseAudio();
     }
     toast({
@@ -132,42 +137,85 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
     if (!isAutoReading) return;
     setIsPaused(false);
     
+    // Se há áudio pausado, apenas resume sem reiniciar
+    if (isAudioPaused) {
+      resumeAudio();
+      toast({
+        title: "🎯 Professor Tommy retomando",
+        description: "Continuando de onde parou",
+      });
+      return;
+    }
+    
+    // Se não há áudio pausado, reinicia do ponto atual
     const words = text.split(/\s+/).filter(word => word.length > 0);
-    const remainingWords = words.slice(currentWordIndex + 1);
+    const remainingWords = words.slice(currentWordIndex);
     const remainingText = remainingWords.join(' ');
     
     if (remainingText.trim()) {
-      const handleWordBoundary = (word: string, index: number) => {
-        const adjustedIndex = currentWordIndex + 1 + index;
-        if (adjustedIndex >= 0 && adjustedIndex < words.length) {
-          setCurrentWordIndex(adjustedIndex);
+      // Para evitar interrupção, garantir que não há síntese em andamento
+      if (speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+        // Pequeno delay para garantir que a síntese anterior foi cancelada
+        setTimeout(() => {
+          const handleWordBoundary = (word: string, index: number) => {
+            const adjustedIndex = currentWordIndex + index;
+            if (adjustedIndex >= 0 && adjustedIndex < words.length) {
+              setCurrentWordIndex(adjustedIndex);
 
-          setTimeout(() => {
-            const wordElement = document.querySelector(`[data-word-index="${adjustedIndex}"]`);
-            if (wordElement) {
-              const elementRect = wordElement.getBoundingClientRect();
-              const headerHeight = window.innerWidth < 640 ? 60 : 80;
-              const audioBarHeight = window.innerWidth < 640 ? 100 : 120;
-              const totalOffset = headerHeight + audioBarHeight + 20;
-              const targetY = window.scrollY + elementRect.top - totalOffset;
+              setTimeout(() => {
+                const wordElement = document.querySelector(`[data-word-index="${adjustedIndex}"]`);
+                if (wordElement) {
+                  const elementRect = wordElement.getBoundingClientRect();
+                  const headerHeight = window.innerWidth < 640 ? 60 : 80;
+                  const audioBarHeight = window.innerWidth < 640 ? 100 : 120;
+                  const totalOffset = headerHeight + audioBarHeight + 20;
+                  const targetY = window.scrollY + elementRect.top - totalOffset;
 
-              window.scrollTo({
-                top: Math.max(0, targetY),
-                behavior: 'smooth'
-              });
+                  window.scrollTo({
+                    top: Math.max(0, targetY),
+                    behavior: 'smooth'
+                  });
+                }
+              }, 50);
             }
-          }, 50);
-        }
-      };
+          };
 
-      playText(remainingText, "en-US", 0, handleWordBoundary);
+          playText(remainingText, "en-US", 0, handleWordBoundary);
+        }, 100);
+      } else {
+        const handleWordBoundary = (word: string, index: number) => {
+          const adjustedIndex = currentWordIndex + index;
+          if (adjustedIndex >= 0 && adjustedIndex < words.length) {
+            setCurrentWordIndex(adjustedIndex);
+
+            setTimeout(() => {
+              const wordElement = document.querySelector(`[data-word-index="${adjustedIndex}"]`);
+              if (wordElement) {
+                const elementRect = wordElement.getBoundingClientRect();
+                const headerHeight = window.innerWidth < 640 ? 60 : 80;
+                const audioBarHeight = window.innerWidth < 640 ? 100 : 120;
+                const totalOffset = headerHeight + audioBarHeight + 20;
+                const targetY = window.scrollY + elementRect.top - totalOffset;
+
+                window.scrollTo({
+                  top: Math.max(0, targetY),
+                  behavior: 'smooth'
+                });
+              }
+            }, 50);
+          }
+        };
+
+        playText(remainingText, "en-US", 0, handleWordBoundary);
+      }
     }
     
     toast({
       title: "🎯 Professor Tommy retomando",
       description: "Continuando de onde parou",
     });
-  }, [isAutoReading, currentWordIndex, text, playText, toast]);
+  }, [isAutoReading, currentWordIndex, text, playText, isAudioPaused, resumeAudio, toast]);
 
   const stopAutoReading = useCallback(() => {
     setIsAutoReading(false);

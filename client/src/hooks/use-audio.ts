@@ -248,12 +248,12 @@ export function useAudio() {
   }, []);
 
   const resumeAudio = useCallback(() => {
-    if (speechSynthesis.paused) {
+    if (speechSynthesis.paused && currentUtterance) {
       speechSynthesis.resume();
       setIsPaused(false);
       setIsPlaying(true);
     }
-  }, []);
+  }, [currentUtterance]);
 
   const stopAudio = useCallback(() => {
     speechSynthesis.cancel();
