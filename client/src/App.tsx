@@ -8,7 +8,7 @@ import ProtectedRoute from "@/components/protected-route";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Login from "@/pages/login";
-import Profile from "@/pages/profile";
+import Profile from "@/pages/profile-new";
 import Reference from "@/pages/reference";
 import Reading from "@/pages/reading";
 import Lesson from "@/pages/lesson";
