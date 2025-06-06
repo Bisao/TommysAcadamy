@@ -145,9 +145,12 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
   const resumeAutoReading = useCallback(() => {
     if (!isAutoReading) return;
     
+    console.log("Resuming auto reading - isPaused:", isPaused, "isAudioPaused:", isAudioPaused, "currentWordIndex:", currentWordIndex);
+    
     // Primeiro tenta retomar o áudio atual se estiver pausado
-    if (isAudioPaused && currentUtterance) {
+    if (isPaused && isAudioPaused && speechSynthesis.paused) {
       try {
+        console.log("Tentando retomar áudio pausado...");
         resumeAudio();
         setIsPaused(false);
         toast({
@@ -178,8 +181,10 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
       return;
     }
     
-    // Continuar da próxima palavra
-    const startIndex = Math.max(0, currentWordIndex + 1);
+    console.log("Reiniciando leitura da palavra:", currentWordIndex);
+    
+    // Continuar da palavra atual (não da próxima)
+    const startIndex = Math.max(0, currentWordIndex);
     const remainingWords = words.slice(startIndex);
     const remainingText = remainingWords.join(' ');
     
@@ -227,7 +232,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
         description: "Continuando de onde parou",
       });
     }
-  }, [isAutoReading, isAudioPaused, currentUtterance, currentWordIndex, text, playText, resumeAudio, toast]);
+  }, [isAutoReading, isPaused, isAudioPaused, currentWordIndex, text, playText, resumeAudio, toast]);
 
   const stopAutoReading = useCallback(() => {
     setIsAutoReading(false);

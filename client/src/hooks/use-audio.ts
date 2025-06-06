@@ -96,13 +96,14 @@ export function useAudio() {
       // Se o erro for 'interrupted', isso é esperado durante pausas/retomadas
       if (event.error === 'interrupted') {
         console.log("Speech synthesis was interrupted (this is expected during pause/resume)");
+        // Não limpar o estado em caso de interrupção
+        return;
       } else {
         console.error("Unexpected speech synthesis error:", event.error);
+        setIsPlaying(false);
+        setIsPaused(false);
+        setCurrentUtterance(null);
       }
-      
-      setIsPlaying(false);
-      setIsPaused(false);
-      setCurrentUtterance(null);
     };
 
     // Add word boundary event for synchronization with mobile fallback
@@ -250,19 +251,30 @@ export function useAudio() {
   }, []);
 
   const pauseAudio = useCallback(() => {
+    console.log("pauseAudio called - speechSynthesis.speaking:", speechSynthesis.speaking, "speechSynthesis.paused:", speechSynthesis.paused);
+    
     if (speechSynthesis.speaking && !speechSynthesis.paused) {
-      speechSynthesis.pause();
-      setIsPaused(true);
-      setIsPlaying(false);
+      try {
+        speechSynthesis.pause();
+        setIsPaused(true);
+        setIsPlaying(false);
+        console.log("Speech synthesis paused successfully");
+      } catch (error) {
+        console.warn("Error pausing speech synthesis:", error);
+      }
     }
   }, []);
 
   const resumeAudio = useCallback(() => {
-    if (speechSynthesis.paused) {
+    console.log("resumeAudio called - speechSynthesis.paused:", speechSynthesis.paused, "speechSynthesis.speaking:", speechSynthesis.speaking);
+    
+    if (speechSynthesis.paused && speechSynthesis.speaking) {
       try {
+        console.log("Resuming speech synthesis...");
         speechSynthesis.resume();
         setIsPaused(false);
         setIsPlaying(true);
+        console.log("Speech synthesis resumed successfully");
       } catch (error) {
         console.warn("Error resuming speech synthesis:", error);
         // Se falhar ao retomar, cancela e limpa o estado
@@ -271,6 +283,8 @@ export function useAudio() {
         setIsPlaying(false);
         setCurrentUtterance(null);
       }
+    } else {
+      console.warn("Cannot resume - speechSynthesis.paused:", speechSynthesis.paused, "speechSynthesis.speaking:", speechSynthesis.speaking);
     }
   }, []);
 
