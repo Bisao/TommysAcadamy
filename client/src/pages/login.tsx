@@ -104,7 +104,7 @@ export default function Login() {
             <img 
               src="/tommy-logo.png" 
               alt="Tommy's Academy Logo" 
-              className="w-16 h-16 object-contain"
+              className="h-full w-auto object-contain max-h-16"
             />
             <h1 className="text-3xl font-bold text-cartoon-dark">Tommy's Academy</h1>
           </div>
