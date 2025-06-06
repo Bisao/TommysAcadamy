@@ -152,56 +152,80 @@ export function useAudio() {
       }
     };
 
-    // Add word boundary event for synchronization with mobile fallback
+    // Sistema de sincronização de palavra melhorado para desktop e mobile
     if (onWordBoundary) {
       let wordTimer: NodeJS.Timeout | null = null;
       let currentWordIndex = 0;
+      let boundaryEventsWorking = false;
       const words = textToPlay.split(' ');
-      const averageWordDuration = Math.max(400, (1 / (utterance.rate || 0.8)) * 400); // Estimated milliseconds per word
+      
+      // Calcular duração por palavra com base na velocidade
+      const baseWordDuration = 400; // ms base por palavra
+      const rateFactor = 1 / (utterance.rate || 0.8);
+      const averageWordDuration = Math.max(300, baseWordDuration * rateFactor);
+      
+      // Detectar dispositivo móvel
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                       window.innerWidth < 768 || 
+                       'ontouchstart' in window;
+      
+      console.log(`Audio sync setup - Mobile: ${isMobile}, Words: ${words.length}, Duration per word: ${averageWordDuration}ms`);
       
       utterance.onstart = () => {
         setIsPlaying(true);
         setIsPaused(false);
-        // Trigger first word immediately
+        console.log("Speech started - triggering first word highlight");
+        
+        // Disparar primeira palavra imediatamente
         onWordBoundary('', 0);
         currentWordIndex = 0;
+        boundaryEventsWorking = false;
         
-        // Fallback timer for mobile devices that don't support word boundary events
+        // Timer fallback para sincronização (essencial para mobile)
         const startWordTimer = () => {
+          console.log("Starting word timer fallback");
           wordTimer = setInterval(() => {
-            if (currentWordIndex < words.length) {
-              onWordBoundary(words[currentWordIndex] || '', currentWordIndex);
+            if (currentWordIndex < words.length && !speechSynthesis.paused) {
+              const wordToHighlight = words[currentWordIndex] || '';
+              console.log(`Timer highlighting word ${currentWordIndex}: "${wordToHighlight}"`);
+              onWordBoundary(wordToHighlight, currentWordIndex);
               currentWordIndex++;
-            } else {
-              if (wordTimer) clearInterval(wordTimer);
+            } else if (currentWordIndex >= words.length) {
+              console.log("Timer completed all words");
+              if (wordTimer) {
+                clearInterval(wordTimer);
+                wordTimer = null;
+              }
             }
           }, averageWordDuration);
         };
         
-        // Detect mobile devices
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
-        
-        // Start fallback timer immediately on mobile, or after a delay on desktop
+        // Iniciar timer imediatamente para mobile ou após pequeno delay para desktop
         if (isMobile) {
           startWordTimer();
         } else {
+          // Para desktop, aguardar um pouco para ver se boundary events funcionam
           setTimeout(() => {
-            if (currentWordIndex === 0) {
+            if (!boundaryEventsWorking && currentWordIndex <= 1) {
+              console.log("Boundary events not working, starting timer fallback");
               startWordTimer();
             }
-          }, averageWordDuration / 2);
+          }, averageWordDuration * 0.5);
         }
       };
       
       utterance.onboundary = (event) => {
         if (event.name === 'word') {
-          // Clear fallback timer if boundary events are working
+          boundaryEventsWorking = true;
+          console.log("Boundary event detected - clearing timer fallback");
+          
+          // Limpar timer fallback se boundary events estão funcionando
           if (wordTimer) {
             clearInterval(wordTimer);
             wordTimer = null;
           }
           
-          const words = textToPlay.split(' ');
+          // Calcular índice da palavra baseado na posição do caractere
           const charIndex = event.charIndex;
           let wordIndex = 0;
           let charCount = 0;
@@ -211,18 +235,24 @@ export function useAudio() {
               wordIndex = i + fromPosition;
               break;
             }
-            charCount += words[i].length + 1; // +1 for space
+            charCount += words[i].length + 1; // +1 para espaço
           }
           
-          currentWordIndex = wordIndex - fromPosition + 1;
-          onWordBoundary(words[wordIndex - fromPosition] || '', wordIndex);
+          const actualWordIndex = wordIndex - fromPosition;
+          currentWordIndex = actualWordIndex + 1;
+          
+          console.log(`Boundary event highlighting word ${wordIndex}: "${words[actualWordIndex] || ''}"`);
+          onWordBoundary(words[actualWordIndex] || '', wordIndex);
         }
       };
       
       utterance.onend = () => {
+        console.log("Speech ended - cleaning up timers");
         setIsPlaying(false);
         setIsPaused(false);
         setCurrentUtterance(null);
+        setCurrentText("");
+        setRemainingText("");
         if (wordTimer) {
           clearInterval(wordTimer);
           wordTimer = null;
@@ -231,9 +261,29 @@ export function useAudio() {
       
       utterance.onerror = (event) => {
         console.error("Speech synthesis error:", event);
-        setIsPlaying(false);
-        setIsPaused(false);
-        setCurrentUtterance(null);
+        
+        // Tratamento específico para diferentes tipos de erro
+        if (event.error === 'interrupted') {
+          console.log("Speech interrupted (expected during pause/resume)");
+          if (!isPaused) {
+            setIsPlaying(false);
+            setCurrentUtterance(null);
+          }
+        } else if (event.error === 'canceled') {
+          console.log("Speech canceled - attempting restart");
+          setIsPlaying(false);
+          setIsPaused(false);
+          setCurrentUtterance(null);
+          setTimeout(() => {
+            playText(textToPlay, lang, fromPosition, onWordBoundary);
+          }, 300);
+        } else {
+          console.error("Unexpected speech error:", event.error);
+          setIsPlaying(false);
+          setIsPaused(false);
+          setCurrentUtterance(null);
+        }
+        
         if (wordTimer) {
           clearInterval(wordTimer);
           wordTimer = null;
@@ -307,6 +357,10 @@ export function useAudio() {
         console.log("Speech synthesis paused successfully");
       } catch (error) {
         console.warn("Error pausing speech synthesis:", error);
+        // Fallback para móveis que não suportam pause
+        speechSynthesis.cancel();
+        setIsPaused(true);
+        setIsPlaying(false);
       }
     }
   }, []);
@@ -316,13 +370,26 @@ export function useAudio() {
     console.log("currentUtterance exists:", !!currentUtterance, "isPaused:", isPaused);
     
     // Verificar se há uma utterance pausada válida
-    if (currentUtterance && isPaused && (speechSynthesis.paused || speechSynthesis.speaking)) {
+    if (currentUtterance && isPaused) {
       try {
-        console.log("Resuming speech synthesis...");
-        speechSynthesis.resume();
-        setIsPaused(false);
-        setIsPlaying(true);
-        console.log("Speech synthesis resumed successfully");
+        // Tentar retomar se está pausado
+        if (speechSynthesis.paused && speechSynthesis.speaking) {
+          console.log("Resuming paused speech synthesis...");
+          speechSynthesis.resume();
+          setIsPaused(false);
+          setIsPlaying(true);
+          console.log("Speech synthesis resumed successfully");
+        } 
+        // Se não está pausado mas temos utterance, pode ter sido cancelado (mobile)
+        else if (!speechSynthesis.speaking) {
+          console.log("Speech was canceled, cannot resume with current method");
+          throw new Error("Speech was canceled, needs restart");
+        }
+        else {
+          console.log("Speech synthesis already running");
+          setIsPaused(false);
+          setIsPlaying(true);
+        }
       } catch (error) {
         console.warn("Error resuming speech synthesis:", error);
         // Se falhar ao retomar, cancela e limpa o estado

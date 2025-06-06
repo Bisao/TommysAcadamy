@@ -501,7 +501,8 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
               <h2 className="text-xl sm:text-2xl font-bold text-cartoon-dark mb-3 leading-normal">
                 {title.split(/\s+/).map((word, index) => {
                   const titleWordsCount = title.split(/\s+/).length;
-                  const isCurrentWord = isAutoReading && currentWordIndex === index;
+                  // Highlight durante leitura automática: verificar se é a palavra atual e se não está parado
+                  const isCurrentWord = isAutoReading && currentWordIndex === index && currentWordIndex >= 0;
                   const feedback = wordFeedback[index];
                   let colorClass = '';
 
@@ -552,7 +553,8 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
                 const titleWordsCount = title.split(/\s+/).length;
                 const globalIndex = titleWordsCount + textIndex;
                 const feedback = wordFeedback[globalIndex];
-                const isCurrentWord = isAutoReading && currentWordIndex === globalIndex;
+                // Highlight durante leitura automática: verificar se é a palavra atual e se não está parado
+                const isCurrentWord = isAutoReading && currentWordIndex === globalIndex && currentWordIndex >= 0;
                 let colorClass = '';
 
                 if (isCurrentWord) {
