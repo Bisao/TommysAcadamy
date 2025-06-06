@@ -64,8 +64,8 @@ function App() {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light" storageKey="tommy-academy-theme">
+    <ThemeProvider defaultTheme="light" storageKey="tommy-academy-theme">
+      <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <Toaster />
           <Router />

@@ -89,7 +89,11 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background pt-20 sm:pt-24 lg:pt-28">
       <Header user={user as any} />
-      
+
+      {/* Spacing between header and content */}
+      <div className="h-6"></div>
+
+      {/* Main Content */}
       <main className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Welcome Section */}
         <motion.div 
@@ -104,7 +108,7 @@ export default function Home() {
             Olá {(user as any)?.username}! Vamos aprender inglês hoje?
           </h2>
           <p className="text-base sm:text-lg lg:text-xl text-muted-foreground px-4 mb-6">Continue sua jornada de aprendizado com lições divertidas!</p>
-          
+
           {/* Daily Progress */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
