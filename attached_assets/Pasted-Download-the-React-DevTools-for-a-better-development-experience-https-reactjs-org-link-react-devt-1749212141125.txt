@@ -1,0 +1,55 @@
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+App.tsx:54 
+ Uncaught error: RangeError: Invalid array length
+    at calculateSimilarity (reading-lesson.tsx:292:22)
+    at reading-lesson.tsx:319:28
+    at Array.forEach (<anonymous>)
+    at reading-lesson.tsx:318:17
+    at Array.forEach (<anonymous>)
+    at reading-lesson.tsx:314:17
+    at reading-lesson.tsx:352:7
+react-dom.development.js:22878 
+ Uncaught RangeError: Invalid array length
+    at calculateSimilarity (reading-lesson.tsx:292:22)
+    at reading-lesson.tsx:319:28
+    at Array.forEach (<anonymous>)
+    at reading-lesson.tsx:318:17
+    at Array.forEach (<anonymous>)
+    at reading-lesson.tsx:314:17
+    at reading-lesson.tsx:352:7
+react-dom.development.js:18704 
+ The above error occurred in the <ReadingLesson> component:
+
+    at ReadingLesson (https://86626b14-2a48-4771-834d-11ec97d29933-00-3tjs2nzo9jp5z.spock.replit.dev/src/components/reading-lesson.tsx:36:41)
+    at div
+    at div
+    at Reading (https://86626b14-2a48-4771-834d-11ec97d29933-00-3tjs2nzo9jp5z.spock.replit.dev/src/pages/reading.tsx:28:27)
+    at Route (https://86626b14-2a48-4771-834d-11ec97d29933-00-3tjs2nzo9jp5z.spock.replit.…/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=5c12ddee:323:16)
+    at Switch (https://86626b14-2a48-4771-834d-11ec97d29933-00-3tjs2nzo9jp5z.spock.replit.…/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=5c12ddee:379:17)
+    at Router
+    at Provider (https://86626b14-2a48-4771-834d-11ec97d29933-00-3tjs2nzo9jp5z.spock.replit.…unner/workspace/node_modules/.vite/deps/chunk-XIZKKOCE.js?v=5c12ddee:22:15)
+    at TooltipProvider (https://86626b14-2a48-4771-834d-11ec97d29933-00-3tjs2nzo9jp5z.spock.replit.…space/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=5c12ddee:2214:5)
+    at QueryClientProvider (https://86626b14-2a48-4771-834d-11ec97d29933-00-3tjs2nzo9jp5z.spock.replit.…rkspace/node_modules/.vite/deps/@tanstack_react-query.js?v=5c12ddee:2805:3)
+    at ThemeProvider (https://86626b14-2a48-4771-834d-11ec97d29933-00-3tjs2nzo9jp5z.spock.replit.dev/src/components/theme-provider.tsx:25:3)
+    at App (https://86626b14-2a48-4771-834d-11ec97d29933-00-3tjs2nzo9jp5z.spock.replit.dev/src/App.tsx?v=6tk3TUsI5lv-DXN1YqkSz:114:3)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+App.tsx:54 
+ Uncaught error: RangeError: Invalid array length
+    at calculateSimilarity (reading-lesson.tsx:292:22)
+    at reading-lesson.tsx:319:28
+    at Array.forEach (<anonymous>)
+    at reading-lesson.tsx:318:17
+    at Array.forEach (<anonymous>)
+    at reading-lesson.tsx:314:17
+    at reading-lesson.tsx:352:7
+react-dom.development.js:12056 
+ Uncaught RangeError: Invalid array length
+    at calculateSimilarity (reading-lesson.tsx:292:22)
+    at reading-lesson.tsx:319:28
+    at Array.forEach (<anonymous>)
+    at reading-lesson.tsx:318:17
+    at Array.forEach (<anonymous>)
+    at reading-lesson.tsx:314:17
+    at reading-lesson.tsx:352:7

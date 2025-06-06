@@ -79,8 +79,8 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     const fullContent = `${title}. ${text}`;
     playText(fullContent);
 
-    // Calculate timing based on speech synthesis
-    const estimatedWordsPerMinute = 150; // Typical reading speed
+    // Calculate timing based on speech synthesis - slower to match audio
+    const estimatedWordsPerMinute = 120; // Slower reading speed to match audio
     const msPerWord = (60 / estimatedWordsPerMinute) * 1000;
 
     const readNextWord = (index: number) => {
@@ -88,8 +88,8 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
       if (index < 0) {
         setCurrentWordIndex(index);
         
-        // Calculate title reading duration
-        const titleDuration = titleWords.length * msPerWord + 500; // Extra pause after title
+        // Calculate title reading duration - longer to match audio
+        const titleDuration = titleWords.length * msPerWord + 1000; // Longer pause after title
         
         autoReadingTimerRef.current = setTimeout(() => {
           if (!isPaused) {
