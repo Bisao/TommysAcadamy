@@ -292,9 +292,10 @@ export default function Login() {
                     id="username"
                     type="text"
                     placeholder="Digite seu nome de usuário"
-                    className="pl-10 h-10 sm:h-12 text-sm sm:text-base border-2 border-gray-300 focus:border-cartoon-teal"
+                    className="pl-10 h-12 text-base border-2 border-gray-300 focus:border-cartoon-teal touch-target"
                     value={formData.username}
                     onChange={(e) => handleInputChange("username", e.target.value)}
+                    autoComplete="username"
                   />
                 </div>
               </div>
@@ -311,7 +312,7 @@ export default function Login() {
                       id="email"
                       type="email"
                       placeholder="Digite seu email"
-                      className="pl-10 h-10 sm:h-12 text-sm sm:text-base border-2 border-gray-300 focus:border-cartoon-teal"
+                      className="pl-10 h-12 text-base border-2 border-gray-300 focus:border-cartoon-teal touch-target"
                       value={formData.email}
                       onChange={(e) => handleInputChange("email", e.target.value)}
                     />
@@ -330,9 +331,10 @@ export default function Login() {
                     id="password"
                     type="password"
                     placeholder="Digite sua senha"
-                    className="pl-10 h-10 sm:h-12 text-sm sm:text-base border-2 border-gray-300 focus:border-cartoon-teal"
+                    className="pl-10 h-12 text-base border-2 border-gray-300 focus:border-cartoon-teal touch-target"
                     value={formData.password}
                     onChange={(e) => handleInputChange("password", e.target.value)}
+                    autoComplete="current-password"
                   />
                 </div>
               </div>
