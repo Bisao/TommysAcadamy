@@ -196,6 +196,10 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
       playText(selectedText);
       setShowAudioIcon(false);
       setSelectedText("");
+      // Clear text selection
+      if (window.getSelection) {
+        window.getSelection()?.removeAllRanges();
+      }
       toast({
         title: "🔊 Reproduzindo seleção",
         description: "Ouvindo o texto selecionado...",
@@ -414,9 +418,18 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
               style={{
                 left: `${iconPosition.x - 24}px`,
                 top: `${iconPosition.y}px`,
-                transform: 'translateX(-50%)'
+                transform: 'translateX(-50%)',
+                pointerEvents: 'auto'
               }}
-              onClick={playSelectedText}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                playSelectedText();
+              }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
             >
               <Volume2 size={24} className="drop-shadow-sm" />
             </motion.div>

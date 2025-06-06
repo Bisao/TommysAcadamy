@@ -89,7 +89,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-50 to-teal-50 pt-16 sm:pt-20">
       <Header user={user as any} />
-      
+
       <main className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Welcome Section */}
         <motion.div 
@@ -98,7 +98,7 @@ export default function Home() {
           className="text-center mb-8 sm:mb-12"
         >
           <div className="inline-block mb-3 sm:mb-4">
-            <Mascot />
+            <Mascot className="mb-8" followCursor={true} />
           </div>
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-cartoon-dark mb-2 px-2">
             Olá! Vamos aprender inglês hoje? 🎉
