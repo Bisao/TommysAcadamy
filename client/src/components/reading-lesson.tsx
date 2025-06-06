@@ -80,7 +80,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     const handleWordBoundary = (word: string, index: number) => {
       // Adjust index to account for title words
       const totalTitleWords = titleWords.length;
-      
+
       if (index <= totalTitleWords) {
         // Still reading title or just finished
         setCurrentWordIndex(-1);
@@ -89,7 +89,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
         const textWordIndex = index - totalTitleWords - 1;
         if (textWordIndex >= 0 && textWordIndex < words.length) {
           setCurrentWordIndex(textWordIndex);
-          
+
           // Scroll to current word
           setTimeout(() => {
             const wordElement = document.querySelector(`[data-word-index="${textWordIndex}"]`);
@@ -318,20 +318,18 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     }
   };
 
-  // Add click outside listener and tab visibility handling
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
-    
+
     // Handle tab visibility changes to maintain sync
     const handleVisibilityChange = () => {
       if (document.hidden && isAutoReading && !isPaused) {
-        // Tab became hidden, pause to maintain sync
         pauseAutoReading();
       }
     };
-    
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
@@ -396,7 +394,6 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
 
   return (
     <div className="max-w-4xl mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6 pt-20">
-
       {/* Controles de Áudio e Leitura - Acima do Painel de Texto */}
       <Card className="border-2 border-cartoon-gray bg-white shadow-lg">
         <CardContent className="p-3 sm:p-4">
@@ -404,7 +401,6 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
           <div className="flex flex-wrap gap-2 sm:gap-3 justify-center items-center">
             {/* Leitura Guiada */}
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-teal-700 hidden sm:block">📖 Leitura Guiada:</span>
               {!isAutoReading ? (
                 <Button
                   onClick={startAutoReading}
@@ -469,8 +465,6 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
               </Button>
             </div>
           </div>
-
-          
         </CardContent>
       </Card>
 
