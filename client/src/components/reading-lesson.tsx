@@ -103,12 +103,8 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
       if (index >= words.length) {
         // Reading completed
         setIsAutoReading(false);
-        setCurrentWordIndex(0);
-        toast({
-          title: "Leitura concluída!",
-          description: "Texto completo foi lido com sucesso.",
-        });
-        onComplete?.();
+        setCurrentWordIndex(words.length - 1); // Keep highlight on last word
+        // Removed completion toast message
         return;
       }
 
@@ -156,8 +152,10 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
       }, Math.max(wordDelay, 200)); // Minimum 200ms per word
     };
 
-    // Start immediately with title highlight
-    readNextWord(-1);
+    // Start with a small delay to allow audio to begin
+    setTimeout(() => {
+      readNextWord(-1);
+    }, 500); // 500ms delay to sync with audio start
 
     toast({
       title: "🎯 Professor Tommy lendo o texto",
@@ -285,7 +283,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     }
 
     for (let i = 1; i <= len2; i++) {
-      for (let j = 1; i <= len1; j++) {
+      for (let j = 1; j <= len1; j++) {
         if (w2.charAt(i - 1) === w1.charAt(j - 1)) {
           matrix[i][j] = matrix[i - 1][j - 1];
         } else {
