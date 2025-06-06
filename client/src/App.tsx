@@ -18,6 +18,7 @@ import Vocabulary from "@/pages/vocabulary";
 import Grammar from "@/pages/grammar";
 import Phrases from "@/pages/phrases";
 import Pronunciation from "@/pages/pronunciation";
+import { useEffect } from "react";
 
 function Router() {
   return (
@@ -40,9 +41,31 @@ function Router() {
 }
 
 function App() {
+  useEffect(() => {
+    // Handle unhandled promise rejections
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      console.error('Unhandled promise rejection:', event.reason);
+      // Prevent the default browser behavior
+      event.preventDefault();
+    };
+
+    // Handle uncaught errors
+    const handleError = (event: ErrorEvent) => {
+      console.error('Uncaught error:', event.error);
+    };
+
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    window.addEventListener('error', handleError);
+
+    return () => {
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+      window.removeEventListener('error', handleError);
+    };
+  }, []);
+
   return (
-    <ThemeProvider defaultTheme="light" storageKey="tommy-academy-theme">
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider defaultTheme="light" storageKey="tommy-academy-theme">
         <TooltipProvider>
           <Toaster />
           <Router />

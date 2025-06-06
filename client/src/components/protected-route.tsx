@@ -1,50 +1,62 @@
-
 import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { useLocation } from "wouter";
-import { useEffect } from "react";
+import { getQueryFn } from "@/lib/queryClient";
+import { User } from "@shared/schema";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const [, setLocation] = useLocation();
-  
-  const { data: user, isLoading, error } = useQuery({
+  const { data: user, isLoading, error } = useQuery<User | null>({
     queryKey: ["/api/user"],
-    queryFn: async () => {
-      const response = await apiRequest("GET", "/api/user");
-      if (!response.ok) {
-        throw new Error("User not authenticated");
-      }
-      return response.json();
-    },
+    queryFn: getQueryFn({ on401: "returnNull" }),
     retry: false,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  useEffect(() => {
-    if (!isLoading && (error || !user)) {
-      setLocation("/login");
-    }
-  }, [isLoading, error, user, setLocation]);
-
-  // Show loading while checking auth
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-sky-50 to-teal-50 flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    console.error("Protected route error:", error);
+    return (
+      <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cartoon-teal mx-auto mb-4"></div>
-          <p className="text-cartoon-dark">Carregando...</p>
+          <h1 className="text-2xl font-bold mb-4">Erro de Conexão</h1>
+          <p className="text-muted-foreground mb-4">
+            Houve um problema ao verificar suas permissões. Tente recarregar a página.
+          </p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-primary text-primary-foreground px-4 py-2 rounded hover:bg-primary/90"
+          >
+            Recarregar
+          </button>
         </div>
       </div>
     );
   }
 
-  // Don't render children if not authenticated
-  if (error || !user) {
-    return null;
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Acesso Negado</h1>
+          <p className="text-muted-foreground mb-4">
+            Você precisa estar logado para acessar esta página.
+          </p>
+          <a href="/login" className="text-primary hover:underline">
+            Fazer Login
+          </a>
+        </div>
+      </div>
+    );
   }
 
   return <>{children}</>;
