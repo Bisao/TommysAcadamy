@@ -86,6 +86,20 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
         if (textWordIndex >= 0 && textWordIndex < words.length) {
           setCurrentWordIndex(textWordIndex);
 
+          // Verificar se chegou ao final do texto
+          if (textWordIndex >= words.length - 1) {
+            // Aguardar um pouco para mostrar a última palavra destacada
+            setTimeout(() => {
+              setIsAutoReading(false);
+              setIsPaused(false);
+              setCurrentWordIndex(0);
+              toast({
+                title: "🎉 Leitura concluída!",
+                description: "Professor Tommy terminou de ler o texto.",
+              });
+            }, 1000);
+          }
+
           setTimeout(() => {
             const wordElement = document.querySelector(`[data-word-index="${textWordIndex}"]`);
             if (wordElement) {
@@ -154,6 +168,20 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
         const adjustedIndex = currentWordIndex + index;
         if (adjustedIndex >= 0 && adjustedIndex < words.length) {
           setCurrentWordIndex(adjustedIndex);
+
+          // Verificar se chegou ao final do texto
+          if (adjustedIndex >= words.length - 1) {
+            // Aguardar um pouco para mostrar a última palavra destacada
+            setTimeout(() => {
+              setIsAutoReading(false);
+              setIsPaused(false);
+              setCurrentWordIndex(0);
+              toast({
+                title: "🎉 Leitura concluída!",
+                description: "Professor Tommy terminou de ler o texto.",
+              });
+            }, 1000);
+          }
 
           setTimeout(() => {
             const wordElement = document.querySelector(`[data-word-index="${adjustedIndex}"]`);

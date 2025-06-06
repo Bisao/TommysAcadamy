@@ -86,6 +86,8 @@ export function useAudio() {
       setIsPlaying(false);
       setIsPaused(false);
       setCurrentUtterance(null);
+      setCurrentText("");
+      setRemainingText("");
     };
     
     utterance.onerror = (event) => {
