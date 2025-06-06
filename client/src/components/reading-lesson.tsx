@@ -37,7 +37,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
   const [wordFeedback, setWordFeedback] = useState<WordFeedback[]>([]);
   const [showAudioIcon, setShowAudioIcon] = useState(false);
   const [iconPosition, setIconPosition] = useState({ x: 0, y: 0 });
-  const [isAutoReading, setIsAutoReading] = useState(isAutoReading);
+  const [isAutoReading, setIsAutoReading] = useState(false);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [autoReadingSpeed, setAutoReadingSpeed] = useState(300); // milliseconds per word
@@ -98,7 +98,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
         const wordElement = document.querySelector(`[data-word-index="${index}"]`);
         if (wordElement) {
           const elementRect = wordElement.getBoundingClientRect();
-          const panelHeight = 280; // Approximate height of fixed panel + header
+          const panelHeight = 240; // Approximate height of fixed panel + header
           const targetY = window.scrollY + elementRect.top - panelHeight - 20;
 
           window.scrollTo({
@@ -169,7 +169,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
         const wordElement = document.querySelector(`[data-word-index="${index}"]`);
         if (wordElement) {
           const elementRect = wordElement.getBoundingClientRect();
-          const panelHeight = 280; // Approximate height of fixed panel + header
+          const panelHeight = 240; // Approximate height of fixed panel + header
           const targetY = window.scrollY + elementRect.top - panelHeight - 20;
 
           window.scrollTo({
