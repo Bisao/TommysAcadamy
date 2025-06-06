@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import Mascot from "@/components/mascot";
 import tommyLogoPath from "@assets/Tommy logo.png";
+import Header from "@/components/header";
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true);

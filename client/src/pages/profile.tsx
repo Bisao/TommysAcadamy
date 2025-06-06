@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -116,7 +115,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 to-teal-50 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 to-teal-50 pt-16 sm:pt-20 p-4 sm:p-6 lg:p-8">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <motion.div
@@ -184,7 +183,7 @@ export default function Profile() {
                       </Button>
                     )}
                   </div>
-                  
+
                   {isEditing && (
                     <div className="mt-4">
                       <Label className="text-sm font-semibold mb-2 block">

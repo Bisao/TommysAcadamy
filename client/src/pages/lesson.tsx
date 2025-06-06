@@ -26,7 +26,7 @@ export default function Lesson() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 to-teal-50">
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 to-teal-50 pt-16 sm:pt-20">
       <Header user={user} />
       
       {showLessonModal && lessonId && (

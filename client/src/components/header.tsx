@@ -54,14 +54,15 @@ export default function Header({ user }: HeaderProps) {
   if (!user) return null;
 
   return (
-    <header className="bg-white shadow-lg border-b-4 border-cartoon-teal">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-lg border-b-4 border-cartoon-teal">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
         <div className="flex justify-between items-center py-2 sm:py-4">
           {/* Logo Section */}
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex items-center space-x-2 sm:space-x-3"
+            className="flex items-center space-x-2 sm:space-x-3 cursor-pointer"
+            onClick={() => setLocation("/")}
           >
             <img 
               src={tommyLogoPath} 
