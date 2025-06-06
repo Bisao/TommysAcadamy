@@ -19,31 +19,48 @@ export default function Mascot({ className = "", followCursor = false }: MascotP
     setTimeout(() => setIsBlinking(false), 200);
   };
 
-    useEffect(() => {
+  useEffect(() => {
     if (!followCursor) return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      const mascotElement = document.querySelector('.mascot-container');
-      if (!mascotElement) return;
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
 
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        setMousePosition({ x: e.touches[0].clientX, y: e.touches[0].clientY });
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('touchmove', handleTouchMove);
+    
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, [followCursor]);
+
+  useEffect(() => {
+    if (!followCursor) return;
+    
+    const mascotElement = document.querySelector('.mascot-container');
+    if (mascotElement && mousePosition.x !== 0 && mousePosition.y !== 0) {
       const rect = mascotElement.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-
-      const deltaX = e.clientX - centerX;
-      const deltaY = e.clientY - centerY;
-
+      
+      const deltaX = mousePosition.x - centerX;
+      const deltaY = mousePosition.y - centerY;
+      
       // Limit eye movement range
       const maxMove = 8;
       const eyeX = Math.max(-maxMove, Math.min(maxMove, deltaX / 20));
       const eyeY = Math.max(-maxMove, Math.min(maxMove, deltaY / 20));
-
+      
       setEyePosition({ x: eyeX, y: eyeY });
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [followCursor]);
+    }
+  }, [mousePosition, followCursor]);
 
   return (
     <motion.div
@@ -65,28 +82,46 @@ export default function Mascot({ className = "", followCursor = false }: MascotP
           className="w-full h-full object-cover rounded-full"
         />
         {/* Interactive eyes overlay */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="relative">
-            {/* Left eye */}
-            <motion.div
-              className="absolute w-1 h-1 bg-black rounded-full"
-              style={{
-                left: `${-8 + eyePosition.x}px`,
-                top: `${-2 + eyePosition.y}px`,
-              }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            />
-            {/* Right eye */}
-            <motion.div
-              className="absolute w-1 h-1 bg-black rounded-full"
-              style={{
-                left: `${8 + eyePosition.x}px`,
-                top: `${-2 + eyePosition.y}px`,
-              }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            />
+        {followCursor && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="relative">
+              {/* Left eye background */}
+              <div 
+                className="absolute w-3 h-3 bg-white rounded-full border border-gray-300"
+                style={{
+                  left: `${-10}px`,
+                  top: `${-4}px`,
+                }}
+              />
+              {/* Right eye background */}
+              <div 
+                className="absolute w-3 h-3 bg-white rounded-full border border-gray-300"
+                style={{
+                  left: `${6}px`,
+                  top: `${-4}px`,
+                }}
+              />
+              {/* Left pupil */}
+              <motion.div
+                className="absolute w-1.5 h-1.5 bg-black rounded-full z-10"
+                style={{
+                  left: `${-8.5 + eyePosition.x}px`,
+                  top: `${-2.5 + eyePosition.y}px`,
+                }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              />
+              {/* Right pupil */}
+              <motion.div
+                className="absolute w-1.5 h-1.5 bg-black rounded-full z-10"
+                style={{
+                  left: `${7.5 + eyePosition.x}px`,
+                  top: `${-2.5 + eyePosition.y}px`,
+                }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </motion.div>
   );
