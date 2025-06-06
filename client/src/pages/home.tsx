@@ -6,9 +6,9 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookOpen, MessageCircle, Mic, Palette, Trophy, Medal, Star, Flame, Target } from "lucide-react";
+import { BookOpen, MessageCircle, Mic, Palette, Trophy, Medal, Star, Flame, Target, Calendar, Clock, Award, TrendingUp, Zap, Brain } from "lucide-react";
 import { useLocation } from "wouter";
 
 export default function Home() {
@@ -87,7 +87,7 @@ export default function Home() {
   const dailyProgress = dailyStats ? ((dailyStats as any).lessonsCompleted / ((user as any)?.dailyGoal || 4)) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 to-teal-50 pt-16 sm:pt-20">
+    <div className="min-h-screen bg-background pt-16 sm:pt-20">
       <Header user={user as any} />
       
       <main className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
@@ -97,47 +97,129 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8 sm:mb-12"
         >
-          <div className="inline-block mb-3 sm:mb-4">
+          <div className="inline-block mb-3 sm:mb-4 floating-card">
             <Mascot />
           </div>
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-cartoon-dark mb-2 px-2">
-            Olá! Vamos aprender inglês hoje? 🎉
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold gradient-text mb-4 px-2">
+            Olá {user?.username}! Vamos aprender inglês hoje?
           </h2>
-          <p className="text-sm sm:text-base lg:text-lg text-gray-600 px-4">Continue sua jornada de aprendizado com lições divertidas!</p>
+          <p className="text-base sm:text-lg lg:text-xl text-muted-foreground px-4 mb-6">Continue sua jornada de aprendizado com lições divertidas!</p>
+          
+          {/* Daily Progress */}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+            className="glass-card p-4 sm:p-6 max-w-md mx-auto mb-8"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center space-x-2">
+                <Target className="w-5 h-5 text-primary" />
+                <span className="font-semibold text-foreground">Meta Diária</span>
+              </div>
+              <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
+                {Math.round(dailyProgress)}%
+              </Badge>
+            </div>
+            <Progress value={dailyProgress} className="h-3 mb-2" />
+            <p className="text-sm text-muted-foreground">
+              {dailyStats?.lessonsCompleted || 0} de {user?.dailyGoal || 4} lições completadas hoje
+            </p>
+          </motion.div>
+        </motion.div>
+
+        {/* Quick Stats Dashboard */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
+        >
+          <Card className="cartoon-card">
+            <CardContent className="p-4 text-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-2">
+                <Flame className="text-white" size={24} />
+              </div>
+              <p className="text-2xl font-bold text-foreground">{user?.streak || 0}</p>
+              <p className="text-sm text-muted-foreground">Dias seguidos</p>
+            </CardContent>
+          </Card>
+
+          <Card className="cartoon-card">
+            <CardContent className="p-4 text-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-2">
+                <Star className="text-white" size={24} />
+              </div>
+              <p className="text-2xl font-bold text-foreground">{user?.totalXP || 0}</p>
+              <p className="text-sm text-muted-foreground">XP Total</p>
+            </CardContent>
+          </Card>
+
+          <Card className="cartoon-card">
+            <CardContent className="p-4 text-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-2">
+                <Trophy className="text-white" size={24} />
+              </div>
+              <p className="text-2xl font-bold text-foreground">{user?.level || 1}</p>
+              <p className="text-sm text-muted-foreground">Nível</p>
+            </CardContent>
+          </Card>
+
+          <Card className="cartoon-card">
+            <CardContent className="p-4 text-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full flex items-center justify-center mx-auto mb-2">
+                <Brain className="text-white" size={24} />
+              </div>
+              <p className="text-2xl font-bold text-foreground">{lessons.filter((l: any) => l.completed).length}</p>
+              <p className="text-sm text-muted-foreground">Lições</p>
+            </CardContent>
+          </Card>
         </motion.div>
 
         {/* Main Navigation Cards */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          transition={{ delay: 0.4 }}
           className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8"
         >
-          <Card className="cartoon-card border-2 border-cartoon-blue hover:shadow-xl transition-all duration-300 cursor-pointer"
-                onClick={() => setLocation("/lessons")}>
-            <CardContent className="p-6 text-center">
-              <div className="w-20 h-20 mx-auto mb-4 bg-cartoon-blue rounded-full flex items-center justify-center">
-                <BookOpen className="text-white" size={40} />
+          <Card className="cartoon-card group cursor-pointer overflow-hidden" onClick={() => setLocation("/lessons")}>
+            <CardContent className="p-0">
+              <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-center relative overflow-hidden">
+                <div className="absolute inset-0 bg-white/10 transform rotate-12 translate-x-4 -translate-y-4 group-hover:translate-x-8 transition-transform duration-300"></div>
+                <div className="relative z-10">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                    <BookOpen className="text-white" size={32} />
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-2">Aulas</h3>
+                  <p className="text-blue-100 mb-4">Explore lições organizadas por categoria</p>
+                </div>
               </div>
-              <h3 className="text-2xl font-bold text-cartoon-dark mb-2">Aulas</h3>
-              <p className="text-gray-600 mb-4">Explore lições organizadas por categoria</p>
-              <Button className="w-full cartoon-button bg-cartoon-blue hover:bg-cartoon-blue/80">
-                Ver Aulas
-              </Button>
+              <div className="p-4">
+                <Button className="w-full cartoon-button-secondary">
+                  Ver Todas as Aulas
+                </Button>
+              </div>
             </CardContent>
           </Card>
 
-          <Card className="cartoon-card border-2 border-cartoon-coral hover:shadow-xl transition-all duration-300 cursor-pointer"
-                onClick={() => setLocation("/exercises")}>
-            <CardContent className="p-6 text-center">
-              <div className="w-20 h-20 mx-auto mb-4 bg-cartoon-coral rounded-full flex items-center justify-center">
-                <Target className="text-white" size={40} />
+          <Card className="cartoon-card group cursor-pointer overflow-hidden" onClick={() => setLocation("/exercises")}>
+            <CardContent className="p-0">
+              <div className="bg-gradient-to-br from-orange-500 to-red-600 p-6 text-center relative overflow-hidden">
+                <div className="absolute inset-0 bg-white/10 transform -rotate-12 -translate-x-4 translate-y-4 group-hover:-translate-x-8 transition-transform duration-300"></div>
+                <div className="relative z-10">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                    <Target className="text-white" size={32} />
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-2">Exercícios</h3>
+                  <p className="text-orange-100 mb-4">Pratique e teste seus conhecimentos</p>
+                </div>
               </div>
-              <h3 className="text-2xl font-bold text-cartoon-dark mb-2">Exercícios</h3>
-              <p className="text-gray-600 mb-4">Pratique e teste seus conhecimentos</p>
-              <Button className="w-full cartoon-button bg-cartoon-coral hover:bg-cartoon-coral/80">
-                Fazer Exercícios
-              </Button>
+              <div className="p-4">
+                <Button className="w-full cartoon-button">
+                  Fazer Exercícios
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </motion.div>

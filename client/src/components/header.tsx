@@ -7,6 +7,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
+import { ThemeToggle } from "@/components/theme-toggle";
 import Mascot from "./mascot";
 import tommyLogoPath from "@assets/Tommy logo.png";
 
@@ -53,7 +54,7 @@ export default function Header({ user }: HeaderProps) {
   if (!user) return null;
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[100] bg-white shadow-lg border-b-4 border-cartoon-teal">
+    <header className="fixed top-0 left-0 right-0 z-[100] glass-card border-b border-border/50 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
         <div className="flex justify-between items-center py-2 sm:py-4">
           {/* Logo Section */}
@@ -68,8 +69,8 @@ export default function Header({ user }: HeaderProps) {
               alt="Tommy's Academy Logo" 
               className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 object-contain"
             />
-            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-cartoon-dark hidden sm:block">Tommy's Academy</h1>
-            <h1 className="text-base font-bold text-cartoon-dark sm:hidden">Tommy's</h1>
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold gradient-text hidden sm:block">Tommy's Academy</h1>
+            <h1 className="text-base font-bold gradient-text sm:hidden">Tommy's</h1>
           </motion.div>
 
           {/* User Stats and Profile */}
@@ -82,10 +83,10 @@ export default function Header({ user }: HeaderProps) {
             <motion.div 
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              className="flex items-center space-x-1 bg-orange-100 px-2 py-1 rounded-full"
+              className="flex items-center space-x-1 bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded-full border border-orange-200 dark:border-orange-800"
             >
-              <Flame className="w-4 h-4 text-orange-500" />
-              <span className="text-orange-700 font-bold text-sm">{user.streak}</span>
+              <Flame className="w-4 h-4 text-orange-500 dark:text-orange-400" />
+              <span className="text-orange-700 dark:text-orange-300 font-bold text-sm">{user.streak}</span>
             </motion.div>
 
             {/* XP */}
@@ -93,10 +94,10 @@ export default function Header({ user }: HeaderProps) {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.1 }}
-              className="flex items-center space-x-1 bg-blue-100 px-2 py-1 rounded-full"
+              className="flex items-center space-x-1 bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded-full border border-blue-200 dark:border-blue-800"
             >
-              <Star className="w-4 h-4 text-blue-500" />
-              <span className="text-blue-700 font-bold text-sm">{user.totalXP}</span>
+              <Star className="w-4 h-4 text-blue-500 dark:text-blue-400" />
+              <span className="text-blue-700 dark:text-blue-300 font-bold text-sm">{user.totalXP}</span>
             </motion.div>
 
             {/* Level */}
@@ -104,11 +105,14 @@ export default function Header({ user }: HeaderProps) {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2 }}
-              className="flex items-center space-x-1 bg-green-100 px-2 py-1 rounded-full"
+              className="flex items-center space-x-1 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full border border-green-200 dark:border-green-800"
             >
-              <Trophy className="w-4 h-4 text-green-500" />
-              <span className="text-green-700 font-bold text-sm">{user.level}</span>
+              <Trophy className="w-4 h-4 text-green-500 dark:text-green-400" />
+              <span className="text-green-700 dark:text-green-300 font-bold text-sm">{user.level}</span>
             </motion.div>
+
+            {/* Theme Toggle */}
+            <ThemeToggle />
 
             {/* Profile Avatar */}
             <Button

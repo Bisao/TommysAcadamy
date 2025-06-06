@@ -199,6 +199,15 @@
   }
 }
 
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
 /* Custom utility classes for cartoon theme */
 .text-cartoon-red { color: hsl(var(--cartoon-red)); }
 .text-cartoon-teal { color: hsl(var(--cartoon-teal)); }
