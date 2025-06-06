@@ -286,7 +286,7 @@ export default function LessonModal({ lessonId, onClose }: LessonModalProps) {
         {showCompletion && lessonResults && (
           <CompletionModal
             results={lessonResults}
-            lessonTitle={lesson.title}
+            lessonTitle={(lesson as any).title}
             currentLessonId={currentLessonId}
             onNextLesson={(nextLessonId) => {
               setShowCompletion(false);
