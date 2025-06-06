@@ -12,17 +12,42 @@ interface CompletionModalProps {
     incorrect: number;
   };
   lessonTitle: string;
-  onNextLesson: () => void;
+  currentLessonId: number;
+  onNextLesson: (nextLessonId: number | null) => void;
   onBackToHome: () => void;
 }
 
 export default function CompletionModal({ 
   results, 
   lessonTitle, 
+  currentLessonId,
   onNextLesson, 
   onBackToHome 
 }: CompletionModalProps) {
   const isPassed = results.score >= 70;
+
+  // Get all lessons and progress to find next uncompleted lesson
+  const { data: lessons } = useQuery({
+    queryKey: ["/api/lessons"],
+  });
+
+  const { data: progressData } = useQuery({
+    queryKey: ["/api/progress"],
+  });
+
+  const findNextLesson = () => {
+    if (!lessons || !progressData?.progress) return null;
+    
+    // Find the next lesson that hasn't been completed
+    const nextLesson = lessons.find((lesson: any) => {
+      const lessonProgress = progressData.progress.find((p: any) => p.lessonId === lesson.id);
+      return lesson.id > currentLessonId && (!lessonProgress || !lessonProgress.completed);
+    });
+    
+    return nextLesson ? nextLesson.id : null;
+  };
+
+  const nextLessonId = findNextLesson();
 
   return (
     <motion.div
@@ -90,12 +115,21 @@ export default function CompletionModal({
         {/* Action Buttons */}
         <div className="space-y-3">
           {isPassed ? (
-            <Button
-              onClick={onNextLesson}
-              className="w-full cartoon-button transform hover:scale-105 transition-all"
-            >
-              Próxima Lição
-            </Button>
+            nextLessonId ? (
+              <Button
+                onClick={() => onNextLesson(nextLessonId)}
+                className="w-full cartoon-button transform hover:scale-105 transition-all"
+              >
+                Próxima Lição
+              </Button>
+            ) : (
+              <Button
+                onClick={onBackToHome}
+                className="w-full cartoon-button transform hover:scale-105 transition-all"
+              >
+                Parabéns! Você completou todas as lições!
+              </Button>
+            )
           ) : (
             <Button
               onClick={onBackToHome}
