@@ -41,7 +41,7 @@ export default function LessonModal({ lessonId, onClose }: LessonModalProps) {
     queryKey: [`/api/lessons/${currentLessonId}`],
   });
 
-  const questions = lesson?.questions || [];
+  const questions = (lesson as any)?.questions || [];
   const currentQuestion = questions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
 
@@ -187,7 +187,7 @@ export default function LessonModal({ lessonId, onClose }: LessonModalProps) {
         >
           {/* Modal Header */}
           <div className="flex justify-between items-center p-3 sm:p-6 border-b-2 border-cartoon-gray">
-            <h3 className="text-lg sm:text-2xl font-bold text-cartoon-dark">{lesson.title}</h3>
+            <h3 className="text-lg sm:text-2xl font-bold text-cartoon-dark">{(lesson as any).title}</h3>
             <Button 
               variant="ghost" 
               size="sm"
@@ -199,54 +199,54 @@ export default function LessonModal({ lessonId, onClose }: LessonModalProps) {
           </div>
 
           {/* Progress Bar */}
-          <div className="p-6 pb-0">
-            <div className="flex justify-between text-sm text-gray-600 mb-2">
+          <div className="p-3 sm:p-6 pb-0">
+            <div className="flex justify-between text-xs sm:text-sm text-gray-600 mb-2">
               <span>Progresso da Lição</span>
               <span>{currentQuestionIndex + 1} de {questions.length}</span>
             </div>
-            <Progress value={progress} className="h-3" />
+            <Progress value={progress} className="h-2 sm:h-3" />
           </div>
 
           {/* Question Content */}
-          <div className="p-6">
+          <div className="p-3 sm:p-6">
             {/* Question Header */}
-            <div className="text-center mb-6">
-              <h4 className="text-xl font-bold text-cartoon-dark mb-2">
+            <div className="text-center mb-4 sm:mb-6">
+              <h4 className="text-lg sm:text-xl font-bold text-cartoon-dark mb-2 px-2">
                 {currentQuestion?.question}
               </h4>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handlePlayAudio}
-                className="bg-cartoon-blue hover:bg-cartoon-blue/80 text-white border-0"
+                className="bg-cartoon-blue hover:bg-cartoon-blue/80 text-white border-0 w-10 h-10 rounded-full"
               >
-                <Volume2 size={16} />
+                <Volume2 size={14} className="sm:w-4 sm:h-4" />
               </Button>
             </div>
 
             {/* Answer Options */}
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {currentQuestion?.options?.map((option: string, index: number) => (
                 <motion.button
                   key={option}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => handleAnswerSelect(option)}
-                  className={`w-full p-4 text-left font-semibold rounded-xl border-2 transition-all duration-200 ${
+                  className={`w-full p-3 sm:p-4 text-left font-semibold rounded-xl border-2 transition-all duration-200 touch-manipulation ${
                     selectedAnswer === option
                       ? "border-cartoon-teal bg-cartoon-teal/10 text-cartoon-dark"
                       : "border-gray-300 bg-cartoon-gray hover:border-cartoon-teal hover:bg-cartoon-mint/10"
                   }`}
                 >
-                  <div className="flex items-center space-x-3">
-                    <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-bold ${
+                  <div className="flex items-center space-x-2 sm:space-x-3">
+                    <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 flex items-center justify-center text-xs sm:text-sm font-bold ${
                       selectedAnswer === option
                         ? "border-cartoon-teal bg-cartoon-teal text-white"
                         : "border-gray-400 text-gray-600"
                     }`}>
                       {String.fromCharCode(65 + index)}
                     </div>
-                    <span>{option}</span>
+                    <span className="text-sm sm:text-base">{option}</span>
                   </div>
                 </motion.button>
               ))}

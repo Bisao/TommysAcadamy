@@ -255,13 +255,49 @@
 .border-cartoon-orange { border-color: hsl(var(--cartoon-orange)); }
 .border-cartoon-purple { border-color: hsl(var(--cartoon-purple)); }
 
+/* Mobile-optimized touch targets */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Improved mobile scrolling */
+.mobile-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Prevent zoom on input focus on mobile */
+@media screen and (max-width: 767px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Better mobile button spacing */
+.mobile-button-group button {
+  margin: 8px 4px;
+  min-height: 48px;
+}
+
 /* Profile page specific styles */
 .avatar-selector {
   transition: all 0.2s ease-in-out;
+  min-height: 44px;
+  min-width: 44px;
 }
 
 .avatar-selector:hover {
   transform: scale(1.1);
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .avatar-selector:hover {
+    transform: none;
+  }
+  .avatar-selector:active {
+    transform: scale(0.95);
+  }
 }
 
 .profile-stat-card {
@@ -274,4 +310,13 @@
 .profile-stat-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .profile-stat-card:hover {
+    transform: none;
+  }
+  .profile-stat-card:active {
+    transform: translateY(1px);
+  }
 }

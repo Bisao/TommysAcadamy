@@ -300,63 +300,63 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
   }, [text, resetTranscript, toast]);
 
   const createAudioControls = useCallback(() => (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1 sm:gap-2">
       {!isAutoReading ? (
         <Button
           onClick={startAutoReading}
-          className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
           title="Iniciar leitura guiada"
         >
-          <Play size={16} />
+          <Play size={14} className="sm:w-4 sm:h-4" />
         </Button>
       ) : (
         <>
           {isPaused ? (
             <Button
               onClick={resumeAutoReading}
-              className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
               title="Continuar leitura guiada"
             >
-              <Play size={16} />
+              <Play size={14} className="sm:w-4 sm:h-4" />
             </Button>
           ) : (
             <Button
               onClick={pauseAutoReading}
-              className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
               title="Pausar leitura guiada"
             >
-              <Pause size={16} />
+              <Pause size={14} className="sm:w-4 sm:h-4" />
             </Button>
           )}
           <Button
             onClick={stopAutoReading}
-            className="w-10 h-10 rounded-full bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
             title="Parar leitura guiada"
           >
-            <VolumeX size={16} />
+            <VolumeX size={14} className="sm:w-4 sm:h-4" />
           </Button>
         </>
       )}
 
       <Button
         onClick={toggleReadingMode}
-        className={`w-10 h-10 rounded-full ${
+        className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full ${
           isReadingMode 
             ? "bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700" 
             : "bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
         } text-white shadow-lg hover:shadow-xl transition-all duration-200`}
         title={isReadingMode ? "Parar reconhecimento" : "Iniciar reconhecimento de voz"}
       >
-        {isReadingMode ? <MicOff size={16} /> : <Mic size={16} />}
+        {isReadingMode ? <MicOff size={14} className="sm:w-4 sm:h-4" /> : <Mic size={14} className="sm:w-4 sm:h-4" />}
       </Button>
 
       <Button
         onClick={resetReading}
         disabled={!transcript}
-        className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 disabled:from-gray-300 disabled:to-gray-400 text-white shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
+        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 disabled:from-gray-300 disabled:to-gray-400 text-white shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
         title="Reiniciar leitura"
       >
-        <RotateCcw size={16} />
+        <RotateCcw size={14} className="sm:w-4 sm:h-4" />
       </Button>
     </div>
   ), [isAutoReading, isPaused, isReadingMode, transcript, startAutoReading, resumeAutoReading, pauseAutoReading, stopAutoReading, toggleReadingMode, resetReading]);
