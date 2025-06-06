@@ -14,7 +14,7 @@ import {
   type Question
 } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -69,6 +69,7 @@ export class MemStorage implements IStorage {
       id: 1,
       username: "learner",
       email: "learner@cartoonlingo.com",
+      password: "password123",
       streak: 7,
       totalXP: 1250,
       level: 5,
@@ -501,8 +502,7 @@ export class DatabaseStorage implements IStorage {
 
   async getLessonProgress(userId: number, lessonId: number): Promise<UserProgress | undefined> {
     const [progress] = await db.select().from(userProgress)
-      .where(eq(userProgress.userId, userId))
-      .where(eq(userProgress.lessonId, lessonId));
+      .where(and(eq(userProgress.userId, userId), eq(userProgress.lessonId, lessonId)));
     return progress || undefined;
   }
 
@@ -513,8 +513,7 @@ export class DatabaseStorage implements IStorage {
       const [updated] = await db
         .update(userProgress)
         .set(progressUpdates)
-        .where(eq(userProgress.userId, userId))
-        .where(eq(userProgress.lessonId, lessonId))
+        .where(and(eq(userProgress.userId, userId), eq(userProgress.lessonId, lessonId)))
         .returning();
       return updated;
     } else {
@@ -536,8 +535,7 @@ export class DatabaseStorage implements IStorage {
 
   async getUserStats(userId: number, date: string): Promise<UserStats | undefined> {
     const [stats] = await db.select().from(userStats)
-      .where(eq(userStats.userId, userId))
-      .where(eq(userStats.date, date));
+      .where(and(eq(userStats.userId, userId), eq(userStats.date, date)));
     return stats || undefined;
   }
 
@@ -548,8 +546,7 @@ export class DatabaseStorage implements IStorage {
       const [updated] = await db
         .update(userStats)
         .set(statsUpdates)
-        .where(eq(userStats.userId, userId))
-        .where(eq(userStats.date, date))
+        .where(and(eq(userStats.userId, userId), eq(userStats.date, date)))
         .returning();
       return updated;
     } else {
