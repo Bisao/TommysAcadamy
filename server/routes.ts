@@ -136,7 +136,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const percentage = Math.round((score / totalQuestions) * 100);
-      const xpEarned = Math.round(lesson.xpReward * (percentage / 100));
+      const xpEarned = Math.round((lesson.xpReward || 10) * (percentage / 100));
       const completed = percentage >= 70; // 70% to pass
 
       // Update lesson progress
@@ -154,7 +154,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.getUser(1);
       if (user && completed) {
         await storage.updateUser(1, {
-          totalXP: user.totalXP + xpEarned
+          totalXP: (user.totalXP || 0) + xpEarned
         });
 
         // Update daily stats

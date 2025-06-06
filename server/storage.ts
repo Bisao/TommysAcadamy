@@ -78,89 +78,225 @@ export class MemStorage implements IStorage {
     this.users.set(1, defaultUser);
     this.currentUserId = 2;
 
-    // Create sample lessons
+    // Create lessons based on NYT materials
     const sampleLessons: Lesson[] = [
       {
         id: 1,
-        title: "Basic Greetings",
-        description: "Learn how to say hello and introduce yourself",
-        category: "vocabulary",
+        title: "Food Trends 2021 - Simple Present",
+        description: "Learn about food trends and master Simple Present tense",
+        category: "grammar",
         level: 1,
-        xpReward: 15,
+        xpReward: 25,
         order: 1,
         isLocked: false,
         questions: [
           {
             id: "1",
             type: "multiple_choice",
-            question: "What does 'Hello' mean?",
-            options: ["Olá", "Adeus", "Por favor", "Obrigado"],
-            correctAnswer: "Olá",
-            explanation: "'Hello' is a common greeting that means 'Olá' in Portuguese."
+            question: "What does 'trend' mean?",
+            options: ["tendência", "garrafa", "verão", "mundo"],
+            correctAnswer: "tendência",
+            explanation: "A 'trend' is a tendência - a general direction in which something is developing or changing."
           },
           {
             id: "2",
             type: "multiple_choice",
-            question: "How do you say 'Good morning'?",
-            options: ["Good night", "Good morning", "Good evening", "Good afternoon"],
-            correctAnswer: "Good morning",
-            explanation: "'Good morning' is used to greet someone in the morning."
+            question: "Complete with Simple Present: Most forecasters _____ that the pandemic will affect food trends.",
+            options: ["agree", "agreed", "agreeing", "will agree"],
+            correctAnswer: "agree",
+            explanation: "We use Simple Present for facts and general truths. 'Most forecasters agree' is correct."
+          },
+          {
+            id: "3",
+            type: "multiple_choice",
+            question: "What does 'forecast' mean?",
+            options: ["previsão", "rolha", "inverno", "onda"],
+            correctAnswer: "previsão",
+            explanation: "A 'forecast' means previsão - a prediction about future events."
+          },
+          {
+            id: "4",
+            type: "multiple_choice",
+            question: "Choose the correct emphatic form: I _____ like coffee (emphatic).",
+            options: ["do like", "am like", "like", "will like"],
+            correctAnswer: "do like",
+            explanation: "We use 'do' + verb for emphasis in positive sentences: 'I do like coffee.'"
           }
         ] as Question[]
       },
       {
         id: 2,
-        title: "Family Members",
-        description: "Learn words for family relationships",
-        category: "vocabulary",
-        level: 1,
-        xpReward: 20,
+        title: "Tom Hanks Movie - Simple Past",
+        description: "Learn about acting and master Simple Past tense",
+        category: "grammar",
+        level: 2,
+        xpReward: 25,
         order: 2,
         isLocked: false,
         questions: [
           {
             id: "1",
             type: "multiple_choice",
-            question: "What does 'Mother' mean?",
-            options: ["Mãe", "Pai", "Irmã", "Avó"],
-            correctAnswer: "Mãe",
-            explanation: "'Mother' means 'Mãe' in Portuguese."
+            question: "What does 'challenge' mean?",
+            options: ["desafio", "criança", "teatro", "diálogo"],
+            correctAnswer: "desafio",
+            explanation: "A 'challenge' means desafio - something that requires effort and skill."
           },
           {
             id: "2",
             type: "multiple_choice",
-            question: "What does 'Father' mean?",
-            options: ["Mãe", "Pai", "Irmão", "Avô"],
-            correctAnswer: "Pai",
-            explanation: "'Father' means 'Pai' in Portuguese."
+            question: "Complete with Simple Past: The director _____ the film last year.",
+            options: ["made", "make", "makes", "making"],
+            correctAnswer: "made",
+            explanation: "Simple Past of 'make' is 'made'. We use it for completed actions in the past."
+          },
+          {
+            id: "3",
+            type: "multiple_choice",
+            question: "What is the past form of 'see'?",
+            options: ["saw", "seen", "sawed", "seeing"],
+            correctAnswer: "saw",
+            explanation: "'See' is irregular: see-saw-seen. The simple past is 'saw'."
+          },
+          {
+            id: "4",
+            type: "multiple_choice",
+            question: "Choose the correct negative: She _____ go to the theater yesterday.",
+            options: ["did not", "does not", "will not", "is not"],
+            correctAnswer: "did not",
+            explanation: "For Simple Past negative, we use 'did not' + base verb: 'She did not go'."
           }
         ] as Question[]
       },
       {
         id: 3,
-        title: "Colors",
-        description: "Learn basic color names in English",
-        category: "vocabulary",
-        level: 1,
-        xpReward: 15,
+        title: "Travel Planning - Simple Future",
+        description: "Learn about travel and master Simple Future tense",
+        category: "grammar",
+        level: 3,
+        xpReward: 25,
         order: 3,
         isLocked: false,
         questions: [
           {
             id: "1",
             type: "multiple_choice",
-            question: "What does 'Red' mean?",
-            options: ["Vermelho", "Azul", "Verde", "Amarelo"],
-            correctAnswer: "Vermelho",
-            explanation: "'Red' means 'Vermelho' in Portuguese."
+            question: "What does 'suitcase' mean?",
+            options: ["mala", "estrada", "corredor", "enquete"],
+            correctAnswer: "mala",
+            explanation: "A 'suitcase' means mala - a bag used for carrying clothes when traveling."
           },
           {
             id: "2",
             type: "multiple_choice",
-            question: "What does 'Blue' mean?",
-            options: ["Vermelho", "Azul", "Verde", "Amarelo"],
-            correctAnswer: "Azul",
-            explanation: "'Blue' means 'Azul' in Portuguese."
+            question: "Complete with Simple Future: I _____ unpack my suitcase tomorrow.",
+            options: ["will", "am", "do", "have"],
+            correctAnswer: "will",
+            explanation: "Simple Future uses 'will' + base verb: 'I will unpack'."
+          },
+          {
+            id: "3",
+            type: "multiple_choice",
+            question: "What does 'psychiatrist' mean?",
+            options: ["psiquiatra", "viajante", "marido", "escolha"],
+            correctAnswer: "psiquiatra",
+            explanation: "A 'psychiatrist' means psiquiatra - a medical doctor who treats mental health."
+          },
+          {
+            id: "4",
+            type: "multiple_choice",
+            question: "Choose the correct negative future: They _____ leave early.",
+            options: ["will not", "do not", "are not", "did not"],
+            correctAnswer: "will not",
+            explanation: "Future negative uses 'will not' (won't): 'They will not leave early'."
+          }
+        ] as Question[]
+      },
+      {
+        id: 4,
+        title: "Kitchen Organization - Articles",
+        description: "Learn about cooking and master Articles (a/an/the)",
+        category: "grammar",
+        level: 2,
+        xpReward: 20,
+        order: 4,
+        isLocked: false,
+        questions: [
+          {
+            id: "1",
+            type: "multiple_choice",
+            question: "What does 'tidy' mean?",
+            options: ["arrumado", "regra", "padaria", "gaveta"],
+            correctAnswer: "arrumado",
+            explanation: "'Tidy' means arrumado - neat and organized."
+          },
+          {
+            id: "2",
+            type: "multiple_choice",
+            question: "Choose the correct article: I work in ___ professional kitchen.",
+            options: ["a", "an", "the", "no article"],
+            correctAnswer: "a",
+            explanation: "We use 'a' before consonant sounds. 'Professional' starts with /p/ sound."
+          },
+          {
+            id: "3",
+            type: "multiple_choice",
+            question: "What does 'perishable' mean?",
+            options: ["perecível", "molho", "lixo", "bandeja"],
+            correctAnswer: "perecível",
+            explanation: "'Perishable' means perecível - food that goes bad quickly."
+          },
+          {
+            id: "4",
+            type: "multiple_choice",
+            question: "Choose the correct article: ___ capital of France is Paris.",
+            options: ["The", "A", "An", "No article"],
+            correctAnswer: "The",
+            explanation: "We use 'the' when talking about something specific and unique: 'The capital'."
+          }
+        ] as Question[]
+      },
+      {
+        id: 5,
+        title: "DNA Technology - Demonstratives",
+        description: "Learn about science and master This/That/These/Those",
+        category: "grammar",
+        level: 3,
+        xpReward: 30,
+        order: 5,
+        isLocked: false,
+        questions: [
+          {
+            id: "1",
+            type: "multiple_choice",
+            question: "What does 'sample' mean?",
+            options: ["amostra", "traço", "culpado", "assassino"],
+            correctAnswer: "amostra",
+            explanation: "A 'sample' means amostra - a small part taken for analysis."
+          },
+          {
+            id: "2",
+            type: "multiple_choice",
+            question: "Choose the correct demonstrative: ___ technology is very advanced (close to speaker).",
+            options: ["This", "That", "These", "Those"],
+            correctAnswer: "This",
+            explanation: "We use 'this' (singular) for things close to the speaker."
+          },
+          {
+            id: "3",
+            type: "multiple_choice",
+            question: "What does 'accurate' mean?",
+            options: ["preciso", "suficiente", "cabelo", "imagem"],
+            correctAnswer: "preciso",
+            explanation: "'Accurate' means preciso - correct and exact."
+          },
+          {
+            id: "4",
+            type: "multiple_choice",
+            question: "Choose the correct demonstrative: Can you see ___ birds over there? (far, plural)",
+            options: ["those", "these", "that", "this"],
+            correctAnswer: "those",
+            explanation: "We use 'those' (plural) for things far from the speaker."
           }
         ] as Question[]
       }
@@ -169,7 +305,7 @@ export class MemStorage implements IStorage {
     sampleLessons.forEach(lesson => {
       this.lessons.set(lesson.id, lesson);
     });
-    this.currentLessonId = 4;
+    this.currentLessonId = 6;
   }
 
   async getUser(id: number): Promise<User | undefined> {
@@ -222,7 +358,13 @@ export class MemStorage implements IStorage {
 
   async createLesson(insertLesson: InsertLesson): Promise<Lesson> {
     const id = this.currentLessonId++;
-    const lesson: Lesson = { ...insertLesson, id };
+    const lesson: Lesson = { 
+      ...insertLesson, 
+      id,
+      level: insertLesson.level ?? 1,
+      xpReward: insertLesson.xpReward ?? 10,
+      isLocked: insertLesson.isLocked ?? false
+    };
     this.lessons.set(id, lesson);
     return lesson;
   }
