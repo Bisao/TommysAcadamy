@@ -8,6 +8,8 @@ import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { ThemeToggle } from "@/components/theme-toggle";
+import NotificationSystem from "@/components/notification-system";
+import { useNotifications } from "@/hooks/use-notifications";
 import Mascot from "./mascot";
 import tommyLogoPath from "@assets/Tommy logo.png";
 
@@ -24,6 +26,13 @@ export default function Header({ user }: HeaderProps) {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const {
+    notifications,
+    markAsRead,
+    dismissNotification,
+    clearAllNotifications,
+    notifyAchievement,
+  } = useNotifications();
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
@@ -110,6 +119,14 @@ export default function Header({ user }: HeaderProps) {
               <Trophy className="w-4 h-4 text-green-500 dark:text-green-400" />
               <span className="text-green-700 dark:text-green-300 font-bold text-sm">{user.level}</span>
             </motion.div>
+
+            {/* Notifications */}
+            <NotificationSystem
+              notifications={notifications}
+              onMarkRead={markAsRead}
+              onDismiss={dismissNotification}
+              onClearAll={clearAllNotifications}
+            />
 
             {/* Theme Toggle */}
             <ThemeToggle />
