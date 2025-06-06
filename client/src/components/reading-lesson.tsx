@@ -102,8 +102,10 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
         const wordElement = document.querySelector(`[data-word-index="${index}"]`);
         if (wordElement) {
           const elementRect = wordElement.getBoundingClientRect();
-          const panelHeight = 240; // Approximate height of fixed panel + header
-          const targetY = window.scrollY + elementRect.top - panelHeight - 20;
+          const headerHeight = 80; // Header height
+          const audioBarHeight = 120; // Audio controls panel height
+          const totalOffset = headerHeight + audioBarHeight + 20; // Extra padding
+          const targetY = window.scrollY + elementRect.top - totalOffset;
 
           window.scrollTo({
             top: Math.max(0, targetY),
@@ -115,14 +117,14 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
       // Calculate dynamic timing based on word length and punctuation
       let wordDelay = msPerWord;
       const currentWord = words[index];
-      
+
       // Adjust timing for punctuation and word length
       if (currentWord.match(/[.!?]$/)) {
         wordDelay += 500; // Pause longer for sentence endings
       } else if (currentWord.match(/[,;:]$/)) {
         wordDelay += 250; // Pause for commas and semicolons
       }
-      
+
       // Adjust for word length
       if (currentWord.length > 8) {
         wordDelay += 200; // Longer words need more time
@@ -194,8 +196,10 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
         const wordElement = document.querySelector(`[data-word-index="${index}"]`);
         if (wordElement) {
           const elementRect = wordElement.getBoundingClientRect();
-          const panelHeight = 240; // Approximate height of fixed panel + header
-          const targetY = window.scrollY + elementRect.top - panelHeight - 20;
+          const headerHeight = 80; // Header height
+          const audioBarHeight = 120; // Audio controls panel height
+          const totalOffset = headerHeight + audioBarHeight + 20; // Extra padding
+          const targetY = window.scrollY + elementRect.top - totalOffset;
 
           window.scrollTo({
             top: Math.max(0, targetY),
