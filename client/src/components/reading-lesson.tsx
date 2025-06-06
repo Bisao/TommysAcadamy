@@ -149,23 +149,20 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
     console.log("speechSynthesis.speaking:", speechSynthesis.speaking, "speechSynthesis.paused:", speechSynthesis.paused);
     
     // Primeiro tenta retomar o áudio atual se estiver pausado
-    if (isPaused && isAudioPaused) {
-      // Verificar se realmente há uma utterance pausada
-      if (speechSynthesis.paused || (currentUtterance && speechSynthesis.speaking)) {
-        try {
-          console.log("Tentando retomar áudio pausado...");
-          resumeAudio();
-          setIsPaused(false);
-          toast({
-            title: "🎯 Professor Tommy retomando",
-            description: "Continuando de onde parou",
-          });
-          return;
-        } catch (error) {
-          console.warn("Erro ao retomar áudio:", error);
-          // Se falhar, cancela tudo e reinicia
-          stopAudio();
-        }
+    if (isPaused && speechSynthesis.paused && speechSynthesis.speaking && currentUtterance) {
+      try {
+        console.log("Tentando retomar áudio pausado...");
+        resumeAudio();
+        setIsPaused(false);
+        toast({
+          title: "🎯 Professor Tommy retomando",
+          description: "Continuando de onde parou",
+        });
+        return;
+      } catch (error) {
+        console.warn("Erro ao retomar áudio:", error);
+        // Se falhar, cancela tudo e reinicia
+        stopAudio();
       }
     }
     

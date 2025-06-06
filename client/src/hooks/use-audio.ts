@@ -23,11 +23,23 @@ export function useAudio() {
     // Stop any currently playing speech and wait for it to complete
     if (speechSynthesis.speaking) {
       speechSynthesis.cancel();
-      // Aguardar mais tempo para garantir que o cancel foi totalmente processado
-      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Aguardar até que o speechSynthesis pare completamente
+      let attempts = 0;
+      const maxAttempts = 20; // máximo 2 segundos
+      while (speechSynthesis.speaking && attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+        console.log(`Waiting for speech to stop... attempt ${attempts}`);
+      }
+      
+      // Aguardar um pouco mais para garantir que está totalmente limpo
+      await new Promise(resolve => setTimeout(resolve, 150));
+      
       console.log("After cancel - speechSynthesis state:", {
         speaking: speechSynthesis.speaking,
-        paused: speechSynthesis.paused
+        paused: speechSynthesis.paused,
+        attempts
       });
     }
 
@@ -108,15 +120,29 @@ export function useAudio() {
     utterance.onerror = (event) => {
       console.error("Speech synthesis error:", event);
       
-      // Se o erro for 'interrupted', isso é esperado durante pausas/retomadas/cancel
+      // Se o erro for 'interrupted', isso é esperado durante pausas/retomadas
       if (event.error === 'interrupted') {
-        console.log("Speech synthesis was interrupted (this is expected during pause/resume/cancel)");
+        console.log("Speech synthesis was interrupted (this is expected during pause/resume)");
         // Só limpar o estado se não estivermos pausados (ou seja, foi um cancel intencional)
         if (!isPaused) {
           setIsPlaying(false);
           setIsPaused(false);
           setCurrentUtterance(null);
         }
+        return;
+      } 
+      // Se o erro for 'canceled', tentar reiniciar após um delay
+      else if (event.error === 'canceled') {
+        console.log("Speech synthesis was canceled, attempting to restart...");
+        setIsPlaying(false);
+        setIsPaused(false);
+        setCurrentUtterance(null);
+        
+        // Tentar reiniciar após um delay
+        setTimeout(() => {
+          console.log("Restarting speech synthesis after cancel...");
+          playText(textToPlay, lang, fromPosition, onWordBoundary);
+        }, 300);
         return;
       } else {
         console.error("Unexpected speech synthesis error:", event.error);
