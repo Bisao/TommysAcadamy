@@ -146,9 +146,10 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
     if (!isAutoReading) return;
     
     console.log("Resuming auto reading - isPaused:", isPaused, "isAudioPaused:", isAudioPaused, "currentWordIndex:", currentWordIndex);
+    console.log("speechSynthesis.speaking:", speechSynthesis.speaking, "speechSynthesis.paused:", speechSynthesis.paused);
     
     // Primeiro tenta retomar o áudio atual se estiver pausado
-    if (isPaused && isAudioPaused && speechSynthesis.paused) {
+    if (isPaused && speechSynthesis.paused && speechSynthesis.speaking) {
       try {
         console.log("Tentando retomar áudio pausado...");
         resumeAudio();
@@ -160,11 +161,13 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
         return;
       } catch (error) {
         console.warn("Erro ao retomar áudio:", error);
-        // Se falhar, continua para reiniciar do ponto atual
+        // Se falhar, cancela tudo e reinicia
+        stopAudio();
       }
     }
     
-    // Se não há áudio pausado ou falhou ao retomar, reinicia do ponto atual
+    // Se não há áudio pausado válido, reinicia do ponto atual
+    console.log("Não há áudio pausado válido, reiniciando...");
     setIsPaused(false);
     
     const words = text.split(/\s+/).filter(word => word.length > 0);
