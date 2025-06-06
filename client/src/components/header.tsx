@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Flame, Star, Trophy, LogOut } from "lucide-react";
+import { Flame, Star, Trophy, LogOut, Home } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
@@ -108,6 +108,16 @@ export default function Header({ user }: HeaderProps) {
               <Trophy size={14} className="mr-1" />
               Nível {user.level}
             </Badge>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setLocation("/")}
+              className="text-gray-600 hover:text-gray-800 px-2 sm:px-3 text-xs sm:text-sm"
+            >
+              <Home size={14} className="mr-0 sm:mr-1" />
+              <span className="hidden sm:inline">Início</span>
+            </Button>
 
             <Button
               variant="ghost"

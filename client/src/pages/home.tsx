@@ -9,10 +9,12 @@ import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookOpen, MessageCircle, Mic, Palette, Trophy, Medal, Star, Flame } from "lucide-react";
+import { useLocation } from "wouter";
 
 export default function Home() {
   const [selectedLesson, setSelectedLesson] = useState<number | null>(null);
   const [showLessonModal, setShowLessonModal] = useState(false);
+  const [, setLocation] = useLocation();
 
   const { data: user } = useQuery({
     queryKey: ["/api/user"],
@@ -36,6 +38,7 @@ export default function Home() {
       description: "Aprenda novas palavras",
       icon: BookOpen,
       color: "cartoon-coral",
+      path: "/vocabulary",
       lessons: lessons.filter((l: any) => l.category === "vocabulary"),
     },
     {
@@ -43,6 +46,7 @@ export default function Home() {
       description: "Domine as regras",
       icon: Palette,
       color: "cartoon-blue",
+      path: "/grammar",
       lessons: lessons.filter((l: any) => l.category === "grammar"),
     },
     {
@@ -50,6 +54,7 @@ export default function Home() {
       description: "Conversação prática",
       icon: MessageCircle,
       color: "cartoon-mint",
+      path: "/phrases",
       lessons: lessons.filter((l: any) => l.category === "phrases"),
     },
     {
@@ -57,6 +62,7 @@ export default function Home() {
       description: "Fale como um nativo",
       icon: Mic,
       color: "cartoon-yellow",
+      path: "/pronunciation",
       lessons: lessons.filter((l: any) => l.category === "pronunciation"),
     },
   ];
@@ -154,11 +160,7 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 + index * 0.1 }}
                 className={`cartoon-card border-${category.color} p-4 sm:p-6 cursor-pointer hover:shadow-lg transition-shadow`}
-                onClick={() => {
-                  if (category.lessons.length > 0) {
-                    openLesson(category.lessons[0].id);
-                  }
-                }}
+                onClick={() => setLocation(category.path)}
               >
                 <div className="flex items-center mb-3 sm:mb-4">
                   <div className={`w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-${category.color} rounded-full flex items-center justify-center shadow-lg mr-3 sm:mr-4`}>
