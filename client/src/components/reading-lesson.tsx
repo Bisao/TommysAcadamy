@@ -725,13 +725,21 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
         </Card>
       )}
 
+      {/* Aviso de Compatibilidade */}
       {!isSupported && (
-        <Card className="border-2 border-yellow-200 mt-4">
-          <CardContent className="p-4">
-            <p className="text-yellow-800 text-sm">
-              Reconhecimento de voz não está disponível neste navegador. 
-              Recomendamos usar Chrome ou Edge para melhor experiência.
-            </p>
+        <Card className="border-2 border-yellow-200 dark:border-yellow-300 mt-4">
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
+              <div className="text-yellow-600 text-lg">⚠️</div>
+              <div>
+                <p className="text-yellow-800 dark:text-yellow-900 text-sm sm:text-base font-medium mb-1">
+                  Reconhecimento de voz não disponível
+                </p>
+                <p className="text-yellow-700 dark:text-yellow-800 text-xs sm:text-sm">
+                  Use Chrome, Edge ou Safari para ativar o reconhecimento de voz.
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       )}
