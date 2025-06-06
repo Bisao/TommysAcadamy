@@ -106,8 +106,12 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
         // Está no título
         setCurrentWordIndex(wordIndex);
         scrollToWord(wordIndex, true);
+      } else if (wordIndex === totalTitleWords) {
+        // Esta é a pausa após o título (três pontos), manter highlight na última palavra do título
+        // Não atualizar o currentWordIndex para manter o destaque na última palavra do título
+        console.log("Pausa após título - mantendo highlight na última palavra do título");
       } else {
-        // Está no texto principal (ajustar índice para compensar o ponto)
+        // Está no texto principal (ajustar índice para compensar a pausa)
         const textWordIndex = wordIndex - totalTitleWords - 1;
         if (textWordIndex >= 0 && textWordIndex < textWords.length) {
           const globalIndex = totalTitleWords + textWordIndex;
