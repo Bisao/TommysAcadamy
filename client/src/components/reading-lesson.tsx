@@ -72,85 +72,62 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
   const startAutoReading = useCallback(() => {
     setIsAutoReading(true);
     setIsPaused(false);
-    setCurrentWordIndex(-1); // Começar pelo título (-1 indica título)
+    setCurrentWordIndex(0);
 
+    const words = text.split(/\s+/).filter(word => word.length > 0);
     const titleWords = title.split(/\s+/).filter(word => word.length > 0);
-    const textWords = text.split(/\s+/).filter(word => word.length > 0);
+    const fullContent = `${title}. ${text}`;
 
-    // Primeiro, ler apenas o título
-    const handleTitleWordBoundary = (word: string, index: number) => {
-      if (index < titleWords.length) {
-        setCurrentWordIndex(-1 - index); // Usar índices negativos para o título
-        
-        setTimeout(() => {
-          const wordElement = document.querySelector(`[data-title-word-index="${index}"]`);
-          if (wordElement) {
-            const elementRect = wordElement.getBoundingClientRect();
-            const headerHeight = window.innerWidth < 640 ? 60 : 80;
-            const audioBarHeight = window.innerWidth < 640 ? 100 : 120;
-            const totalOffset = headerHeight + audioBarHeight + 20;
-            const targetY = window.scrollY + elementRect.top - totalOffset;
+    const handleWordBoundary = (word: string, index: number) => {
+      const totalTitleWords = titleWords.length;
 
-            window.scrollTo({
-              top: Math.max(0, targetY),
-              behavior: 'smooth'
-            });
+      if (index <= totalTitleWords) {
+        setCurrentWordIndex(0);
+      } else {
+        const textWordIndex = index - totalTitleWords - 1;
+        if (textWordIndex >= 0 && textWordIndex < words.length) {
+          setCurrentWordIndex(textWordIndex);
+
+          if (textWordIndex >= words.length - 1) {
+            setTimeout(() => {
+              setIsAutoReading(false);
+              setIsPaused(false);
+              setCurrentWordIndex(0);
+              toast({
+                title: "🎉 Leitura concluída!",
+                description: "Professor Tommy terminou de ler o texto.",
+              });
+            }, 1000);
           }
-        }, 50);
 
-        // Se é a última palavra do título, aguardar 2 segundos e iniciar o texto
-        if (index >= titleWords.length - 1) {
           setTimeout(() => {
-            setCurrentWordIndex(0); // Resetar para começar o texto
-            
-            // Iniciar leitura do texto após 2 segundos
-            const handleTextWordBoundary = (word: string, textIndex: number) => {
-              if (textIndex < textWords.length) {
-                setCurrentWordIndex(textIndex);
+            const wordElement = document.querySelector(`[data-word-index="${textWordIndex}"]`);
+            if (wordElement) {
+              const elementRect = wordElement.getBoundingClientRect();
+              const headerHeight = window.innerWidth < 640 ? 60 : 80;
+              const audioBarHeight = window.innerWidth < 640 ? 100 : 120;
+              const totalOffset = headerHeight + audioBarHeight + 20;
+              const targetY = window.scrollY + elementRect.top - totalOffset;
 
-                setTimeout(() => {
-                  const wordElement = document.querySelector(`[data-word-index="${textIndex}"]`);
-                  if (wordElement) {
-                    const elementRect = wordElement.getBoundingClientRect();
-                    const headerHeight = window.innerWidth < 640 ? 60 : 80;
-                    const audioBarHeight = window.innerWidth < 640 ? 100 : 120;
-                    const totalOffset = headerHeight + audioBarHeight + 20;
-                    const targetY = window.scrollY + elementRect.top - totalOffset;
-
-                    window.scrollTo({
-                      top: Math.max(0, targetY),
-                      behavior: 'smooth'
-                    });
-                  }
-                }, 50);
-
-                // Se é a última palavra do texto, finalizar
-                if (textIndex >= textWords.length - 1) {
-                  setTimeout(() => {
-                    setIsAutoReading(false);
-                    setIsPaused(true);
-                    setCurrentWordIndex(-1);
-                    toast({
-                      title: "🎉 Leitura concluída!",
-                      description: "Professor Tommy terminou de ler o texto.",
-                    });
-                  }, 1000);
-                }
-              }
-            };
-
-            playText(text, "en-US", 0, handleTextWordBoundary);
-          }, 2000); // Pausa de 2 segundos após o título
+              window.scrollTo({
+                top: Math.max(0, targetY),
+                behavior: 'smooth'
+              });
+            }
+          }, 50);
         }
       }
     };
 
-    // Iniciar com o título
-    playText(title, "en-US", 0, handleTitleWordBoundary);
+    setTimeout(() => {
+      setCurrentWordIndex(0);
+    }, 100);
+
+    playText(fullContent, "en-US", 0, handleWordBoundary);
 
     toast({
-      title: "🎯 Professor Tommy lendo o título",
-      description: "Aguarde... texto será lido em seguida",
+      title: "🎯 Professor Tommy lendo o texto",
+      description: "Acompanhe as palavras destacadas em tempo real",
     });
   }, [title, text, playText, toast]);
 
@@ -250,7 +227,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
   const stopAutoReading = useCallback(() => {
     setIsAutoReading(false);
     setIsPaused(true); // Voltar para pausado
-    setCurrentWordIndex(-1); // Resetar para posição inicial
+    setCurrentWordIndex(0);
     if (autoReadingTimerRef.current) {
       clearTimeout(autoReadingTimerRef.current);
     }
@@ -555,16 +532,16 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
               WebkitUserSelect: 'text'
             }}
           >
-            {/* Título formatado em blocos */}
-            <div className="mb-6 text-center">
-              <h2 className="text-2xl sm:text-3xl font-bold text-cartoon-dark mb-4 leading-relaxed">
+            {/* Título integrado ao texto */}
+            <div className="mb-4 text-center">
+              <h2 className="text-xl sm:text-2xl font-bold text-cartoon-dark mb-3">
                 {title.split(/\s+/).map((word, index) => {
-                  const isCurrentTitleWord = isAutoReading && currentWordIndex === (-1 - index);
+                  const isCurrentWord = isAutoReading && currentWordIndex === index;
                   const feedback = wordFeedback[index];
                   let colorClass = '';
 
-                  if (isCurrentTitleWord) {
-                    colorClass = 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg sm:shadow-xl scale-110 sm:scale-125 font-bold border-2 border-blue-300 transform animate-pulse';
+                  if (isCurrentWord) {
+                    colorClass = 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg sm:shadow-xl scale-105 sm:scale-110 font-bold border-2 border-blue-300 transform animate-pulse';
                   } else {
                     switch (feedback?.status) {
                       case 'correct':
@@ -584,14 +561,13 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
                   return (
                     <span
                       key={`title-${index}`}
-                      data-title-word-index={index}
-                      className={`${colorClass} px-3 sm:px-4 py-2 sm:py-3 rounded-lg transition-all duration-300 mx-1 sm:mx-2 mb-2 sm:mb-3 inline-block cursor-pointer touch-manipulation select-none min-h-[40px] sm:min-h-[48px] flex items-center justify-center text-center shadow-sm hover:shadow-md`}
+                      data-word-index={index}
+                      className={`${colorClass} px-1 sm:px-2 py-0.5 sm:py-1 rounded-md transition-all duration-200 mr-1 sm:mr-2 mb-1 inline-block cursor-pointer touch-manipulation select-none min-h-[28px] sm:min-h-[32px] flex items-center justify-center text-center`}
                       style={{ 
-                        wordBreak: 'keep-all', 
+                        wordBreak: 'break-word', 
                         userSelect: 'none',
-                        minWidth: '60px',
-                        WebkitTapHighlightColor: 'transparent',
-                        fontSize: '1.1em'
+                        minWidth: '20px',
+                        WebkitTapHighlightColor: 'transparent'
                       }}
                       onClick={(e) => handleWordClick(word, e)}
                       onTouchStart={(e) => e.preventDefault()}
@@ -607,67 +583,54 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
               </h2>
             </div>
 
-            {/* Texto principal formatado em blocos */}
-            <div className="text-left leading-relaxed space-y-3">
-              {text.split(/\.\s+|!\s+|\?\s+/).filter(sentence => sentence.trim()).map((sentence, sentenceIndex) => (
-                <div key={`sentence-${sentenceIndex}`} className="mb-4 p-3 bg-gray-50 dark:bg-gray-100 rounded-lg border border-gray-200">
-                  {sentence.split(/\s+/).map((word, wordIndex) => {
-                    // Calcular o índice global da palavra
-                    const previousSentences = text.split(/\.\s+|!\s+|\?\s+/).slice(0, sentenceIndex);
-                    const previousWordsCount = previousSentences.reduce((count, prevSentence) => 
-                      count + prevSentence.split(/\s+/).filter(w => w.trim()).length, 0
-                    );
-                    const globalTextIndex = previousWordsCount + wordIndex;
-                    const titleWordsCount = title.split(/\s+/).length;
-                    const globalIndex = titleWordsCount + globalTextIndex;
-                    
-                    const feedback = wordFeedback[globalIndex];
-                    const isCurrentWord = isAutoReading && currentWordIndex === globalTextIndex;
-                    let colorClass = '';
+            {/* Texto principal */}
+            <div className="text-justify leading-relaxed">
+              {text.split(/\s+/).map((word, textIndex) => {
+                const titleWordsCount = title.split(/\s+/).length;
+                const globalIndex = titleWordsCount + textIndex;
+                const feedback = wordFeedback[globalIndex];
+                const isCurrentWord = isAutoReading && currentWordIndex === globalIndex;
+                let colorClass = '';
 
-                    if (isCurrentWord) {
-                      colorClass = 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg sm:shadow-xl scale-105 sm:scale-110 font-bold border-2 border-blue-300 transform animate-pulse';
-                    } else {
-                      switch (feedback?.status) {
-                        case 'correct':
-                          colorClass = 'bg-green-200 dark:bg-green-300 text-green-800 dark:text-green-900 border border-green-300 dark:border-green-400';
-                          break;
-                        case 'close':
-                          colorClass = 'bg-yellow-200 dark:bg-yellow-300 text-yellow-800 dark:text-yellow-900 border border-yellow-300 dark:border-yellow-400';
-                          break;
-                        case 'incorrect':
-                          colorClass = 'bg-red-200 dark:bg-red-300 text-red-800 dark:text-red-900 border border-red-300 dark:border-red-400';
-                          break;
-                        default:
-                          colorClass = 'text-gray-800 dark:text-gray-700 hover:bg-blue-50 dark:hover:bg-blue-100';
-                      }
-                    }
+                if (isCurrentWord) {
+                  colorClass = 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg sm:shadow-xl scale-105 sm:scale-110 font-bold border-2 border-blue-300 transform animate-pulse';
+                } else {
+                  switch (feedback?.status) {
+                    case 'correct':
+                      colorClass = 'bg-green-200 dark:bg-green-300 text-green-800 dark:text-green-900 border border-green-300 dark:border-green-400';
+                      break;
+                    case 'close':
+                      colorClass = 'bg-yellow-200 dark:bg-yellow-300 text-yellow-800 dark:text-yellow-900 border border-yellow-300 dark:border-yellow-400';
+                      break;
+                    case 'incorrect':
+                      colorClass = 'bg-red-200 dark:bg-red-300 text-red-800 dark:text-red-900 border border-red-300 dark:border-red-400';
+                      break;
+                    default:
+                      colorClass = 'text-gray-800 dark:text-gray-700 hover:bg-blue-50 dark:hover:bg-blue-100';
+                  }
+                }
 
-                    return (
-                      <span
-                        key={`text-${sentenceIndex}-${wordIndex}`}
-                        data-word-index={globalTextIndex}
-                        className={`${colorClass} px-2 sm:px-3 py-1 sm:py-2 mx-1 mb-1 rounded-md transition-all duration-300 cursor-pointer touch-manipulation select-none inline-flex items-center justify-center shadow-sm hover:shadow-md`}
-                        style={{ 
-                          wordBreak: 'keep-all', 
-                          userSelect: 'none',
-                          WebkitTapHighlightColor: 'transparent',
-                          minWidth: '30px',
-                          minHeight: '32px'
-                        }}
-                        onClick={(e) => handleWordClick(word, e)}
-                        onTouchStart={(e) => e.preventDefault()}
-                        onTouchEnd={(e) => {
-                          e.preventDefault();
-                          handleWordClick(word, e);
-                        }}
-                      >
-                        {word}
-                      </span>
-                    );
-                  })}
-                </div>
-              ))}
+                return (
+                  <span
+                    key={`text-${textIndex}`}
+                    data-word-index={globalIndex}
+                    className={`${colorClass} px-1 sm:px-2 py-0.5 sm:py-1 mx-0.5 rounded-md transition-all duration-200 cursor-pointer touch-manipulation select-none inline-flex items-center justify-center`}
+                    style={{ 
+                      wordBreak: 'keep-all', 
+                      userSelect: 'none',
+                      WebkitTapHighlightColor: 'transparent'
+                    }}
+                    onClick={(e) => handleWordClick(word, e)}
+                    onTouchStart={(e) => e.preventDefault()}
+                    onTouchEnd={(e) => {
+                      e.preventDefault();
+                      handleWordClick(word, e);
+                    }}
+                  >
+                    {word}
+                  </span>
+                );
+              })}
             </div>
           </div>
 
