@@ -271,9 +271,15 @@ export default function LessonModal({ lessonId, onClose }: LessonModalProps) {
           <CompletionModal
             results={lessonResults}
             lessonTitle={lesson.title}
-            onNextLesson={() => {
+            currentLessonId={lessonId}
+            onNextLesson={(nextLessonId) => {
               setShowCompletion(false);
-              onClose();
+              if (nextLessonId) {
+                // Navigate to next lesson
+                window.location.href = `/lesson/${nextLessonId}`;
+              } else {
+                onClose();
+              }
             }}
             onBackToHome={() => {
               setShowCompletion(false);

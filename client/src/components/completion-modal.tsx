@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
+import { Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Trophy, Star } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 interface CompletionModalProps {
   results: {
