@@ -18,8 +18,8 @@ import Pronunciation from "@/pages/pronunciation";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/login" component={Login} />
+      <Route path="/" component={Login} />
+      <Route path="/home" component={Home} />
       <Route path="/profile" component={Profile} />
       <Route path="/reference" component={Reference} />
       <Route path="/lesson/:id" component={Lesson} />

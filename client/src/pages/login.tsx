@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
 import { GraduationCap, User, Lock, Mail } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -21,10 +22,36 @@ export default function Login() {
     email: "",
     password: "",
   });
+  const [rememberUsername, setRememberUsername] = useState(false);
+  const [autoLogin, setAutoLogin] = useState(false);
   const [error, setError] = useState("");
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
+
+  // Load saved data on component mount
+  useEffect(() => {
+    const savedUsername = localStorage.getItem("rememberedUsername");
+    const savedPassword = localStorage.getItem("savedPassword");
+    const savedAutoLogin = localStorage.getItem("autoLogin") === "true";
+    const savedRememberUsername = localStorage.getItem("rememberUsername") === "true";
+
+    if (savedRememberUsername && savedUsername) {
+      setFormData(prev => ({ ...prev, username: savedUsername }));
+      setRememberUsername(true);
+    }
+
+    if (savedAutoLogin && savedUsername && savedPassword) {
+      setFormData(prev => ({ ...prev, username: savedUsername, password: savedPassword }));
+      setAutoLogin(true);
+      setRememberUsername(true);
+      
+      // Perform auto login after component is fully loaded
+      setTimeout(() => {
+        loginMutation.mutate({ username: savedUsername, password: savedPassword });
+      }, 500);
+    }
+  }, []);
 
   const loginMutation = useMutation({
     mutationFn: async (data: { username: string; password: string }) => {
@@ -32,6 +59,24 @@ export default function Login() {
       return response.json();
     },
     onSuccess: () => {
+      // Save username if remember is checked
+      if (rememberUsername) {
+        localStorage.setItem("rememberedUsername", formData.username);
+        localStorage.setItem("rememberUsername", "true");
+      } else {
+        localStorage.removeItem("rememberedUsername");
+        localStorage.removeItem("rememberUsername");
+      }
+
+      // Save credentials if auto login is checked
+      if (autoLogin) {
+        localStorage.setItem("savedPassword", formData.password);
+        localStorage.setItem("autoLogin", "true");
+      } else {
+        localStorage.removeItem("savedPassword");
+        localStorage.removeItem("autoLogin");
+      }
+
       toast({
         title: "Login realizado com sucesso!",
         description: "Bem-vindo de volta ao Tommy's Academy!",
@@ -39,7 +84,7 @@ export default function Login() {
       // Invalidate user query to refetch user data
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       // Redirect to home
-      setLocation("/");
+      setLocation("/home");
     },
     onError: (error: any) => {
       setError("Usuário ou senha incorretos");
@@ -59,7 +104,7 @@ export default function Login() {
       // Invalidate user query to refetch user data
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       // Redirect to home
-      setLocation("/");
+      setLocation("/home");
     },
     onError: (error: any) => {
       setError("Erro ao criar conta. Tente outro nome de usuário.");
@@ -180,6 +225,39 @@ export default function Login() {
                   />
                 </div>
               </div>
+
+              {/* Remember Options (only for login) */}
+              {isLogin && (
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="rememberUsername"
+                      checked={rememberUsername}
+                      onCheckedChange={(checked) => setRememberUsername(checked as boolean)}
+                    />
+                    <Label htmlFor="rememberUsername" className="text-sm text-cartoon-dark">
+                      Lembrar nome de usuário
+                    </Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="autoLogin"
+                      checked={autoLogin}
+                      onCheckedChange={(checked) => {
+                        const isChecked = checked as boolean;
+                        setAutoLogin(isChecked);
+                        if (isChecked) {
+                          setRememberUsername(true); // Auto login requires remembering username
+                        }
+                      }}
+                    />
+                    <Label htmlFor="autoLogin" className="text-sm text-cartoon-dark">
+                      Login automático
+                    </Label>
+                  </div>
+                </div>
+              )}
 
               {/* Error Message */}
               {error && (
