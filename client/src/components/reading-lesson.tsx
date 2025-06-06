@@ -142,27 +142,30 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
     });
   }, [isPlaying, pauseAudio, toast]);
 
-  const resumeAutoReading = useCallback(() => {
+  const resumeAutoReading = useCallback(async () => {
     if (!isAutoReading) return;
     
     console.log("Resuming auto reading - isPaused:", isPaused, "isAudioPaused:", isAudioPaused, "currentWordIndex:", currentWordIndex);
     console.log("speechSynthesis.speaking:", speechSynthesis.speaking, "speechSynthesis.paused:", speechSynthesis.paused);
     
     // Primeiro tenta retomar o áudio atual se estiver pausado
-    if (isPaused && speechSynthesis.paused && speechSynthesis.speaking) {
-      try {
-        console.log("Tentando retomar áudio pausado...");
-        resumeAudio();
-        setIsPaused(false);
-        toast({
-          title: "🎯 Professor Tommy retomando",
-          description: "Continuando de onde parou",
-        });
-        return;
-      } catch (error) {
-        console.warn("Erro ao retomar áudio:", error);
-        // Se falhar, cancela tudo e reinicia
-        stopAudio();
+    if (isPaused && isAudioPaused) {
+      // Verificar se realmente há uma utterance pausada
+      if (speechSynthesis.paused || (currentUtterance && speechSynthesis.speaking)) {
+        try {
+          console.log("Tentando retomar áudio pausado...");
+          resumeAudio();
+          setIsPaused(false);
+          toast({
+            title: "🎯 Professor Tommy retomando",
+            description: "Continuando de onde parou",
+          });
+          return;
+        } catch (error) {
+          console.warn("Erro ao retomar áudio:", error);
+          // Se falhar, cancela tudo e reinicia
+          stopAudio();
+        }
       }
     }
     
@@ -228,7 +231,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
         }
       };
 
-      playText(remainingText, "en-US", 0, handleWordBoundary);
+      await playText(remainingText, "en-US", 0, handleWordBoundary);
       
       toast({
         title: "🎯 Professor Tommy retomando",

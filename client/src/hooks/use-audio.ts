@@ -7,7 +7,7 @@ export function useAudio() {
   const [remainingText, setRemainingText] = useState("");
   const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
 
-  const playText = useCallback((text: string, lang: string = "pt-BR", fromPosition: number = 0, onWordBoundary?: (word: string, index: number) => void) => {
+  const playText = useCallback(async (text: string, lang: string = "pt-BR", fromPosition: number = 0, onWordBoundary?: (word: string, index: number) => void) => {
     if (!('speechSynthesis' in window)) {
       console.warn("Speech synthesis not supported");
       return;
@@ -20,16 +20,16 @@ export function useAudio() {
       isPaused
     });
 
-    // Stop any currently playing speech
-    speechSynthesis.cancel();
-    
-    // Aguardar um pouco para garantir que o cancel foi processado
-    setTimeout(() => {
+    // Stop any currently playing speech and wait for it to complete
+    if (speechSynthesis.speaking) {
+      speechSynthesis.cancel();
+      // Aguardar mais tempo para garantir que o cancel foi totalmente processado
+      await new Promise(resolve => setTimeout(resolve, 100));
       console.log("After cancel - speechSynthesis state:", {
         speaking: speechSynthesis.speaking,
         paused: speechSynthesis.paused
       });
-    }, 50);
+    }
 
     // Split text into words to track position
     const words = text.split(' ');
@@ -287,8 +287,10 @@ export function useAudio() {
 
   const resumeAudio = useCallback(() => {
     console.log("resumeAudio called - speechSynthesis.paused:", speechSynthesis.paused, "speechSynthesis.speaking:", speechSynthesis.speaking);
+    console.log("currentUtterance exists:", !!currentUtterance, "isPaused:", isPaused);
     
-    if (speechSynthesis.paused && speechSynthesis.speaking) {
+    // Verificar se há uma utterance pausada válida
+    if (currentUtterance && isPaused && (speechSynthesis.paused || speechSynthesis.speaking)) {
       try {
         console.log("Resuming speech synthesis...");
         speechSynthesis.resume();
@@ -302,11 +304,13 @@ export function useAudio() {
         setIsPaused(false);
         setIsPlaying(false);
         setCurrentUtterance(null);
+        throw error; // Re-throw para que o calling code saiba que falhou
       }
     } else {
-      console.warn("Cannot resume - speechSynthesis.paused:", speechSynthesis.paused, "speechSynthesis.speaking:", speechSynthesis.speaking);
+      console.warn("Cannot resume - no valid paused utterance. currentUtterance:", !!currentUtterance, "isPaused:", isPaused);
+      throw new Error("No valid paused utterance to resume");
     }
-  }, []);
+  }, [currentUtterance, isPaused]);
 
   const stopAudio = useCallback(() => {
     speechSynthesis.cancel();
