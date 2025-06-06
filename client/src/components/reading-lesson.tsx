@@ -93,11 +93,18 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
 
       setCurrentWordIndex(index);
 
-      // Scroll to current word if needed
+      // Scroll to current word if needed, considering fixed panel
       setTimeout(() => {
         const wordElement = document.querySelector(`[data-word-index="${index}"]`);
         if (wordElement) {
-          wordElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          const elementRect = wordElement.getBoundingClientRect();
+          const panelHeight = 180; // Approximate height of fixed panel
+          const targetY = window.scrollY + elementRect.top - panelHeight - 20;
+          
+          window.scrollTo({
+            top: Math.max(0, targetY),
+            behavior: 'smooth'
+          });
         }
       }, 100);
 
@@ -161,7 +168,14 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
       setTimeout(() => {
         const wordElement = document.querySelector(`[data-word-index="${index}"]`);
         if (wordElement) {
-          wordElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          const elementRect = wordElement.getBoundingClientRect();
+          const panelHeight = 180; // Approximate height of fixed panel
+          const targetY = window.scrollY + elementRect.top - panelHeight - 20;
+          
+          window.scrollTo({
+            top: Math.max(0, targetY),
+            behavior: 'smooth'
+          });
         }
       }, 100);
 
@@ -419,11 +433,11 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6">
+    <div className="max-w-4xl mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6 pt-32 sm:pt-36">
 
 
       {/* Controles de Áudio e Leitura */}
-      <Card className="border-2 border-cartoon-gray sticky top-4 z-50 bg-white shadow-lg">
+      <Card className="border-2 border-cartoon-gray fixed top-0 left-0 right-0 z-50 bg-white shadow-lg mx-auto max-w-4xl">
         <CardContent className="p-3 sm:p-6">
           {/* Mobile-optimized layout */}
           <div className="space-y-4">
