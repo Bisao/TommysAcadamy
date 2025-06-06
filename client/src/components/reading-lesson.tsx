@@ -37,7 +37,12 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
   const [wordFeedback, setWordFeedback] = useState<WordFeedback[]>([]);
   const [showAudioIcon, setShowAudioIcon] = useState(false);
   const [iconPosition, setIconPosition] = useState({ x: 0, y: 0 });
+  const [isAutoReading, setIsAutoReading] = useState(false);
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [autoReadingSpeed, setAutoReadingSpeed] = useState(300); // milliseconds per word
   const textRef = useRef<HTMLDivElement>(null);
+  const autoReadingTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const { playText, stopAudio, isPlaying } = useAudio();
   const { 
@@ -60,6 +65,129 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     }));
     setWordFeedback(initialFeedback);
   }, [text]);
+
+  // Auto-reading functionality
+  const startAutoReading = () => {
+    setIsAutoReading(true);
+    setIsPaused(false);
+    setCurrentWordIndex(0);
+    
+    const words = text.split(/\s+/).filter(word => word.length > 0);
+    
+    const readNextWord = (index: number) => {
+      if (index >= words.length) {
+        // Reading completed
+        setIsAutoReading(false);
+        setCurrentWordIndex(0);
+        toast({
+          title: "Leitura concluída!",
+          description: "Texto completo foi lido com sucesso.",
+        });
+        onComplete?.();
+        return;
+      }
+
+      setCurrentWordIndex(index);
+      
+      // Scroll to current word if needed
+      setTimeout(() => {
+        const wordElement = document.querySelector(`[data-word-index="${index}"]`);
+        if (wordElement) {
+          wordElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+
+      autoReadingTimerRef.current = setTimeout(() => {
+        if (!isPaused) {
+          readNextWord(index + 1);
+        }
+      }, autoReadingSpeed);
+    };
+
+    readNextWord(0);
+    
+    toast({
+      title: "Leitura automática iniciada",
+      description: "Acompanhe as palavras destacadas",
+    });
+  };
+
+  const pauseAutoReading = () => {
+    setIsPaused(true);
+    if (autoReadingTimerRef.current) {
+      clearTimeout(autoReadingTimerRef.current);
+    }
+    toast({
+      title: "Leitura pausada",
+      description: "Clique em continuar para retomar",
+    });
+  };
+
+  const resumeAutoReading = () => {
+    if (!isAutoReading) return;
+    
+    setIsPaused(false);
+    const words = text.split(/\s+/).filter(word => word.length > 0);
+    
+    const readNextWord = (index: number) => {
+      if (index >= words.length || isPaused) {
+        if (index >= words.length) {
+          setIsAutoReading(false);
+          setCurrentWordIndex(0);
+          toast({
+            title: "Leitura concluída!",
+            description: "Texto completo foi lido com sucesso.",
+          });
+          onComplete?.();
+        }
+        return;
+      }
+
+      setCurrentWordIndex(index);
+      
+      setTimeout(() => {
+        const wordElement = document.querySelector(`[data-word-index="${index}"]`);
+        if (wordElement) {
+          wordElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+
+      autoReadingTimerRef.current = setTimeout(() => {
+        if (!isPaused) {
+          readNextWord(index + 1);
+        }
+      }, autoReadingSpeed);
+    };
+
+    readNextWord(currentWordIndex);
+    
+    toast({
+      title: "Leitura retomada",
+      description: "Continuando de onde parou",
+    });
+  };
+
+  const stopAutoReading = () => {
+    setIsAutoReading(false);
+    setIsPaused(false);
+    setCurrentWordIndex(0);
+    if (autoReadingTimerRef.current) {
+      clearTimeout(autoReadingTimerRef.current);
+    }
+    toast({
+      title: "Leitura interrompida",
+      description: "Leitura automática foi parada",
+    });
+  };
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (autoReadingTimerRef.current) {
+        clearTimeout(autoReadingTimerRef.current);
+      }
+    };
+  }, []);
 
   // Função para calcular similaridade entre duas palavras
   const calculateSimilarity = (word1: string, word2: string): number => {
@@ -299,6 +427,44 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
               Ouvir Seleção
             </Button>
 
+            {/* Auto Reading Controls */}
+            {!isAutoReading ? (
+              <Button
+                onClick={startAutoReading}
+                className="cartoon-button bg-cartoon-mint hover:bg-cartoon-mint/80"
+              >
+                <Play size={20} />
+                Leitura Guiada
+              </Button>
+            ) : (
+              <div className="flex gap-2">
+                {isPaused ? (
+                  <Button
+                    onClick={resumeAutoReading}
+                    className="cartoon-button bg-green-500 hover:bg-green-600"
+                  >
+                    <Play size={20} />
+                    Continuar
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={pauseAutoReading}
+                    className="cartoon-button bg-yellow-500 hover:bg-yellow-600"
+                  >
+                    <Pause size={20} />
+                    Pausar
+                  </Button>
+                )}
+                <Button
+                  onClick={stopAutoReading}
+                  className="cartoon-button bg-red-500 hover:bg-red-600"
+                >
+                  <VolumeX size={20} />
+                  Parar
+                </Button>
+              </div>
+            )}
+
             <Button
               onClick={toggleReadingMode}
               className={`cartoon-button ${
@@ -322,18 +488,86 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
             </Button>
           </div>
 
+          {/* Speed Control for Auto Reading */}
+          {isAutoReading && (
+            <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-blue-700">Velocidade da Leitura:</span>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => setAutoReadingSpeed(500)}
+                    variant={autoReadingSpeed === 500 ? "default" : "outline"}
+                    size="sm"
+                    className="text-xs"
+                  >
+                    Lenta
+                  </Button>
+                  <Button
+                    onClick={() => setAutoReadingSpeed(300)}
+                    variant={autoReadingSpeed === 300 ? "default" : "outline"}
+                    size="sm"
+                    className="text-xs"
+                  >
+                    Normal
+                  </Button>
+                  <Button
+                    onClick={() => setAutoReadingSpeed(150)}
+                    variant={autoReadingSpeed === 150 ? "default" : "outline"}
+                    size="sm"
+                    className="text-xs"
+                  >
+                    Rápida
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Progresso da Leitura */}
-          {isReadingMode && (
+          {(isReadingMode || isAutoReading) && (
             <div className="space-y-2 mt-4">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Progresso da Leitura</span>
+                <span className="text-gray-600">
+                  {isAutoReading ? "Progresso da Leitura Guiada" : "Progresso da Leitura"}
+                </span>
                 <span className="font-semibold text-cartoon-coral">
-                  {Math.round(readingProgress)}%
+                  {isAutoReading ? 
+                    `${Math.round((currentWordIndex / text.split(/\s+/).length) * 100)}%` :
+                    `${Math.round(readingProgress)}%`
+                  }
                 </span>
               </div>
-              <Progress value={readingProgress} className="h-3" />
+              <Progress 
+                value={isAutoReading ? 
+                  (currentWordIndex / text.split(/\s+/).length) * 100 :
+                  readingProgress
+                } 
+                className="h-3" 
+              />
 
-              {readingProgress >= 80 && (
+              {/* Auto Reading Status */}
+              {isAutoReading && (
+                <div className="flex items-center justify-center gap-2 text-sm">
+                  {isPaused ? (
+                    <div className="flex items-center gap-2 text-yellow-600 font-semibold">
+                      <Pause size={16} />
+                      Leitura pausada - Palavra {currentWordIndex + 1} de {text.split(/\s+/).length}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 text-blue-600 font-semibold">
+                      <motion.div
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ repeat: Infinity, duration: 1 }}
+                      >
+                        <Play size={16} />
+                      </motion.div>
+                      Lendo palavra {currentWordIndex + 1} de {text.split(/\s+/).length}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {(readingProgress >= 80 || (isAutoReading && currentWordIndex >= text.split(/\s+/).length * 0.8)) && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -364,31 +598,47 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
           >
             {text.split(/\s+/).map((word, index) => {
               const feedback = wordFeedback[index];
+              const isCurrentWord = isAutoReading && currentWordIndex === index;
               let colorClass = '';
 
-              switch (feedback?.status) {
-                case 'correct':
-                  colorClass = 'bg-green-200 text-green-800';
-                  break;
-                case 'close':
-                  colorClass = 'bg-yellow-200 text-yellow-800';
-                  break;
-                case 'incorrect':
-                  colorClass = 'bg-red-200 text-red-800';
-                  break;
-                default:
-                  colorClass = 'text-gray-800';
+              // Priority: Current word highlighting > feedback status
+              if (isCurrentWord) {
+                colorClass = 'bg-blue-500 text-white shadow-lg scale-110 font-bold';
+              } else {
+                switch (feedback?.status) {
+                  case 'correct':
+                    colorClass = 'bg-green-200 text-green-800';
+                    break;
+                  case 'close':
+                    colorClass = 'bg-yellow-200 text-yellow-800';
+                    break;
+                  case 'incorrect':
+                    colorClass = 'bg-red-200 text-red-800';
+                    break;
+                  default:
+                    colorClass = 'text-gray-800';
+                }
               }
 
               return (
-                <span
+                <motion.span
                   key={index}
-                  className={`${colorClass} px-1 py-0.5 rounded transition-colors duration-300 mr-1 inline-block cursor-pointer hover:bg-blue-100`}
+                  data-word-index={index}
+                  className={`${colorClass} px-1 py-0.5 rounded transition-all duration-300 mr-1 inline-block cursor-pointer hover:bg-blue-100`}
                   style={{ wordBreak: 'break-word' }}
                   onClick={(e) => handleWordClick(word, e)}
+                  animate={isCurrentWord ? {
+                    scale: [1, 1.1, 1],
+                    backgroundColor: ['#3b82f6', '#1d4ed8', '#3b82f6']
+                  } : {}}
+                  transition={{
+                    duration: 0.5,
+                    repeat: isCurrentWord ? Infinity : 0,
+                    ease: "easeInOut"
+                  }}
                 >
                   {word}
-                </span>
+                </motion.span>
               );
             })}
           </div>
@@ -422,10 +672,16 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
           )}
 
           {/* Legenda das Cores */}
-          {isReadingMode && (
+          {(isReadingMode || isAutoReading) && (
             <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
               <p className="text-sm font-semibold text-gray-700 mb-2">Legenda de Cores:</p>
               <div className="flex flex-wrap gap-4 text-sm">
+                {isAutoReading && (
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 bg-blue-500 rounded shadow-lg"></span>
+                    <span className="font-semibold">Palavra Atual</span>
+                  </div>
+                )}
                 <div className="flex items-center gap-2">
                   <span className="w-4 h-4 bg-green-200 rounded"></span>
                   <span>Pronuncia Correta</span>
