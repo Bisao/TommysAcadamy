@@ -514,28 +514,15 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
               }
 
               return (
-                <motion.span
+                <span
                   key={index}
                   data-word-index={index}
-                  className={`${colorClass} px-1 py-0.5 rounded transition-all duration-300 mr-1 inline-block cursor-pointer hover:bg-blue-100`}
+                  className={`${colorClass} px-1 py-0.5 rounded transition-colors duration-150 mr-1 inline-block cursor-pointer hover:bg-blue-100`}
                   style={{ wordBreak: 'break-word' }}
                   onClick={(e) => handleWordClick(word, e)}
-                  animate={isCurrentWord ? {
-                    scale: [1.1, 1.15, 1.1],
-                    boxShadow: [
-                      '0 4px 15px rgba(59, 130, 246, 0.4)',
-                      '0 6px 20px rgba(59, 130, 246, 0.6)',
-                      '0 4px 15px rgba(59, 130, 246, 0.4)'
-                    ]
-                  } : {}}
-                  transition={{
-                    duration: 0.8,
-                    repeat: isCurrentWord ? Infinity : 0,
-                    ease: "easeInOut"
-                  }}
                 >
                   {word}
-                </motion.span>
+                </span>
               );
             })}
           </div>
