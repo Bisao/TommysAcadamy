@@ -259,7 +259,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       
 
-      {/* Controles de Áudio */}
+      {/* Controles de Áudio e Leitura */}
       <Card className="border-2 border-cartoon-gray">
         <CardContent className="p-6">
           <div className="flex flex-wrap gap-4 justify-center">
@@ -283,6 +283,18 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
             </Button>
 
             <Button
+              onClick={toggleReadingMode}
+              className={`cartoon-button ${
+                isReadingMode 
+                  ? "bg-red-500 hover:bg-red-600" 
+                  : "bg-cartoon-coral hover:bg-cartoon-coral/80"
+              }`}
+            >
+              {isReadingMode ? <MicOff size={20} /> : <Mic size={20} />}
+              {isReadingMode ? "Parar Gravação" : "Começar a Ler"}
+            </Button>
+
+            <Button
               onClick={stopAudio}
               disabled={!isPlaying}
               variant="outline"
@@ -292,8 +304,6 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
               Parar
             </Button>
           </div>
-
-          
         </CardContent>
       </Card>
 
