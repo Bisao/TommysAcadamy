@@ -34,17 +34,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/login", async (req, res) => {
     try {
       const { username, password } = loginSchema.parse(req.body);
+      console.log(`Login attempt for username: ${username}`);
+      
       const user = await storage.authenticateUser(username, password);
 
       if (!user) {
+        console.log(`Authentication failed for username: ${username}`);
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
+      console.log(`Authentication successful for username: ${username}`);
       // Store user session (simplified - in production use proper session management)
       req.session = { userId: user.id };
 
       res.json({ user: { ...user, password: undefined } });
     } catch (error) {
+      console.error(`Login error:`, error);
       res.status(400).json({ message: "Invalid request data" });
     }
   });
