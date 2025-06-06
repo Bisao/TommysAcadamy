@@ -3,7 +3,7 @@ import { useState, useCallback } from "react";
 export function useAudio() {
   const [isPlaying, setIsPlaying] = useState(false);
 
-  const playText = useCallback((text: string, lang: string = "pt-BR") => {
+  const playText = useCallback((text: string, lang: string = "en-US") => {
     if (!('speechSynthesis' in window)) {
       console.warn("Speech synthesis not supported");
       return;
@@ -15,8 +15,28 @@ export function useAudio() {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = lang;
     utterance.rate = 0.8;
-    utterance.pitch = 1;
+    utterance.pitch = 0.9; // Slightly lower pitch for male voice
     utterance.volume = 1;
+
+    // Try to select an American English male voice
+    const voices = speechSynthesis.getVoices();
+    const americanMaleVoice = voices.find(voice => 
+      voice.lang.includes('en-US') && 
+      (voice.name.toLowerCase().includes('male') || 
+       voice.name.toLowerCase().includes('david') ||
+       voice.name.toLowerCase().includes('mark') ||
+       voice.name.toLowerCase().includes('alex') ||
+       voice.name.toLowerCase().includes('daniel'))
+    );
+
+    // Fallback to any American English voice
+    const americanVoice = voices.find(voice => voice.lang.includes('en-US'));
+    
+    if (americanMaleVoice) {
+      utterance.voice = americanMaleVoice;
+    } else if (americanVoice) {
+      utterance.voice = americanVoice;
+    }
 
     utterance.onstart = () => setIsPlaying(true);
     utterance.onend = () => setIsPlaying(false);
@@ -25,7 +45,32 @@ export function useAudio() {
       setIsPlaying(false);
     };
 
-    speechSynthesis.speak(utterance);
+    // Wait for voices to load if not available yet
+    if (voices.length === 0) {
+      speechSynthesis.addEventListener('voiceschanged', () => {
+        const updatedVoices = speechSynthesis.getVoices();
+        const updatedAmericanMaleVoice = updatedVoices.find(voice => 
+          voice.lang.includes('en-US') && 
+          (voice.name.toLowerCase().includes('male') || 
+           voice.name.toLowerCase().includes('david') ||
+           voice.name.toLowerCase().includes('mark') ||
+           voice.name.toLowerCase().includes('alex') ||
+           voice.name.toLowerCase().includes('daniel'))
+        );
+        
+        const updatedAmericanVoice = updatedVoices.find(voice => voice.lang.includes('en-US'));
+        
+        if (updatedAmericanMaleVoice) {
+          utterance.voice = updatedAmericanMaleVoice;
+        } else if (updatedAmericanVoice) {
+          utterance.voice = updatedAmericanVoice;
+        }
+        
+        speechSynthesis.speak(utterance);
+      }, { once: true });
+    } else {
+      speechSynthesis.speak(utterance);
+    }
   }, []);
 
   const stopAudio = useCallback(() => {
