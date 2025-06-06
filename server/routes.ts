@@ -168,6 +168,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/lessons/answer", async (req, res) => {
     try {
       const { lessonId, questionId, answer, timeSpent } = submitAnswerSchema.parse(req.body);
+      const userId = req.session?.userId || 1;
 
       const lesson = await storage.getLesson(lessonId);
       if (!lesson) {
@@ -182,12 +183,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const isCorrect = question.correctAnswer === answer;
+      const xpEarned = isCorrect ? 10 : 0;
+
+      // Update user XP immediately if answer is correct
+      if (isCorrect && xpEarned > 0) {
+        const user = await storage.getUser(userId);
+        if (user) {
+          await storage.updateUser(userId, {
+            totalXP: (user.totalXP || 0) + xpEarned
+          });
+        }
+
+        // Update daily stats
+        const today = new Date().toISOString().split('T')[0];
+        const dailyStats = await storage.getUserStats(userId, today);
+        await storage.updateStats(userId, today, {
+          xpEarned: (dailyStats?.xpEarned || 0) + xpEarned
+        });
+      }
 
       res.json({
         correct: isCorrect,
         correctAnswer: question.correctAnswer,
         explanation: question.explanation,
-        xpEarned: isCorrect ? 10 : 0
+        xpEarned
       });
     } catch (error) {
       res.status(400).json({ message: "Invalid request data" });

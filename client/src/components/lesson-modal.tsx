@@ -55,6 +55,13 @@ export default function LessonModal({ lessonId, onClose }: LessonModalProps) {
         [currentQuestion.id]: data.correct
       }));
       setShowFeedback(true);
+      
+      // Invalidate user cache immediately if XP was earned
+      if (data.correct && data.xpEarned > 0) {
+        queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/progress"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/stats/daily"] });
+      }
     },
   });
 
