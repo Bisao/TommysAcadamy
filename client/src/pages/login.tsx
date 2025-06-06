@@ -184,6 +184,34 @@ export default function Login() {
     },
   });
 
+  const guestLoginMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/auth/guest", {});
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Entrando como convidado!",
+        description: "Entrando em modo fullscreen...",
+      });
+      
+      // Enter fullscreen mode
+      setTimeout(() => {
+        enterFullscreen();
+      }, 500);
+      
+      // Invalidate user query to refetch user data
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      // Redirect to home after a delay to allow fullscreen to activate
+      setTimeout(() => {
+        setLocation("/home");
+      }, 1000);
+    },
+    onError: (error: any) => {
+      setError("Erro ao entrar como convidado. Tente novamente.");
+    },
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -354,7 +382,7 @@ export default function Login() {
               {/* Submit Button */}
               <Button
                 type="submit"
-                disabled={loginMutation.isPending || registerMutation.isPending}
+                disabled={loginMutation.isPending || registerMutation.isPending || guestLoginMutation.isPending}
                 className="w-full cartoon-button h-10 sm:h-12 text-base sm:text-lg"
               >
                 {loginMutation.isPending || registerMutation.isPending
@@ -364,6 +392,29 @@ export default function Login() {
                   : "Criar Conta"}
               </Button>
             </form>
+
+            {/* Guest Login Button */}
+            {isLogin && (
+              <div className="mt-4">
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-gray-300" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-white px-2 text-gray-500">ou</span>
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={guestLoginMutation.isPending || loginMutation.isPending || registerMutation.isPending}
+                  onClick={() => guestLoginMutation.mutate()}
+                  className="w-full mt-4 h-10 sm:h-12 text-base sm:text-lg border-2 border-gray-300 hover:border-cartoon-teal hover:bg-cartoon-teal/10 transition-colors"
+                >
+                  {guestLoginMutation.isPending ? "Entrando..." : "Entrar como Convidado"}
+                </Button>
+              </div>
+            )}
 
             {/* Toggle Login/Register */}
             <div className="text-center mt-4 sm:mt-6">

@@ -178,23 +178,23 @@ export default function LessonModal({ lessonId, onClose }: LessonModalProps) {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 pt-20">
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 sm:p-4 pt-16 sm:pt-20">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.9 }}
-          className="bg-white rounded-2xl shadow-2xl border-4 border-cartoon-teal max-w-2xl w-full max-h-[calc(100vh - 5rem)] overflow-y-auto"
+          className="bg-white rounded-2xl shadow-2xl border-4 border-cartoon-teal max-w-2xl w-full max-h-[calc(100vh-4rem)] sm:max-h-[calc(100vh-5rem)] overflow-y-auto"
         >
           {/* Modal Header */}
-          <div className="flex justify-between items-center p-6 border-b-2 border-cartoon-gray">
-            <h3 className="text-2xl font-bold text-cartoon-dark">{lesson.title}</h3>
+          <div className="flex justify-between items-center p-3 sm:p-6 border-b-2 border-cartoon-gray">
+            <h3 className="text-lg sm:text-2xl font-bold text-cartoon-dark">{lesson.title}</h3>
             <Button 
               variant="ghost" 
               size="sm"
               onClick={onClose}
-              className="text-gray-500 hover:text-gray-700"
+              className="text-gray-500 hover:text-gray-700 touch-manipulation"
             >
-              <X size={24} />
+              <X size={20} className="sm:w-6 sm:h-6" />
             </Button>
           </div>
 

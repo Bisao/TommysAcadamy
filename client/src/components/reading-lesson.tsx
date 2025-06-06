@@ -319,8 +319,8 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     }
   };
 
-  // Handle word click for single word selection
-  const handleWordClick = (word: string, event: React.MouseEvent) => {
+  // Handle word click for single word selection with mobile touch support
+  const handleWordClick = (word: string, event: React.MouseEvent | React.TouchEvent) => {
     event.preventDefault();
     event.stopPropagation();
 
@@ -328,11 +328,13 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     const cleanWord = word.replace(/[.,!?;:]/g, '');
     setSelectedText(cleanWord);
 
-    // Get click position to show icon
+    // Get click/touch position to show icon
     const rect = (event.target as HTMLElement).getBoundingClientRect();
+    const isMobile = window.innerWidth < 640;
+    
     setIconPosition({
       x: rect.left + rect.width / 2,
-      y: rect.bottom + window.scrollY + 5
+      y: rect.bottom + window.scrollY + (isMobile ? 10 : 5)
     });
     setShowAudioIcon(true);
   };
@@ -555,9 +557,10 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
                 <span
                   key={index}
                   data-word-index={index}
-                  className={`${colorClass} px-1 py-0.5 rounded transition-colors duration-150 mr-1 inline-block cursor-pointer hover:bg-blue-100`}
-                  style={{ wordBreak: 'break-word' }}
+                  className={`${colorClass} px-1 py-0.5 rounded transition-colors duration-150 mr-1 inline-block cursor-pointer hover:bg-blue-100 touch-manipulation select-none`}
+                  style={{ wordBreak: 'break-word', userSelect: 'none' }}
                   onClick={(e) => handleWordClick(word, e)}
+                  onTouchEnd={(e) => handleWordClick(word, e)}
                 >
                   {word}
                 </span>
