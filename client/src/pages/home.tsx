@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookOpen, MessageCircle, Mic, Palette, Trophy, Medal, Star, Flame } from "lucide-react";
+import { BookOpen, MessageCircle, Mic, Palette, Trophy, Medal, Star, Flame, Target } from "lucide-react";
 import { useLocation } from "wouter";
 
 export default function Home() {
@@ -39,7 +39,7 @@ export default function Home() {
       icon: BookOpen,
       color: "cartoon-coral",
       path: "/vocabulary",
-      lessons: lessons.filter((l: any) => l.category === "vocabulary"),
+      lessons: (lessons as any[]).filter((l: any) => l.category === "vocabulary"),
     },
     {
       name: "Gramática",
@@ -47,7 +47,7 @@ export default function Home() {
       icon: Palette,
       color: "cartoon-blue",
       path: "/grammar",
-      lessons: lessons.filter((l: any) => l.category === "grammar"),
+      lessons: (lessons as any[]).filter((l: any) => l.category === "grammar"),
     },
     {
       name: "Frases",
@@ -55,7 +55,7 @@ export default function Home() {
       icon: MessageCircle,
       color: "cartoon-mint",
       path: "/phrases",
-      lessons: lessons.filter((l: any) => l.category === "phrases"),
+      lessons: (lessons as any[]).filter((l: any) => l.category === "phrases"),
     },
     {
       name: "Pronúncia",
@@ -63,7 +63,7 @@ export default function Home() {
       icon: Mic,
       color: "cartoon-yellow",
       path: "/pronunciation",
-      lessons: lessons.filter((l: any) => l.category === "pronunciation"),
+      lessons: (lessons as any[]).filter((l: any) => l.category === "pronunciation"),
     },
   ];
 
@@ -84,11 +84,11 @@ export default function Home() {
     setSelectedLesson(null);
   };
 
-  const dailyProgress = dailyStats ? (dailyStats.lessonsCompleted / (user?.dailyGoal || 4)) * 100 : 0;
+  const dailyProgress = dailyStats ? ((dailyStats as any).lessonsCompleted / ((user as any)?.dailyGoal || 4)) * 100 : 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-50 to-teal-50 pt-16 sm:pt-20">
-      <Header user={user} />
+      <Header user={user as any} />
       
       <main className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Welcome Section */}
@@ -106,43 +106,40 @@ export default function Home() {
           <p className="text-sm sm:text-base lg:text-lg text-gray-600 px-4">Continue sua jornada de aprendizado com lições divertidas!</p>
         </motion.div>
 
-        {/* Progress Overview */}
+        {/* Main Navigation Cards */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="cartoon-card border-cartoon-teal mb-6 sm:mb-8 p-4 sm:p-6"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8"
         >
-          <h3 className="text-lg sm:text-xl font-bold text-cartoon-dark mb-3 sm:mb-4 flex items-center">
-            <Trophy className="text-cartoon-teal mr-2" size={20} />
-            Seu Progresso
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            <div className="text-center">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-2 sm:mb-3 bg-cartoon-red rounded-full flex items-center justify-center shadow-lg">
-                <span className="text-lg sm:text-2xl font-bold text-white">
-                  {Math.round(dailyProgress)}%
-                </span>
+          <Card className="cartoon-card border-2 border-cartoon-blue hover:shadow-xl transition-all duration-300 cursor-pointer"
+                onClick={() => setLocation("/lessons")}>
+            <CardContent className="p-6 text-center">
+              <div className="w-20 h-20 mx-auto mb-4 bg-cartoon-blue rounded-full flex items-center justify-center">
+                <BookOpen className="text-white" size={40} />
               </div>
-              <p className="text-sm sm:text-base font-semibold text-cartoon-dark">Progresso Diário</p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-2 sm:mb-3 bg-cartoon-yellow rounded-full flex items-center justify-center shadow-lg">
-                <span className="text-lg sm:text-2xl font-bold text-cartoon-dark">
-                  {progress?.lessonsCompleted || 0}
-                </span>
+              <h3 className="text-2xl font-bold text-cartoon-dark mb-2">Aulas</h3>
+              <p className="text-gray-600 mb-4">Explore lições organizadas por categoria</p>
+              <Button className="w-full cartoon-button bg-cartoon-blue hover:bg-cartoon-blue/80">
+                Ver Aulas
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="cartoon-card border-2 border-cartoon-coral hover:shadow-xl transition-all duration-300 cursor-pointer"
+                onClick={() => setLocation("/exercises")}>
+            <CardContent className="p-6 text-center">
+              <div className="w-20 h-20 mx-auto mb-4 bg-cartoon-coral rounded-full flex items-center justify-center">
+                <Target className="text-white" size={40} />
               </div>
-              <p className="text-sm sm:text-base font-semibold text-cartoon-dark">Lições Concluídas</p>
-            </div>
-            <div className="text-center lg:block">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-2 sm:mb-3 bg-cartoon-mint rounded-full flex items-center justify-center shadow-lg">
-                <span className="text-lg sm:text-2xl font-bold text-cartoon-dark">
-                  {user?.level || 1}
-                </span>
-              </div>
-              <p className="text-sm sm:text-base font-semibold text-cartoon-dark">Nível Atual</p>
-            </div>
-          </div>
+              <h3 className="text-2xl font-bold text-cartoon-dark mb-2">Exercícios</h3>
+              <p className="text-gray-600 mb-4">Pratique e teste seus conhecimentos</p>
+              <Button className="w-full cartoon-button bg-cartoon-coral hover:bg-cartoon-coral/80">
+                Fazer Exercícios
+              </Button>
+            </CardContent>
+          </Card>
         </motion.div>
 
         {/* Lesson Categories */}
@@ -239,7 +236,7 @@ export default function Home() {
           <Button 
             className="cartoon-button text-xl py-4 px-8 animate-pulse"
             onClick={() => {
-              const nextLesson = lessons.find((l: any) => !l.completed);
+              const nextLesson = (lessons as any[]).find((l: any) => !l.completed);
               if (nextLesson) {
                 openLesson(nextLesson.id);
               }

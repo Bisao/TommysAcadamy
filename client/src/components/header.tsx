@@ -72,43 +72,12 @@ export default function Header({ user }: HeaderProps) {
             <h1 className="text-base font-bold text-cartoon-dark sm:hidden">Tommy's</h1>
           </motion.div>
 
-          {/* Progress and Stats */}
+          {/* Navigation */}
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex items-center space-x-2 sm:space-x-4 lg:space-x-6"
+            className="flex items-center space-x-2 sm:space-x-4"
           >
-            {/* Streak Counter */}
-            <Badge className="bg-cartoon-yellow hover:bg-cartoon-yellow/80 text-cartoon-dark font-bold px-2 sm:px-3 lg:px-4 py-1 sm:py-2 text-xs sm:text-sm">
-              <Flame className="text-cartoon-red mr-1 wiggle" size={14} />
-              <span>{user?.streak || 0}</span>
-            </Badge>
-
-            {/* XP Points */}
-            <Badge className="bg-cartoon-mint hover:bg-cartoon-mint/80 text-cartoon-dark font-bold px-2 sm:px-3 lg:px-4 py-1 sm:py-2 text-xs sm:text-sm hidden sm:flex">
-              <Star className="text-cartoon-yellow mr-1" size={14} />
-              <span>{user?.totalXP || 0} XP</span>
-            </Badge>
-
-            {/* Profile Avatar */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setLocation("/profile")}
-              className="flex items-center space-x-1 sm:space-x-2 hover:bg-cartoon-teal/10"
-            >
-              <Avatar className="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 bg-cartoon-blue cursor-pointer transform hover:scale-110 transition-transform">
-                <AvatarFallback className="bg-cartoon-blue text-white font-bold text-xs sm:text-sm">
-                  {user?.username?.charAt(0).toUpperCase() || "U"}
-                </AvatarFallback>
-              </Avatar>
-            </Button>
-
-            <Badge variant="secondary" className="bg-cartoon-yellow text-cartoon-dark hidden lg:flex">
-              <Trophy size={14} className="mr-1" />
-              Nível {user.level}
-            </Badge>
-
             <Button
               variant="ghost"
               size="sm"
@@ -137,6 +106,20 @@ export default function Header({ user }: HeaderProps) {
             >
               <Target size={14} className="mr-0 sm:mr-1" />
               <span className="hidden sm:inline">Exercícios</span>
+            </Button>
+
+            {/* Profile Avatar */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setLocation("/profile")}
+              className="flex items-center space-x-1 sm:space-x-2 hover:bg-cartoon-teal/10"
+            >
+              <Avatar className="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 bg-cartoon-blue cursor-pointer transform hover:scale-110 transition-transform">
+                <AvatarFallback className="bg-cartoon-blue text-white font-bold text-xs sm:text-sm">
+                  {user?.username?.charAt(0).toUpperCase() || "U"}
+                </AvatarFallback>
+              </Avatar>
             </Button>
 
             <Button
