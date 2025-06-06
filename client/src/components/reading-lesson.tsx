@@ -70,9 +70,10 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
   const startAutoReading = () => {
     setIsAutoReading(true);
     setIsPaused(false);
-    setCurrentWordIndex(0);
+    setCurrentWordIndex(-1); // Start with -1 to highlight title first
 
     const words = text.split(/\s+/).filter(word => word.length > 0);
+    const titleWords = title.split(/\s+/).filter(word => word.length > 0);
 
     // Start reading with teacher's voice
     const fullContent = `${title}. ${text}`;
@@ -83,6 +84,22 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     const msPerWord = (60 / estimatedWordsPerMinute) * 1000;
 
     const readNextWord = (index: number) => {
+      // If we're still reading the title (index < 0)
+      if (index < 0) {
+        setCurrentWordIndex(index);
+        
+        // Calculate title reading duration
+        const titleDuration = titleWords.length * msPerWord + 500; // Extra pause after title
+        
+        autoReadingTimerRef.current = setTimeout(() => {
+          if (!isPaused) {
+            readNextWord(0); // Start with first word of text
+          }
+        }, titleDuration);
+        
+        return;
+      }
+
       if (index >= words.length) {
         // Reading completed
         setIsAutoReading(false);
@@ -139,10 +156,8 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
       }, Math.max(wordDelay, 200)); // Minimum 200ms per word
     };
 
-    // Start with the title pause
-    setTimeout(() => {
-      readNextWord(0);
-    }, 1000); // Give time for title to be read
+    // Start immediately with title highlight
+    readNextWord(-1);
 
     toast({
       title: "🎯 Professor Tommy lendo o texto",
@@ -615,7 +630,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
               </div>
               <Progress 
                 value={isAutoReading ? 
-                  (currentWordIndex / text.split(/\s+/).length) * 100 :
+                  currentWordIndex === -1 ? 5 : ((currentWordIndex + 1) / text.split(/\s+/).length) * 95 + 5 :
                   readingProgress
                 } 
                 className="h-3" 
@@ -627,7 +642,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
                   {isPaused ? (
                     <div className="flex items-center gap-2 text-yellow-600 font-semibold">
                       <Pause size={16} />
-                      Leitura pausada - Palavra {currentWordIndex + 1} de {text.split(/\s+/).length}
+                      Leitura pausada - {currentWordIndex === -1 ? 'Título' : `Palavra ${currentWordIndex + 1} de ${text.split(/\s+/).length}`}
                     </div>
                   ) : (
                     <div className="flex items-center gap-2 text-blue-600 font-semibold">
@@ -637,7 +652,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
                       >
                         <Play size={16} />
                       </motion.div>
-                      Lendo palavra {currentWordIndex + 1} de {text.split(/\s+/).length}
+                      {currentWordIndex === -1 ? 'Lendo título' : `Lendo palavra ${currentWordIndex + 1} de ${text.split(/\s+/).length}`}
                     </div>
                   )}
                 </div>
@@ -662,7 +677,15 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
       <Card className="border-2 border-cartoon-gray">
         <CardHeader className="pb-3 sm:pb-6">
           <div className="text-center">
-            <CardTitle className="text-xl sm:text-2xl text-cartoon-dark">{title}</CardTitle>
+            <CardTitle 
+              className={`text-xl sm:text-2xl text-cartoon-dark transition-all duration-300 ${
+                isAutoReading && currentWordIndex === -1 
+                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg shadow-xl scale-105 transform' 
+                  : ''
+              }`}
+            >
+              {title}
+            </CardTitle>
           </div>
         </CardHeader>
         <CardContent className="relative p-3 sm:p-6">
