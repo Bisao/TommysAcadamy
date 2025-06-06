@@ -297,9 +297,9 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
         <CardContent>
           <div
             ref={textRef}
-            className="text-lg leading-relaxed p-4 bg-white rounded-lg border border-gray-200 cursor-text select-text"
+            className="text-lg leading-relaxed p-4 bg-white rounded-lg border border-gray-200 cursor-text select-text break-words whitespace-pre-wrap overflow-wrap-anywhere"
             onMouseUp={handleTextSelection}
-            style={{ userSelect: 'text' }}
+            style={{ userSelect: 'text', wordBreak: 'break-word', overflowWrap: 'break-word' }}
           >
             {text.split(/\s+/).map((word, index) => {
               const feedback = wordFeedback[index];
@@ -322,7 +322,8 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
               return (
                 <span
                   key={index}
-                  className={`${colorClass} px-1 py-0.5 rounded transition-colors duration-300 mr-1`}
+                  className={`${colorClass} px-1 py-0.5 rounded transition-colors duration-300 mr-1 inline-block`}
+                  style={{ wordBreak: 'break-word' }}
                 >
                   {word}
                 </span>
