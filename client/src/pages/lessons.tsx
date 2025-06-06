@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { BookOpen, MessageCircle, Mic, Palette, Play, CheckCircle, Lock } from "lucide-react";
 import { useLocation } from "wouter";
+import { Volume2 } from "lucide-react";
 
 export default function Lessons() {
   const [, setLocation] = useLocation();
@@ -79,7 +80,7 @@ export default function Lessons() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-50 to-teal-50 pt-16 sm:pt-20">
       <Header user={user as any} />
-      
+
       <main className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Page Header */}
         <motion.div 
