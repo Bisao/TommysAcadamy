@@ -18,15 +18,72 @@ const completeQuizSchema = z.object({
   timeSpent: z.number(),
 });
 
+const loginSchema = z.object({
+  username: z.string(),
+  password: z.string(),
+});
+
+const registerSchema = z.object({
+  username: z.string(),
+  email: z.string().email(),
+  password: z.string().min(6),
+});
+
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Get current user (for demo, always return user with ID 1)
+  // Authentication routes
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { username, password } = loginSchema.parse(req.body);
+      const user = await storage.authenticateUser(username, password);
+      
+      if (!user) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      // Store user session (simplified - in production use proper session management)
+      req.session = { userId: user.id };
+      
+      res.json({ user: { ...user, password: undefined } });
+    } catch (error) {
+      res.status(400).json({ message: "Invalid request data" });
+    }
+  });
+
+  app.post("/api/auth/register", async (req, res) => {
+    try {
+      const userData = registerSchema.parse(req.body);
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByUsername(userData.username);
+      if (existingUser) {
+        return res.status(409).json({ message: "Username already exists" });
+      }
+
+      const user = await storage.createUser(userData);
+      
+      // Store user session
+      req.session = { userId: user.id };
+      
+      res.json({ user: { ...user, password: undefined } });
+    } catch (error) {
+      res.status(400).json({ message: "Invalid request data" });
+    }
+  });
+
+  app.post("/api/auth/logout", async (req, res) => {
+    req.session = null;
+    res.json({ message: "Logged out successfully" });
+  });
+
+  // Get current user (check session)
   app.get("/api/user", async (req, res) => {
     try {
-      const user = await storage.getUser(1);
+      const userId = req.session?.userId || 1; // Fallback for demo
+      const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
-      res.json(user);
+      res.json({ ...user, password: undefined });
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch user" });
     }
@@ -35,12 +92,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Update user data
   app.patch("/api/user", async (req, res) => {
     try {
+      const userId = req.session?.userId || 1; // Fallback for demo
       const updates = req.body;
-      const user = await storage.updateUser(1, updates);
+      const user = await storage.updateUser(userId, updates);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
-      res.json(user);
+      res.json({ ...user, password: undefined });
     } catch (error) {
       res.status(500).json({ message: "Failed to update user" });
     }
