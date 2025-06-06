@@ -411,121 +411,102 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
           {/* Mobile-optimized layout */}
           <div className="space-y-4">
             {/* Primary Controls Row */}
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:justify-center">
+            <div className="flex flex-wrap justify-center gap-3">
               {/* Audio Control with Pause/Resume */}
-              <div className="flex gap-2 justify-center">
-                {!isPlaying && !isAudioPaused ? (
-                  <Button
-                    onClick={playFullText}
-                    size="sm"
-                    className="cartoon-button bg-cartoon-blue hover:bg-cartoon-blue/80"
-                  >
-                    <Volume2 size={16} />
-                  </Button>
-                ) : isPlaying ? (
-                  <Button
-                    onClick={pauseAudio}
-                    size="sm"
-                    className="cartoon-button bg-yellow-500 hover:bg-yellow-600"
-                  >
-                    <Pause size={16} />
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={resumeAudio}
-                    size="sm"
-                    className="cartoon-button bg-green-500 hover:bg-green-600"
-                  >
-                    <Play size={16} />
-                  </Button>
-                )}
+              {!isPlaying && !isAudioPaused ? (
+                <Button
+                  onClick={playFullText}
+                  className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
+                >
+                  <Volume2 size={24} />
+                </Button>
+              ) : isPlaying ? (
+                <Button
+                  onClick={pauseAudio}
+                  className="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
+                >
+                  <Pause size={24} />
+                </Button>
+              ) : (
+                <Button
+                  onClick={resumeAudio}
+                  className="w-16 h-16 rounded-full bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
+                >
+                  <Play size={24} />
+                </Button>
+              )}
 
-                {(isPlaying || isAudioPaused) && (
-                  <Button
-                    onClick={stopAudio}
-                    size="sm"
-                    variant="outline"
-                    className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
-                  >
-                    <VolumeX size={16} />
-                  </Button>
-                )}
-              </div>
+              {(isPlaying || isAudioPaused) && (
+                <Button
+                  onClick={stopAudio}
+                  className="w-16 h-16 rounded-full bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
+                >
+                  <VolumeX size={24} />
+                </Button>
+              )}
 
               {/* Auto Reading Controls */}
-              <div className="flex justify-center">
-                {!isAutoReading ? (
-                  <Button
-                    onClick={startAutoReading}
-                    size="sm"
-                    className="cartoon-button bg-cartoon-mint hover:bg-cartoon-mint/80"
-                  >
-                    <Play size={16} />
-                  </Button>
-                ) : (
-                  <div className="flex gap-2">
-                    {isPaused ? (
-                      <Button
-                        onClick={resumeAutoReading}
-                        size="sm"
-                        className="cartoon-button bg-green-500 hover:bg-green-600"
-                      >
-                        <Play size={16} />
-                      </Button>
-                    ) : (
-                      <Button
-                        onClick={pauseAutoReading}
-                        size="sm"
-                        className="cartoon-button bg-yellow-500 hover:bg-yellow-600"
-                      >
-                        <Pause size={16} />
-                      </Button>
-                    )}
+              {!isAutoReading ? (
+                <Button
+                  onClick={startAutoReading}
+                  className="w-16 h-16 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
+                >
+                  <Play size={24} />
+                </Button>
+              ) : (
+                <>
+                  {isPaused ? (
                     <Button
-                      onClick={stopAutoReading}
-                      size="sm"
-                      className="cartoon-button bg-red-500 hover:bg-red-600"
+                      onClick={resumeAutoReading}
+                      className="w-16 h-16 rounded-full bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
                     >
-                      <VolumeX size={16} />
+                      <Play size={24} />
                     </Button>
-                  </div>
-                )}
-              </div>
-            </div>
+                  ) : (
+                    <Button
+                      onClick={pauseAutoReading}
+                      className="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
+                    >
+                      <Pause size={24} />
+                    </Button>
+                  )}
+                  <Button
+                    onClick={stopAutoReading}
+                    className="w-16 h-16 rounded-full bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
+                  >
+                    <VolumeX size={24} />
+                  </Button>
+                </>
+              )}
 
-            {/* Secondary Controls Row */}
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:justify-center">
-              <Button
-                onClick={playSelectedText}
-                disabled={!selectedText || isPlaying}
-                variant="outline"
-                className="border-cartoon-teal text-cartoon-teal hover:bg-cartoon-teal hover:text-white"
-              >
-                <Play size={20} />
-                <span className="ml-2">Ouvir Seleção</span>
-              </Button>
-
+              {/* Reading Mode Control */}
               <Button
                 onClick={toggleReadingMode}
-                className={`cartoon-button ${
+                className={`w-16 h-16 rounded-full ${
                   isReadingMode 
-                    ? "bg-red-500 hover:bg-red-600" 
-                    : "bg-cartoon-coral hover:bg-cartoon-coral/80"
-                }`}
+                    ? "bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700" 
+                    : "bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
+                } text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white`}
               >
-                {isReadingMode ? <MicOff size={20} /> : <Mic size={20} />}
-                <span className="ml-2">{isReadingMode ? "Parar Gravação" : "Começar a Ler"}</span>
+                {isReadingMode ? <MicOff size={24} /> : <Mic size={24} />}
               </Button>
 
+              {/* Reset Button */}
               <Button
                 onClick={resetReading}
-                variant="outline"
                 disabled={!transcript}
-                className="border-cartoon-coral text-cartoon-coral hover:bg-cartoon-coral hover:text-white"
+                className="w-16 h-16 rounded-full bg-gradient-to-br from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 disabled:from-gray-300 disabled:to-gray-400 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white disabled:opacity-50"
               >
-                <RotateCcw size={20} />
-                <span className="ml-2 hidden sm:inline">Recomeçar</span>
+                <RotateCcw size={24} />
               </Button>
+            </div>
+
+            {/* Labels Row */}
+            <div className="flex flex-wrap justify-center gap-3 text-xs text-gray-600">
+              <span className="text-center w-16">Professor</span>
+              <span className="text-center w-16">Guiada</span>
+              <span className="text-center w-16">{isReadingMode ? "Parar" : "Ler"}</span>
+              <span className="text-center w-16">Repetir</span>
             </div>
           </div>
 

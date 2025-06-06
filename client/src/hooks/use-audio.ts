@@ -7,7 +7,7 @@ export function useAudio() {
   const [remainingText, setRemainingText] = useState("");
   const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
 
-  const playText = useCallback((text: string, lang: string = "en-US", fromPosition: number = 0) => {
+  const playText = useCallback((text: string, lang: string = "pt-BR", fromPosition: number = 0) => {
     if (!('speechSynthesis' in window)) {
       console.warn("Speech synthesis not supported");
       return;
@@ -31,24 +31,47 @@ export function useAudio() {
     
     setCurrentUtterance(utterance);
 
-    // Try to select an American English male voice
+    // Try to select a Brazilian Portuguese voice
     const voices = speechSynthesis.getVoices();
-    const americanMaleVoice = voices.find(voice => 
-      voice.lang.includes('en-US') && 
-      (voice.name.toLowerCase().includes('male') || 
-       voice.name.toLowerCase().includes('david') ||
-       voice.name.toLowerCase().includes('mark') ||
-       voice.name.toLowerCase().includes('alex') ||
-       voice.name.toLowerCase().includes('daniel'))
+    
+    // First try to find a Brazilian Portuguese voice
+    const brazilianVoice = voices.find(voice => 
+      voice.lang.includes('pt-BR') || voice.lang.includes('pt_BR')
     );
 
-    // Fallback to any American English voice
-    const americanVoice = voices.find(voice => voice.lang.includes('en-US'));
-    
-    if (americanMaleVoice) {
-      utterance.voice = americanMaleVoice;
-    } else if (americanVoice) {
-      utterance.voice = americanVoice;
+    // Fallback to any Portuguese voice
+    const portugueseVoice = voices.find(voice => 
+      voice.lang.includes('pt')
+    );
+
+    // If text is in English, try to find an American English voice
+    const isEnglishText = /^[a-zA-Z\s.,!?;:'"()-]+$/.test(text);
+    if (isEnglishText) {
+      const americanMaleVoice = voices.find(voice => 
+        voice.lang.includes('en-US') && 
+        (voice.name.toLowerCase().includes('male') || 
+         voice.name.toLowerCase().includes('david') ||
+         voice.name.toLowerCase().includes('mark') ||
+         voice.name.toLowerCase().includes('alex') ||
+         voice.name.toLowerCase().includes('daniel'))
+      );
+      
+      const americanVoice = voices.find(voice => voice.lang.includes('en-US'));
+      
+      if (americanMaleVoice) {
+        utterance.voice = americanMaleVoice;
+        utterance.lang = "en-US";
+      } else if (americanVoice) {
+        utterance.voice = americanVoice;
+        utterance.lang = "en-US";
+      }
+    } else {
+      // For Portuguese text, use Portuguese voice
+      if (brazilianVoice) {
+        utterance.voice = brazilianVoice;
+      } else if (portugueseVoice) {
+        utterance.voice = portugueseVoice;
+      }
     }
 
     utterance.onstart = () => {
@@ -71,21 +94,40 @@ export function useAudio() {
     if (voices.length === 0) {
       speechSynthesis.addEventListener('voiceschanged', () => {
         const updatedVoices = speechSynthesis.getVoices();
-        const updatedAmericanMaleVoice = updatedVoices.find(voice => 
-          voice.lang.includes('en-US') && 
-          (voice.name.toLowerCase().includes('male') || 
-           voice.name.toLowerCase().includes('david') ||
-           voice.name.toLowerCase().includes('mark') ||
-           voice.name.toLowerCase().includes('alex') ||
-           voice.name.toLowerCase().includes('daniel'))
+        
+        const updatedBrazilianVoice = updatedVoices.find(voice => 
+          voice.lang.includes('pt-BR') || voice.lang.includes('pt_BR')
         );
         
-        const updatedAmericanVoice = updatedVoices.find(voice => voice.lang.includes('en-US'));
+        const updatedPortugueseVoice = updatedVoices.find(voice => 
+          voice.lang.includes('pt')
+        );
         
-        if (updatedAmericanMaleVoice) {
-          utterance.voice = updatedAmericanMaleVoice;
-        } else if (updatedAmericanVoice) {
-          utterance.voice = updatedAmericanVoice;
+        if (isEnglishText) {
+          const updatedAmericanMaleVoice = updatedVoices.find(voice => 
+            voice.lang.includes('en-US') && 
+            (voice.name.toLowerCase().includes('male') || 
+             voice.name.toLowerCase().includes('david') ||
+             voice.name.toLowerCase().includes('mark') ||
+             voice.name.toLowerCase().includes('alex') ||
+             voice.name.toLowerCase().includes('daniel'))
+          );
+          
+          const updatedAmericanVoice = updatedVoices.find(voice => voice.lang.includes('en-US'));
+          
+          if (updatedAmericanMaleVoice) {
+            utterance.voice = updatedAmericanMaleVoice;
+            utterance.lang = "en-US";
+          } else if (updatedAmericanVoice) {
+            utterance.voice = updatedAmericanVoice;
+            utterance.lang = "en-US";
+          }
+        } else {
+          if (updatedBrazilianVoice) {
+            utterance.voice = updatedBrazilianVoice;
+          } else if (updatedPortugueseVoice) {
+            utterance.voice = updatedPortugueseVoice;
+          }
         }
         
         speechSynthesis.speak(utterance);
