@@ -51,7 +51,9 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
     startListening, 
     stopListening, 
     resetTranscript,
-    isSupported 
+    isSupported,
+    confidence,
+    interimTranscript
   } = useSpeechRecognition();
 
   const { toast } = useToast();
@@ -69,6 +71,12 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
   }, [title, text]);
 
   const startAutoReading = useCallback(() => {
+    // Verificar se já está lendo para evitar múltiplas instâncias
+    if (isAutoReading) {
+      console.log("Already in auto reading mode, skipping");
+      return;
+    }
+
     setIsAutoReading(true);
     setIsPaused(false);
     setCurrentWordIndex(0);
@@ -77,27 +85,51 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
     const textWords = text.split(/\s+/).filter(word => word.length > 0);
     const fullContent = `${title}. ${text}`;
 
-    // Função para scroll automático melhorada
+    // Validar se há conteúdo para ler
+    if (!fullContent.trim()) {
+      console.error("No content to read");
+      setIsAutoReading(false);
+      return;
+    }
+
+    // Função para scroll automático melhorada com throttling
+    let scrollTimeout: NodeJS.Timeout | null = null;
     const scrollToWord = (wordIndex: number, isTitle: boolean) => {
-      const selector = isTitle ? `[data-word-index="title-${wordIndex}"]` : `[data-word-index="text-${wordIndex}"]`;
-      const wordElement = document.querySelector(selector);
-
-      if (wordElement) {
-        const elementRect = wordElement.getBoundingClientRect();
-        const headerHeight = window.innerWidth < 640 ? 60 : 80;
-        const audioBarHeight = window.innerWidth < 640 ? 100 : 120;
-        const totalOffset = headerHeight + audioBarHeight + 20;
-        const targetY = window.scrollY + elementRect.top - totalOffset;
-
-        window.scrollTo({
-          top: Math.max(0, targetY),
-          behavior: 'smooth'
-        });
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
       }
+      
+      scrollTimeout = setTimeout(() => {
+        const selector = isTitle ? `[data-word-index="title-${wordIndex}"]` : `[data-word-index="text-${wordIndex}"]`;
+        const wordElement = document.querySelector(selector);
+
+        if (wordElement) {
+          const elementRect = wordElement.getBoundingClientRect();
+          const isMobile = window.innerWidth < 640;
+          const headerHeight = isMobile ? 60 : 80;
+          const audioBarHeight = isMobile ? 100 : 120;
+          const totalOffset = headerHeight + audioBarHeight + 20;
+          const targetY = window.scrollY + elementRect.top - totalOffset;
+
+          // Usar requestAnimationFrame para melhor performance
+          requestAnimationFrame(() => {
+            window.scrollTo({
+              top: Math.max(0, targetY),
+              behavior: 'smooth'
+            });
+          });
+        }
+      }, 50); // Pequeno delay para evitar scroll excessivo
     };
 
     // Função unificada para lidar com word boundaries - sincronização perfeita
     const handleWordBoundary = (word: string, wordIndex: number) => {
+      // Verificar se ainda está em modo de leitura automática
+      if (!isAutoReading) {
+        console.log("Auto reading was stopped, ignoring word boundary");
+        return;
+      }
+
       const totalTitleWords = titleWords.length;
 
       // Sincronizar highlight imediatamente quando a palavra é falada
@@ -118,12 +150,12 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
             setTimeout(() => {
               setIsAutoReading(false);
               setIsPaused(false);
-              setCurrentWordIndex(-1); // Reset para não destacar nenhuma palavra
+              setCurrentWordIndex(-1);
               toast({
                 title: "🎉 Leitura concluída!",
                 description: "Professor Tommy terminou de ler o texto.",
               });
-            }, 500); // Reduzido para 500ms para resposta mais rápida
+            }, 800); // Aumentado para dar tempo da última palavra ser destacada
           }
         }
       }
@@ -131,13 +163,24 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
 
     // Iniciar leitura com primeira palavra destacada imediatamente
     setCurrentWordIndex(0);
-    playText(fullContent, "en-US", 0, handleWordBoundary);
-
-    toast({
-      title: "🎯 Professor Tommy lendo o texto",
-      description: "Acompanhe as palavras destacadas em tempo real",
-    });
-  }, [title, text, playText, toast]);
+    
+    try {
+      playText(fullContent, "en-US", 0, handleWordBoundary);
+      toast({
+        title: "🎯 Professor Tommy lendo o texto",
+        description: "Acompanhe as palavras destacadas em tempo real",
+      });
+    } catch (error) {
+      console.error("Error starting auto reading:", error);
+      setIsAutoReading(false);
+      setCurrentWordIndex(-1);
+      toast({
+        title: "❌ Erro na leitura",
+        description: "Não foi possível iniciar a leitura automática.",
+        variant: "destructive"
+      });
+    }
+  }, [title, text, playText, toast, isAutoReading]);
 
   const pauseAutoReading = useCallback(() => {
     // Pausar imediatamente tanto o áudio quanto o highlight
@@ -208,26 +251,56 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
       stopListening();
       setIsReadingMode(false);
 
-      if (readingProgress >= 80) {
+      const finalProgress = Math.round(readingProgress);
+      if (finalProgress >= 80) {
         toast({
           title: "🎉 Parabéns!",
-          description: "Você leu o texto com sucesso!",
+          description: `Você leu ${finalProgress}% do texto com sucesso!`,
+        });
+      } else {
+        toast({
+          title: "📖 Leitura finalizada",
+          description: `Você leu ${finalProgress}% do texto. Continue praticando!`,
         });
       }
     } else {
       if (isSupported) {
-        setIsReadingMode(true);
-        resetTranscript();
-        setReadingProgress(0);
-        startListening();
-        toast({
-          title: "🎤 Modo de leitura ativado",
-          description: "Comece a ler o texto em voz alta...",
-        });
+        // Verificar permissões de microfone antes de iniciar
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(() => {
+              setIsReadingMode(true);
+              resetTranscript();
+              setReadingProgress(0);
+              startListening();
+              toast({
+                title: "🎤 Modo de leitura ativado",
+                description: "Comece a ler o texto em voz alta...",
+              });
+            })
+            .catch((error) => {
+              console.error("Microphone permission denied:", error);
+              toast({
+                title: "🎤 Acesso ao microfone negado",
+                description: "Permita o acesso ao microfone para usar o reconhecimento de voz.",
+                variant: "destructive"
+              });
+            });
+        } else {
+          // Fallback para browsers sem getUserMedia
+          setIsReadingMode(true);
+          resetTranscript();
+          setReadingProgress(0);
+          startListening();
+          toast({
+            title: "🎤 Modo de leitura ativado",
+            description: "Comece a ler o texto em voz alta...",
+          });
+        }
       } else {
         toast({
           title: "❌ Recurso não disponível",
-          description: "Seu navegador não suporta reconhecimento de voz.",
+          description: "Seu navegador não suporta reconhecimento de voz. Use Chrome, Edge ou Safari.",
           variant: "destructive"
         });
       }
@@ -686,12 +759,23 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
       )}
 
       {/* Transcript e Progresso */}
-      {transcript && (
+      {(transcript || interimTranscript) && (
         <Card className="border-2 border-blue-200 dark:border-blue-300">
           <CardContent className="p-3 sm:p-4">
             <div className="space-y-3">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-700 font-medium">O que você disse:</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-700 font-medium">O que você disse:</p>
+                  {confidence > 0 && (
+                    <span className={`text-xs px-2 py-1 rounded-full ${
+                      confidence >= 0.8 ? 'bg-green-100 text-green-700' :
+                      confidence >= 0.6 ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-red-100 text-red-700'
+                    }`}>
+                      {Math.round(confidence * 100)}% confiança
+                    </span>
+                  )}
+                </div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs sm:text-sm text-blue-600 dark:text-blue-700 font-semibold">
                     Progresso: {Math.round(readingProgress)}%
@@ -700,7 +784,14 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
                 </div>
               </div>
               <div className="bg-blue-50 dark:bg-blue-100 p-3 rounded-lg border border-blue-200 dark:border-blue-300">
-                <p className="text-gray-800 dark:text-gray-900 text-sm sm:text-base break-words">{transcript}</p>
+                <p className="text-gray-800 dark:text-gray-900 text-sm sm:text-base break-words">
+                  {transcript}
+                  {interimTranscript && (
+                    <span className="text-gray-500 italic ml-1">
+                      {interimTranscript}
+                    </span>
+                  )}
+                </p>
               </div>
             </div>
           </CardContent>
