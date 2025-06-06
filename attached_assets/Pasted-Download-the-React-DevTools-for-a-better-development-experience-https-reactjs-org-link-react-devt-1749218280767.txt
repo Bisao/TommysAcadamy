@@ -1,0 +1,25 @@
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+use-audio.ts:16 playText called - current state: {speaking: false, paused: false, isPlaying: false, isPaused: false}
+use-audio.ts:28 After cancel - speechSynthesis state: {speaking: true, paused: false}
+use-audio.ts:274 pauseAudio called - speechSynthesis.speaking: true speechSynthesis.paused: false
+use-audio.ts:281 Speech synthesis paused successfully
+reading-lesson.tsx:148 Resuming auto reading - isPaused: true isAudioPaused: true currentWordIndex: 17
+reading-lesson.tsx:149 speechSynthesis.speaking: true speechSynthesis.paused: false
+reading-lesson.tsx:170 Não há áudio pausado válido, reiniciando...
+reading-lesson.tsx:187 Reiniciando leitura da palavra: 17
+use-audio.ts:16 playText called - current state: {speaking: true, paused: false, isPlaying: false, isPaused: false}
+use-audio.ts:207  Speech synthesis error: SpeechSynthesisErrorEvent {isTrusted: true, error: 'interrupted', utterance: SpeechSynthesisUtterance, charIndex: 0, charLength: 0, …}
+utterance.onerror @ use-audio.ts:207
+use-audio.ts:28 After cancel - speechSynthesis state: {speaking: true, paused: false}
+use-audio.ts:274 pauseAudio called - speechSynthesis.speaking: true speechSynthesis.paused: false
+use-audio.ts:281 Speech synthesis paused successfully
+reading-lesson.tsx:148 Resuming auto reading - isPaused: true isAudioPaused: true currentWordIndex: 26
+reading-lesson.tsx:149 speechSynthesis.speaking: true speechSynthesis.paused: false
+reading-lesson.tsx:170 Não há áudio pausado válido, reiniciando...
+reading-lesson.tsx:187 Reiniciando leitura da palavra: 26
+use-audio.ts:16 playText called - current state: {speaking: true, paused: false, isPlaying: false, isPaused: false}
+use-audio.ts:207  Speech synthesis error: SpeechSynthesisErrorEvent {isTrusted: true, error: 'interrupted', utterance: SpeechSynthesisUtterance, charIndex: 0, charLength: 0, …}
+utterance.onerror @ use-audio.ts:207
+use-audio.ts:28 After cancel - speechSynthesis state: {speaking: true, paused: false}
+use-audio.ts:274 pauseAudio called - speechSynthesis.speaking: true speechSynthesis.paused: false
+use-audio.ts:281 Speech synthesis paused successfully
