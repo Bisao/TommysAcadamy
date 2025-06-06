@@ -72,41 +72,43 @@ export default function Header({ user }: HeaderProps) {
             <h1 className="text-base font-bold text-cartoon-dark sm:hidden">Tommy's</h1>
           </motion.div>
 
-          {/* Navigation */}
+          {/* User Stats and Profile */}
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             className="flex items-center space-x-2 sm:space-x-4"
           >
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setLocation("/home")}
-              className="text-gray-600 hover:text-gray-800 px-2 sm:px-3 text-xs sm:text-sm"
+            {/* Streak */}
+            <motion.div 
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className="flex items-center space-x-1 bg-orange-100 px-2 py-1 rounded-full"
             >
-              <Home size={14} className="mr-0 sm:mr-1" />
-              <span className="hidden sm:inline">Início</span>
-            </Button>
+              <Flame className="w-4 h-4 text-orange-500" />
+              <span className="text-orange-700 font-bold text-sm">{user.streak}</span>
+            </motion.div>
 
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setLocation("/lessons")}
-              className="text-gray-600 hover:text-gray-800 px-2 sm:px-3 text-xs sm:text-sm"
+            {/* XP */}
+            <motion.div 
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.1 }}
+              className="flex items-center space-x-1 bg-blue-100 px-2 py-1 rounded-full"
             >
-              <BookOpen size={14} className="mr-0 sm:mr-1" />
-              <span className="hidden sm:inline">Aulas</span>
-            </Button>
+              <Star className="w-4 h-4 text-blue-500" />
+              <span className="text-blue-700 font-bold text-sm">{user.totalXP}</span>
+            </motion.div>
 
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setLocation("/exercises")}
-              className="text-gray-600 hover:text-gray-800 px-2 sm:px-3 text-xs sm:text-sm"
+            {/* Level */}
+            <motion.div 
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2 }}
+              className="flex items-center space-x-1 bg-green-100 px-2 py-1 rounded-full"
             >
-              <Target size={14} className="mr-0 sm:mr-1" />
-              <span className="hidden sm:inline">Exercícios</span>
-            </Button>
+              <Trophy className="w-4 h-4 text-green-500" />
+              <span className="text-green-700 font-bold text-sm">{user.level}</span>
+            </motion.div>
 
             {/* Profile Avatar */}
             <Button
