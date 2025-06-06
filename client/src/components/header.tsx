@@ -23,7 +23,7 @@ interface HeaderProps {
 }
 
 export default function Header({ user }: HeaderProps) {
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const {
@@ -33,6 +33,9 @@ export default function Header({ user }: HeaderProps) {
     clearAllNotifications,
     notifyAchievement,
   } = useNotifications();
+
+  // Check if we're on the home page
+  const isHomePage = location === "/home";
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
@@ -88,48 +91,53 @@ export default function Header({ user }: HeaderProps) {
             animate={{ opacity: 1, x: 0 }}
             className="flex items-center space-x-2 sm:space-x-4"
           >
-            {/* Streak */}
-            <motion.div 
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              className="flex items-center space-x-1 bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded-full border border-orange-200 dark:border-orange-800"
-            >
-              <Flame className="w-4 h-4 text-orange-500 dark:text-orange-400" />
-              <span className="text-orange-700 dark:text-orange-300 font-bold text-sm">{user.streak}</span>
-            </motion.div>
+            {/* Show stats only on home page */}
+            {isHomePage && (
+              <>
+                {/* Streak */}
+                <motion.div 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="flex items-center space-x-1 bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded-full border border-orange-200 dark:border-orange-800"
+                >
+                  <Flame className="w-4 h-4 text-orange-500 dark:text-orange-400" />
+                  <span className="text-orange-700 dark:text-orange-300 font-bold text-sm">{user.streak}</span>
+                </motion.div>
 
-            {/* XP */}
-            <motion.div 
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.1 }}
-              className="flex items-center space-x-1 bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded-full border border-blue-200 dark:border-blue-800"
-            >
-              <Star className="w-4 h-4 text-blue-500 dark:text-blue-400" />
-              <span className="text-blue-700 dark:text-blue-300 font-bold text-sm">{user.totalXP}</span>
-            </motion.div>
+                {/* XP */}
+                <motion.div 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.1 }}
+                  className="flex items-center space-x-1 bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded-full border border-blue-200 dark:border-blue-800"
+                >
+                  <Star className="w-4 h-4 text-blue-500 dark:text-blue-400" />
+                  <span className="text-blue-700 dark:text-blue-300 font-bold text-sm">{user.totalXP}</span>
+                </motion.div>
 
-            {/* Level */}
-            <motion.div 
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2 }}
-              className="flex items-center space-x-1 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full border border-green-200 dark:border-green-800"
-            >
-              <Trophy className="w-4 h-4 text-green-500 dark:text-green-400" />
-              <span className="text-green-700 dark:text-green-300 font-bold text-sm">{user.level}</span>
-            </motion.div>
+                {/* Level */}
+                <motion.div 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="flex items-center space-x-1 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full border border-green-200 dark:border-green-800"
+                >
+                  <Trophy className="w-4 h-4 text-green-500 dark:text-green-400" />
+                  <span className="text-green-700 dark:text-green-300 font-bold text-sm">{user.level}</span>
+                </motion.div>
 
-            {/* Notifications */}
-            <NotificationSystem
-              notifications={notifications}
-              onMarkRead={markAsRead}
-              onDismiss={dismissNotification}
-              onClearAll={clearAllNotifications}
-            />
+                {/* Notifications */}
+                <NotificationSystem
+                  notifications={notifications}
+                  onMarkRead={markAsRead}
+                  onDismiss={dismissNotification}
+                  onClearAll={clearAllNotifications}
+                />
 
-            {/* Theme Toggle */}
-            <ThemeToggle />
+                {/* Theme Toggle */}
+                <ThemeToggle />
+              </>
+            )}
 
             {/* Profile Avatar */}
             <Button
