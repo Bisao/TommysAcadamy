@@ -98,9 +98,9 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
         const wordElement = document.querySelector(`[data-word-index="${index}"]`);
         if (wordElement) {
           const elementRect = wordElement.getBoundingClientRect();
-          const panelHeight = 180; // Approximate height of fixed panel
+          const panelHeight = 240; // Approximate height of fixed panel + header
           const targetY = window.scrollY + elementRect.top - panelHeight - 20;
-          
+
           window.scrollTo({
             top: Math.max(0, targetY),
             behavior: 'smooth'
@@ -169,9 +169,9 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
         const wordElement = document.querySelector(`[data-word-index="${index}"]`);
         if (wordElement) {
           const elementRect = wordElement.getBoundingClientRect();
-          const panelHeight = 180; // Approximate height of fixed panel
+          const panelHeight = 240; // Approximate height of fixed panel + header
           const targetY = window.scrollY + elementRect.top - panelHeight - 20;
-          
+
           window.scrollTo({
             top: Math.max(0, targetY),
             behavior: 'smooth'
@@ -241,7 +241,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     }
 
     for (let i = 1; i <= len2; i++) {
-      for (let j = 1; j <= len1; j++) {
+      for (let j = 1; i <= len1; j++) {
         if (w2.charAt(i - 1) === w1.charAt(j - 1)) {
           matrix[i][j] = matrix[i - 1][j - 1];
         } else {
@@ -534,7 +534,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
 
             {/* Labels Row */}
             <div className="flex flex-wrap justify-center gap-3 text-xs text-gray-600">
-              <span className="text-center w-16">Professor</span>
+              
               <span className="text-center w-16">Guiada</span>
               <span className="text-center w-16">{isReadingMode ? "Parar" : "Ler"}</span>
               <span className="text-center w-16">Repetir</span>
@@ -638,7 +638,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
       </Card>
 
       {/* Área de Texto */}
-      <Card className="border-2 border-cartoon-gray mt-4">
+      <Card className="border-2 border-cartoon-gray mt-32">
         <CardHeader className="pb-3 sm:pb-6">
           <div className="text-center">
             <CardTitle className="text-xl sm:text-2xl text-cartoon-dark">{title}</CardTitle>
@@ -761,7 +761,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
 
       {/* Status do Microfone */}
       {isListening && (
-        <Card className="border-2 border-cartoon-coral">
+        <Card className="border-2 border-cartoon-coral mt-4">
           <CardContent className="p-4">
             <div className="flex items-center justify-center gap-2 text-cartoon-coral">
               <motion.div
@@ -778,7 +778,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
 
       {/* Transcript */}
       {transcript && (
-        <Card className="border-2 border-blue-200">
+        <Card className="border-2 border-blue-200 mt-4">
           <CardContent className="p-4">
             <p className="text-sm text-gray-600 mb-2">O que você disse:</p>
             <p className="text-gray-800">{transcript}</p>
@@ -787,7 +787,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
       )}
 
       {!isSupported && (
-        <Card className="border-2 border-yellow-200">
+        <Card className="border-2 border-yellow-200 mt-4">
           <CardContent className="p-4">
             <p className="text-yellow-800 text-sm">
               Reconhecimento de voz não está disponível neste navegador. 
