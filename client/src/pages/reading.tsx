@@ -97,7 +97,7 @@ When school finished, my mom was waiting for me at the gate. I told her all abou
             className="flex items-center gap-2 text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100"
           >
             <ArrowLeft size={16} />
-            Voltar às Aulas
+            Voltar
           </Button>
         </div>
 

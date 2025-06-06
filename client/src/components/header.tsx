@@ -191,16 +191,7 @@ export default function Header({ user, audioControls, showAudioControls }: Heade
               </Avatar>
             </Button>
 
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setLocation("/lessons")}
-              className="text-gray-600 hover:text-gray-800 px-2 sm:px-3 text-xs sm:text-sm"
-            >
-              <BookOpen size={14} className="mr-0 sm:mr-1" />
-              <span className="hidden sm:inline">Voltar</span>
-            </Button>
-          </motion.div>
+            </motion.div>
         </div>
       </div>
     </header>
