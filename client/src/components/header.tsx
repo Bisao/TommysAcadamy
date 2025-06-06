@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Flame, Star, Trophy, LogOut, Home, BookOpen, Target } from "lucide-react";
+import { Flame, Star, Trophy, BookOpen, Home, Target } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
@@ -194,12 +194,11 @@ export default function Header({ user, audioControls, showAudioControls }: Heade
             <Button
               variant="ghost"
               size="sm"
-              onClick={handleLogout}
-              disabled={logoutMutation.isPending}
+              onClick={() => setLocation("/lessons")}
               className="text-gray-600 hover:text-gray-800 px-2 sm:px-3 text-xs sm:text-sm"
             >
-              <LogOut size={14} className="mr-0 sm:mr-1" />
-              <span className="hidden sm:inline">Sair</span>
+              <BookOpen size={14} className="mr-0 sm:mr-1" />
+              <span className="hidden sm:inline">Voltar</span>
             </Button>
           </motion.div>
         </div>
