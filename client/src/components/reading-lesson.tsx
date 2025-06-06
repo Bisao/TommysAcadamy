@@ -400,46 +400,6 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
         <CardContent className="p-3 sm:p-4">
           {/* Botões lado a lado */}
           <div className="flex flex-wrap gap-2 sm:gap-3 justify-center items-center">
-            {/* Professor Tommy Audio Controls */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-blue-700 hidden sm:block">🎯 Professor Tommy:</span>
-              {!isPlaying && !isAudioPaused ? (
-                <Button
-                  onClick={playFullText}
-                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                  title="Reproduzir texto completo"
-                >
-                  <Volume2 size={16} className="sm:w-5 sm:h-5" />
-                </Button>
-              ) : isPlaying ? (
-                <Button
-                  onClick={pauseAudio}
-                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                  title="Pausar áudio"
-                >
-                  <Pause size={16} className="sm:w-5 sm:h-5" />
-                </Button>
-              ) : (
-                <Button
-                  onClick={resumeAudio}
-                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                  title="Retomar áudio"
-                >
-                  <Play size={16} className="sm:w-5 sm:h-5" />
-                </Button>
-              )}
-
-              {(isPlaying || isAudioPaused) && (
-                <Button
-                  onClick={stopAudio}
-                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                  title="Parar áudio"
-                >
-                  <VolumeX size={16} className="sm:w-5 sm:h-5" />
-                </Button>
-              )}
-            </div>
-
             {/* Leitura Guiada */}
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold text-teal-700 hidden sm:block">📖 Leitura Guiada:</span>
