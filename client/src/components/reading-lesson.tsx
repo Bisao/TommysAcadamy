@@ -39,9 +39,9 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
   const [isReadingMode, setIsReadingMode] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
   const [wordFeedback, setWordFeedback] = useState<WordFeedback[]>([]);
-  const [isAutoReading, setIsAutoReading] = useState(true);
+  const [isAutoReading, setIsAutoReading] = useState(false);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(true);
+  const [isPaused, setIsPaused] = useState(false);
   const textRef = useRef<HTMLDivElement>(null);
   const autoReadingTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -65,16 +65,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
       status: 'unread' as const
     }));
     setWordFeedback(initialFeedback);
-
-    // Show initial toast when component loads
-    setTimeout(() => {
-      toast({
-        title: "🎯 Professor Tommy está pronto!",
-        description: "Clique no botão de play para iniciar a leitura guiada",
-        duration: 5000,
-      });
-    }, 1000);
-  }, [text, toast]);
+  }, [text]);
 
   const startAutoReading = useCallback(() => {
     setIsAutoReading(true);
@@ -152,7 +143,6 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
   const resumeAutoReading = useCallback(async () => {
     if (!isAutoReading) return;
     
-    // Se está pausado e há um utterance ativo, tenta retomar
     if (isPaused && speechSynthesis.paused && speechSynthesis.speaking && currentUtterance) {
       try {
         resumeAudio();
@@ -172,62 +162,6 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
     
     const words = text.split(/\s+/).filter(word => word.length > 0);
     
-    // Se não começou ainda (currentWordIndex === 0), inicia do começo
-    if (currentWordIndex === 0) {
-      const titleWords = title.split(/\s+/).filter(word => word.length > 0);
-      const fullContent = `${title}. ${text}`;
-
-      const handleWordBoundary = (word: string, index: number) => {
-        const totalTitleWords = titleWords.length;
-
-        if (index <= totalTitleWords) {
-          setCurrentWordIndex(0);
-        } else {
-          const textWordIndex = index - totalTitleWords - 1;
-          if (textWordIndex >= 0 && textWordIndex < words.length) {
-            setCurrentWordIndex(textWordIndex);
-
-            if (textWordIndex >= words.length - 1) {
-              setTimeout(() => {
-                setIsAutoReading(false);
-                setIsPaused(false);
-                setCurrentWordIndex(0);
-                toast({
-                  title: "🎉 Leitura concluída!",
-                  description: "Professor Tommy terminou de ler o texto.",
-                });
-              }, 1000);
-            }
-
-            setTimeout(() => {
-              const wordElement = document.querySelector(`[data-word-index="${textWordIndex}"]`);
-              if (wordElement) {
-                const elementRect = wordElement.getBoundingClientRect();
-                const headerHeight = window.innerWidth < 640 ? 60 : 80;
-                const audioBarHeight = window.innerWidth < 640 ? 100 : 120;
-                const totalOffset = headerHeight + audioBarHeight + 20;
-                const targetY = window.scrollY + elementRect.top - totalOffset;
-
-                window.scrollTo({
-                  top: Math.max(0, targetY),
-                  behavior: 'smooth'
-                });
-              }
-            }, 50);
-          }
-        }
-      };
-
-      await playText(fullContent, "en-US", 0, handleWordBoundary);
-      
-      toast({
-        title: "🎯 Professor Tommy iniciando",
-        description: "Acompanhe as palavras destacadas em tempo real",
-      });
-      return;
-    }
-    
-    // Se já passou da última palavra, reinicia
     if (currentWordIndex >= words.length - 1) {
       setIsAutoReading(false);
       setIsPaused(false);
@@ -239,7 +173,6 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
       return;
     }
     
-    // Continua de onde parou
     const startIndex = Math.max(0, currentWordIndex);
     const remainingWords = words.slice(startIndex);
     const remainingText = remainingWords.join(' ');
@@ -287,7 +220,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
         description: "Continuando de onde parou",
       });
     }
-  }, [isAutoReading, isPaused, isAudioPaused, currentWordIndex, text, title, playText, resumeAudio, toast, currentUtterance, stopAudio]);
+  }, [isAutoReading, isPaused, isAudioPaused, currentWordIndex, text, playText, resumeAudio, toast, currentUtterance, stopAudio]);
 
   const stopAutoReading = useCallback(() => {
     setIsAutoReading(false);
@@ -353,11 +286,11 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
 
   const createAudioControls = useCallback(() => (
     <div className="flex items-center gap-1 sm:gap-2">
-      {!isAutoReading || (isAutoReading && isPaused && currentWordIndex === 0) ? (
+      {!isAutoReading ? (
         <Button
-          onClick={isAutoReading && isPaused && currentWordIndex === 0 ? resumeAutoReading : startAutoReading}
+          onClick={startAutoReading}
           className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-          title={isAutoReading && isPaused && currentWordIndex === 0 ? "Iniciar leitura guiada" : "Iniciar leitura guiada"}
+          title="Iniciar leitura guiada"
         >
           <Play size={14} className="sm:w-4 sm:h-4" />
         </Button>
@@ -411,7 +344,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
         <RotateCcw size={14} className="sm:w-4 sm:h-4" />
       </Button>
     </div>
-  ), [isAutoReading, isPaused, isReadingMode, transcript, currentWordIndex, startAutoReading, resumeAutoReading, pauseAutoReading, stopAutoReading, toggleReadingMode, resetReading]);
+  ), [isAutoReading, isPaused, isReadingMode, transcript, startAutoReading, resumeAutoReading, pauseAutoReading, stopAutoReading, toggleReadingMode, resetReading]);
 
   // Pass audio controls to parent component
   useEffect(() => {
