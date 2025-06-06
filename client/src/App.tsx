@@ -7,38 +7,19 @@ import ProtectedRoute from "@/components/protected-route";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Login from "@/pages/login";
-import Profile from "./pages/profile";
-import Lesson from "./pages/lesson";
+import Profile from "@/pages/profile";
+import Reference from "@/pages/reference";
+import Lesson from "@/pages/lesson";
 
 function Router() {
   return (
     <Switch>
+      <Route path="/" component={Home} />
       <Route path="/login" component={Login} />
-      <Route path="/home">
-        <ProtectedRoute>
-          <Home />
-        </ProtectedRoute>
-      </Route>
-      <Route path="/">
-        <ProtectedRoute>
-          <Home />
-        </ProtectedRoute>
-      </Route>
-      <Route path="/lesson/:id">
-        <ProtectedRoute>
-          <Lesson />
-        </ProtectedRoute>
-      </Route>
-      <Route path="/profile">
-        <ProtectedRoute>
-          <Profile />
-        </ProtectedRoute>
-      </Route>
-      <Route>
-        <ProtectedRoute>
-          <NotFound />
-        </ProtectedRoute>
-      </Route>
+      <Route path="/profile" component={Profile} />
+      <Route path="/reference" component={Reference} />
+      <Route path="/lesson/:id" component={Lesson} />
+      <Route component={NotFound} />
     </Switch>
   );
 }
