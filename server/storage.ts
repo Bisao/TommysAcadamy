@@ -13,6 +13,8 @@ import {
   type InsertUserStats,
   type Question
 } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -440,4 +442,144 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// rewrite MemStorage to DatabaseStorage
+export class DatabaseStorage implements IStorage {
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async updateUser(id: number, updates: Partial<User>): Promise<User | undefined> {
+    const [user] = await db
+      .update(users)
+      .set(updates)
+      .where(eq(users.id, id))
+      .returning();
+    return user || undefined;
+  }
+
+  async getAllLessons(): Promise<Lesson[]> {
+    return await db.select().from(lessons).orderBy(lessons.order);
+  }
+
+  async getLessonsByCategory(category: string): Promise<Lesson[]> {
+    return await db.select().from(lessons)
+      .where(eq(lessons.category, category))
+      .orderBy(lessons.order);
+  }
+
+  async getLesson(id: number): Promise<Lesson | undefined> {
+    const [lesson] = await db.select().from(lessons).where(eq(lessons.id, id));
+    return lesson || undefined;
+  }
+
+  async createLesson(insertLesson: InsertLesson): Promise<Lesson> {
+    const [lesson] = await db
+      .insert(lessons)
+      .values(insertLesson)
+      .returning();
+    return lesson;
+  }
+
+  async getUserProgress(userId: number): Promise<UserProgress[]> {
+    return await db.select().from(userProgress)
+      .where(eq(userProgress.userId, userId));
+  }
+
+  async getLessonProgress(userId: number, lessonId: number): Promise<UserProgress | undefined> {
+    const [progress] = await db.select().from(userProgress)
+      .where(eq(userProgress.userId, userId))
+      .where(eq(userProgress.lessonId, lessonId));
+    return progress || undefined;
+  }
+
+  async updateProgress(userId: number, lessonId: number, progressUpdates: Partial<UserProgress>): Promise<UserProgress> {
+    const existing = await this.getLessonProgress(userId, lessonId);
+    
+    if (existing) {
+      const [updated] = await db
+        .update(userProgress)
+        .set(progressUpdates)
+        .where(eq(userProgress.userId, userId))
+        .where(eq(userProgress.lessonId, lessonId))
+        .returning();
+      return updated;
+    } else {
+      const [created] = await db
+        .insert(userProgress)
+        .values({
+          userId,
+          lessonId,
+          completed: false,
+          score: 0,
+          timeSpent: 0,
+          attempts: 0,
+          ...progressUpdates
+        })
+        .returning();
+      return created;
+    }
+  }
+
+  async getUserStats(userId: number, date: string): Promise<UserStats | undefined> {
+    const [stats] = await db.select().from(userStats)
+      .where(eq(userStats.userId, userId))
+      .where(eq(userStats.date, date));
+    return stats || undefined;
+  }
+
+  async updateStats(userId: number, date: string, statsUpdates: Partial<UserStats>): Promise<UserStats> {
+    const existing = await this.getUserStats(userId, date);
+    
+    if (existing) {
+      const [updated] = await db
+        .update(userStats)
+        .set(statsUpdates)
+        .where(eq(userStats.userId, userId))
+        .where(eq(userStats.date, date))
+        .returning();
+      return updated;
+    } else {
+      const [created] = await db
+        .insert(userStats)
+        .values({
+          userId,
+          date,
+          lessonsCompleted: 0,
+          xpEarned: 0,
+          timeSpent: 0,
+          ...statsUpdates
+        })
+        .returning();
+      return created;
+    }
+  }
+
+  async getUserOverallStats(userId: number): Promise<{totalXP: number, lessonsCompleted: number, streak: number}> {
+    const user = await this.getUser(userId);
+    const userProgressList = await this.getUserProgress(userId);
+    
+    const lessonsCompleted = userProgressList.filter(p => p.completed).length;
+    
+    return {
+      totalXP: user?.totalXP || 0,
+      lessonsCompleted,
+      streak: user?.streak || 0
+    };
+  }
+}
+
+export const storage = new DatabaseStorage();
