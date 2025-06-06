@@ -295,6 +295,16 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
             </Button>
 
             <Button
+              onClick={resetReading}
+              variant="outline"
+              disabled={!transcript}
+              className="border-cartoon-coral text-cartoon-coral hover:bg-cartoon-coral hover:text-white"
+            >
+              <RotateCcw size={20} />
+              Recomeçar
+            </Button>
+
+            <Button
               onClick={stopAudio}
               disabled={!isPlaying}
               variant="outline"
@@ -304,6 +314,30 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
               Parar
             </Button>
           </div>
+
+          {/* Progresso da Leitura */}
+          {isReadingMode && (
+            <div className="space-y-2 mt-4">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Progresso da Leitura</span>
+                <span className="font-semibold text-cartoon-coral">
+                  {Math.round(readingProgress)}%
+                </span>
+              </div>
+              <Progress value={readingProgress} className="h-3" />
+              
+              {readingProgress >= 80 && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex items-center gap-2 text-green-600 font-semibold"
+                >
+                  <CheckCircle size={20} />
+                  Excelente! Continue assim!
+                </motion.div>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -396,68 +430,10 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
         </CardContent>
       </Card>
 
-      {/* Seção de Leitura do Aluno */}
-      <Card className="border-2 border-cartoon-coral">
-        <CardHeader>
-          <CardTitle className="text-xl text-cartoon-dark flex items-center gap-2">
-            <Mic className="text-cartoon-coral" size={24} />
-            Sua Vez de Ler
-          </CardTitle>
-          <p className="text-sm text-gray-600">
-            Leia o texto em voz alta para praticar sua pronúncia
-          </p>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex flex-wrap gap-4 justify-center">
-            <Button
-              onClick={toggleReadingMode}
-              className={`cartoon-button ${
-                isReadingMode 
-                  ? "bg-red-500 hover:bg-red-600" 
-                  : "bg-cartoon-coral hover:bg-cartoon-coral/80"
-              }`}
-            >
-              {isReadingMode ? <MicOff size={20} /> : <Mic size={20} />}
-              {isReadingMode ? "Parar Gravação" : "Começar a Ler"}
-            </Button>
-
-            <Button
-              onClick={resetReading}
-              variant="outline"
-              disabled={!transcript}
-              className="border-cartoon-coral text-cartoon-coral hover:bg-cartoon-coral hover:text-white"
-            >
-              <RotateCcw size={20} />
-              Recomeçar
-            </Button>
-          </div>
-
-          {/* Progresso da Leitura */}
-          {isReadingMode && (
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Progresso da Leitura</span>
-                <span className="font-semibold text-cartoon-coral">
-                  {Math.round(readingProgress)}%
-                </span>
-              </div>
-              <Progress value={readingProgress} className="h-3" />
-              
-              {readingProgress >= 80 && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="flex items-center gap-2 text-green-600 font-semibold"
-                >
-                  <CheckCircle size={20} />
-                  Excelente leitura! Continue assim!
-                </motion.div>
-              )}
-            </div>
-          )}
-
-          {/* Status do Microfone */}
-          {isListening && (
+      {/* Status do Microfone */}
+      {isListening && (
+        <Card className="border-2 border-cartoon-coral">
+          <CardContent className="p-4">
             <div className="flex items-center justify-center gap-2 text-cartoon-coral">
               <motion.div
                 animate={{ scale: [1, 1.2, 1] }}
@@ -467,26 +443,30 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
               </motion.div>
               <span className="font-medium">Ouvindo... Leia o texto!</span>
             </div>
-          )}
+          </CardContent>
+        </Card>
+      )}
 
-          {/* Transcript */}
-          {transcript && (
-            <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <p className="text-sm text-gray-600 mb-2">O que você disse:</p>
-              <p className="text-gray-800">{transcript}</p>
-            </div>
-          )}
+      {/* Transcript */}
+      {transcript && (
+        <Card className="border-2 border-blue-200">
+          <CardContent className="p-4">
+            <p className="text-sm text-gray-600 mb-2">O que você disse:</p>
+            <p className="text-gray-800">{transcript}</p>
+          </CardContent>
+        </Card>
+      )}
 
-          {!isSupported && (
-            <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-              <p className="text-yellow-800 text-sm">
-                ⚠️ Reconhecimento de voz não está disponível neste navegador. 
-                Recomendamos usar Chrome ou Edge para melhor experiência.
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {!isSupported && (
+        <Card className="border-2 border-yellow-200">
+          <CardContent className="p-4">
+            <p className="text-yellow-800 text-sm">
+              Reconhecimento de voz não está disponível neste navegador. 
+              Recomendamos usar Chrome ou Edge para melhor experiência.
+            </p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
