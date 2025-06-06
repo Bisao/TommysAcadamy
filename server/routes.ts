@@ -35,14 +35,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { username, password } = loginSchema.parse(req.body);
       const user = await storage.authenticateUser(username, password);
-      
+
       if (!user) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
       // Store user session (simplified - in production use proper session management)
       req.session = { userId: user.id };
-      
+
       res.json({ user: { ...user, password: undefined } });
     } catch (error) {
       res.status(400).json({ message: "Invalid request data" });
@@ -52,7 +52,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/register", async (req, res) => {
     try {
       const userData = registerSchema.parse(req.body);
-      
+
       // Check if user already exists
       const existingUser = await storage.getUserByUsername(userData.username);
       if (existingUser) {
@@ -60,19 +60,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const user = await storage.createUser(userData);
-      
+
       // Store user session
       req.session = { userId: user.id };
-      
+
       res.json({ user: { ...user, password: undefined } });
     } catch (error) {
       res.status(400).json({ message: "Invalid request data" });
     }
   });
 
-  app.post("/api/auth/logout", async (req, res) => {
-    req.session = null;
-    res.json({ message: "Logged out successfully" });
+  app.post("/api/auth/logout", (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ message: "Could not log out" });
+      }
+      res.json({ message: "Logout successful" });
+    });
   });
 
   // Get current user (check session)
@@ -111,7 +115,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const lessons = category 
         ? await storage.getLessonsByCategory(category)
         : await storage.getAllLessons();
-      
+
       // Get user progress for each lesson
       const userProgress = await storage.getUserProgress(1);
       const lessonsWithProgress = lessons.map(lesson => {
@@ -135,13 +139,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const lessonId = parseInt(req.params.id);
       const lesson = await storage.getLesson(lessonId);
-      
+
       if (!lesson) {
         return res.status(404).json({ message: "Lesson not found" });
       }
 
       const progress = await storage.getLessonProgress(1, lessonId);
-      
+
       res.json({
         ...lesson,
         completed: progress?.completed || false,
@@ -157,7 +161,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/lessons/answer", async (req, res) => {
     try {
       const { lessonId, questionId, answer, timeSpent } = submitAnswerSchema.parse(req.body);
-      
+
       const lesson = await storage.getLesson(lessonId);
       if (!lesson) {
         return res.status(404).json({ message: "Lesson not found" });
@@ -165,13 +169,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const questions = lesson.questions as any[];
       const question = questions.find(q => q.id === questionId);
-      
+
       if (!question) {
         return res.status(404).json({ message: "Question not found" });
       }
 
       const isCorrect = question.correctAnswer === answer;
-      
+
       res.json({
         correct: isCorrect,
         correctAnswer: question.correctAnswer,
@@ -187,7 +191,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/lessons/complete", async (req, res) => {
     try {
       const { lessonId, score, totalQuestions, timeSpent } = completeQuizSchema.parse(req.body);
-      
+
       const lesson = await storage.getLesson(lessonId);
       if (!lesson) {
         return res.status(404).json({ message: "Lesson not found" });
@@ -242,7 +246,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const progress = await storage.getUserProgress(1);
       const overallStats = await storage.getUserOverallStats(1);
-      
+
       res.json({
         progress,
         ...overallStats
@@ -257,7 +261,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const date = req.query.date as string || new Date().toISOString().split('T')[0];
       const stats = await storage.getUserStats(1, date);
-      
+
       res.json(stats || {
         lessonsCompleted: 0,
         xpEarned: 0,

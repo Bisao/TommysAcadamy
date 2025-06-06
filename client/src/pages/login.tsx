@@ -6,9 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { GraduationCap, User, Lock, Mail } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 import Mascot from "@/components/mascot";
 
 export default function Login() {
@@ -20,6 +21,8 @@ export default function Login() {
   });
   const [error, setError] = useState("");
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
+  const queryClient = useQueryClient();
 
   const loginMutation = useMutation({
     mutationFn: async (data: { username: string; password: string }) => {
@@ -31,8 +34,10 @@ export default function Login() {
         title: "Login realizado com sucesso!",
         description: "Bem-vindo de volta ao CartoonLingo!",
       });
+      // Invalidate user query to refetch user data
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       // Redirect to home
-      window.location.href = "/";
+      setLocation("/");
     },
     onError: (error: any) => {
       setError("Usuário ou senha incorretos");
@@ -49,8 +54,10 @@ export default function Login() {
         title: "Conta criada com sucesso!",
         description: "Bem-vindo ao CartoonLingo!",
       });
+      // Invalidate user query to refetch user data
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       // Redirect to home
-      window.location.href = "/";
+      setLocation("/");
     },
     onError: (error: any) => {
       setError("Erro ao criar conta. Tente outro nome de usuário.");
