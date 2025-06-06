@@ -1,0 +1,152 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 240 10% 98%;
+  --foreground: 240 10% 4%;
+  --muted: 240 5% 96%;
+  --muted-foreground: 240 4% 46%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 4%;
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 4%;
+  --border: 240 6% 90%;
+  --input: 240 6% 90%;
+  --primary: 195 100% 60%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 240 5% 96%;
+  --secondary-foreground: 240 6% 10%;
+  --accent: 240 5% 96%;
+  --accent-foreground: 240 6% 10%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 240 10% 4%;
+  --radius: 0.5rem;
+  
+  /* Cartoon theme colors */
+  --cartoon-red: 11 91% 69%;
+  --cartoon-teal: 177 70% 60%;
+  --cartoon-yellow: 45 93% 70%;
+  --cartoon-mint: 146 53% 74%;
+  --cartoon-coral: 11 89% 72%;
+  --cartoon-blue: 205 77% 70%;
+  --cartoon-gray: 220 14% 96%;
+  --cartoon-dark: 210 22% 22%;
+  --cartoon-orange: 14 91% 60%;
+  --cartoon-purple: 262 73% 66%;
+}
+
+.dark {
+  --background: 240 10% 4%;
+  --foreground: 0 0% 98%;
+  --muted: 240 4% 16%;
+  --muted-foreground: 240 5% 65%;
+  --popover: 240 10% 4%;
+  --popover-foreground: 0 0% 98%;
+  --card: 240 10% 4%;
+  --card-foreground: 0 0% 98%;
+  --border: 240 4% 16%;
+  --input: 240 4% 16%;
+  --primary: 195 100% 60%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 240 4% 16%;
+  --secondary-foreground: 0 0% 98%;
+  --accent: 240 4% 16%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 63% 31%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 240 5% 84%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    background: linear-gradient(135deg, hsl(var(--cartoon-blue) / 0.1), hsl(var(--cartoon-teal) / 0.1));
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  .cartoon-button {
+    @apply bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold py-3 px-6 rounded-full shadow-lg transform transition-all duration-200 hover:scale-105 hover:shadow-xl;
+  }
+  
+  .cartoon-card {
+    @apply bg-white rounded-2xl shadow-lg border-4 border-solid transition-all duration-300 hover:shadow-xl hover:scale-105;
+  }
+  
+  .progress-ring {
+    transform: rotate(-90deg);
+  }
+  
+  .wiggle {
+    animation: wiggle 1s ease-in-out infinite;
+  }
+  
+  .bounce-gentle {
+    animation: bounce 2s infinite;
+  }
+}
+
+@keyframes wiggle {
+  0%, 7% { transform: rotateZ(0); }
+  15% { transform: rotateZ(-15deg); }
+  20% { transform: rotateZ(10deg); }
+  25% { transform: rotateZ(-10deg); }
+  30% { transform: rotateZ(6deg); }
+  35% { transform: rotateZ(-4deg); }
+  40%, 100% { transform: rotateZ(0); }
+}
+
+@keyframes bounce {
+  0%, 20%, 53%, 80%, 100% {
+    animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+    transform: translate3d(0,0,0);
+  }
+  40%, 43% {
+    animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+    transform: translate3d(0, -8px, 0);
+  }
+  70% {
+    animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+    transform: translate3d(0, -4px, 0);
+  }
+  90% {
+    transform: translate3d(0,-1px,0);
+  }
+}
+
+/* Custom utility classes for cartoon theme */
+.text-cartoon-red { color: hsl(var(--cartoon-red)); }
+.text-cartoon-teal { color: hsl(var(--cartoon-teal)); }
+.text-cartoon-yellow { color: hsl(var(--cartoon-yellow)); }
+.text-cartoon-mint { color: hsl(var(--cartoon-mint)); }
+.text-cartoon-coral { color: hsl(var(--cartoon-coral)); }
+.text-cartoon-blue { color: hsl(var(--cartoon-blue)); }
+.text-cartoon-orange { color: hsl(var(--cartoon-orange)); }
+.text-cartoon-purple { color: hsl(var(--cartoon-purple)); }
+.text-cartoon-dark { color: hsl(var(--cartoon-dark)); }
+
+.bg-cartoon-red { background-color: hsl(var(--cartoon-red)); }
+.bg-cartoon-teal { background-color: hsl(var(--cartoon-teal)); }
+.bg-cartoon-yellow { background-color: hsl(var(--cartoon-yellow)); }
+.bg-cartoon-mint { background-color: hsl(var(--cartoon-mint)); }
+.bg-cartoon-coral { background-color: hsl(var(--cartoon-coral)); }
+.bg-cartoon-blue { background-color: hsl(var(--cartoon-blue)); }
+.bg-cartoon-orange { background-color: hsl(var(--cartoon-orange)); }
+.bg-cartoon-purple { background-color: hsl(var(--cartoon-purple)); }
+.bg-cartoon-gray { background-color: hsl(var(--cartoon-gray)); }
+
+.border-cartoon-red { border-color: hsl(var(--cartoon-red)); }
+.border-cartoon-teal { border-color: hsl(var(--cartoon-teal)); }
+.border-cartoon-yellow { border-color: hsl(var(--cartoon-yellow)); }
+.border-cartoon-mint { border-color: hsl(var(--cartoon-mint)); }
+.border-cartoon-coral { border-color: hsl(var(--cartoon-coral)); }
+.border-cartoon-blue { border-color: hsl(var(--cartoon-blue)); }
+.border-cartoon-orange { border-color: hsl(var(--cartoon-orange)); }
+.border-cartoon-purple { border-color: hsl(var(--cartoon-purple)); }
