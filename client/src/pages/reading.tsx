@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/header";
 import ReadingLesson from "@/components/reading-lesson";
@@ -10,6 +11,7 @@ import { useLocation } from "wouter";
 export default function Reading() {
   const [, setLocation] = useLocation();
   const [lessonCompleted, setLessonCompleted] = useState(false);
+  const [audioControls, setAudioControls] = useState<React.ReactNode>(null);
 
   const { data: user } = useQuery({
     queryKey: ["/api/user"],
@@ -23,64 +25,89 @@ export default function Reading() {
     setLocation("/lessons");
   };
 
+  const handleControlsReady = useCallback((controls: React.ReactNode) => {
+    setAudioControls(controls);
+  }, []);
+
   if (lessonCompleted) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-sky-50 to-teal-50 pt-16 sm:pt-20">
         <Header user={user} />
-
-        <div className="container mx-auto px-4 py-8">
-          <Card className="max-w-md mx-auto text-center border-4 border-cartoon-yellow">
-            <CardHeader>
-              <CardTitle className="text-2xl text-cartoon-dark">
+        
+        <main className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
+          <Card className="border-2 border-green-200 bg-green-50">
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl sm:text-3xl text-green-800 mb-4">
                 🎉 Parabéns!
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-gray-600">
-                Você completou a lição de leitura com sucesso!
+            <CardContent className="text-center">
+              <p className="text-lg text-green-700 mb-6">
+                Você concluiu sua primeira aula de leitura!
               </p>
-              <div className="space-y-2">
-                <Button onClick={goBack} className="cartoon-button w-full">
-                  <ArrowLeft size={20} />
-                  Voltar às Lições
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button 
+                  onClick={goBack}
+                  className="bg-blue-500 hover:bg-blue-600 text-white"
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Voltar às Aulas
+                </Button>
+                <Button 
+                  onClick={() => setLocation("/home")}
+                  className="bg-green-500 hover:bg-green-600 text-white"
+                >
+                  <Book className="mr-2 h-4 w-4" />
+                  Ir para Home
                 </Button>
               </div>
             </CardContent>
           </Card>
-        </div>
+        </main>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 to-teal-50 pt-16 sm:pt-20">
-      <Header user={user} />
+  const lessonTitle = "My First Day at School";
+  const lessonText = `Today was my first day at school. I was very excited and a little nervous. I woke up early and had breakfast with my family. My mom packed my lunch and gave me a big hug. 
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-6">
+At school, I met my teacher, Miss Johnson. She was very kind and friendly. She showed me around the classroom and introduced me to my new classmates. Everyone was welcoming and I made some new friends quickly.
+
+We started with reading time. I love reading stories about adventures and magical places. After that, we had math class where we learned about numbers and counting. 
+
+During lunch break, I played with my new friends in the playground. We had so much fun on the swings and slides. 
+
+In the afternoon, we had art class. We drew pictures of our families and colored them with bright crayons. I drew my mom, dad, and my little sister.
+
+When school finished, my mom was waiting for me at the gate. I told her all about my wonderful first day. I can't wait to go back tomorrow and learn more new things!`;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 to-teal-50">
+      <Header 
+        user={user} 
+        audioControls={audioControls}
+        showAudioControls={true}
+      />
+      
+      <main className="pt-4">
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-8 mb-4">
           <Button 
             onClick={goBack}
-            variant="outline"
-            className="mb-4"
+            variant="ghost" 
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
           >
-            <ArrowLeft size={20} />
-            Voltar
+            <ArrowLeft size={16} />
+            Voltar às Aulas
           </Button>
-
-          <div className="flex items-center gap-3 mb-2">
-            <Book className="text-cartoon-teal" size={28} />
-            <h1 className="text-3xl font-bold text-cartoon-dark">
-              Lição de Leitura
-            </h1>
-          </div>
         </div>
 
         <ReadingLesson
-          title="How Will We Eat in 2021?"
-          text="How Will We Eat in 2021? The pandemic has changed our relationship with food in ways both subtle and dramatic. Restaurants have adapted to new safety protocols, while home cooking has become more popular than ever. Many people have discovered the joy of cooking at home. They have learned to prepare meals that were once only available in restaurants. Online grocery shopping has also become a necessity for many families. Food delivery services have seen unprecedented growth during this time. These companies have hired thousands of new drivers to meet the increased demand. Many restaurants now offer takeout and delivery options that they never had before. Looking ahead to 2021, experts predict that these changes will continue to shape how we eat. Home cooking will likely remain popular, and restaurants will continue to innovate with new service models. The way we think about food and dining may never be the same."
+          title={lessonTitle}
+          text={lessonText}
           onComplete={handleLessonComplete}
+          onControlsReady={handleControlsReady}
         />
-      </div>
+      </main>
     </div>
   );
 }

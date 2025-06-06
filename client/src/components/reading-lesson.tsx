@@ -18,11 +18,13 @@ import {
 import { useAudio } from "@/hooks/use-audio";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 import { useToast } from "@/hooks/use-toast";
+import { useReadingControls } from "@/hooks/use-reading-controls";
 
 interface ReadingLessonProps {
   title: string;
   text: string;
   onComplete?: () => void;
+  onControlsReady?: (controls: React.ReactNode) => void;
 }
 
 interface WordFeedback {
@@ -30,181 +32,35 @@ interface WordFeedback {
   status: 'correct' | 'close' | 'incorrect' | 'unread';
 }
 
-export default function ReadingLesson({ title, text, onComplete }: ReadingLessonProps) {
+export default function ReadingLesson({ title, text, onComplete, onControlsReady }: ReadingLessonProps) {
   const [selectedText, setSelectedText] = useState("");
-  const [isReadingMode, setIsReadingMode] = useState(false);
-  const [readingProgress, setReadingProgress] = useState(0);
-  const [wordFeedback, setWordFeedback] = useState<WordFeedback[]>([]);
   const [showAudioIcon, setShowAudioIcon] = useState(false);
   const [iconPosition, setIconPosition] = useState({ x: 0, y: 0 });
-  const [isAutoReading, setIsAutoReading] = useState(false);
-  const [currentWordIndex, setCurrentWordIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const [autoReadingSpeed, setAutoReadingSpeed] = useState(300); // milliseconds per word
   const textRef = useRef<HTMLDivElement>(null);
-  const autoReadingTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const { playText, pauseAudio, resumeAudio, stopAudio, isPlaying, isPaused: isAudioPaused } = useAudio();
-  const { 
-    isListening, 
-    transcript, 
-    startListening, 
-    stopListening, 
-    resetTranscript,
-    isSupported 
-  } = useSpeechRecognition();
-
+  const { playText } = useAudio();
   const { toast } = useToast();
 
-  // Initialize word feedback array
+  const {
+    isReadingMode,
+    readingProgress,
+    wordFeedback,
+    isAutoReading,
+    currentWordIndex,
+    isListening,
+    transcript,
+    isSupported,
+    createAudioControls,
+    setWordFeedback,
+    setReadingProgress,
+  } = useReadingControls(title, text);
+
+  // Pass audio controls to parent component
   useEffect(() => {
-    const words = text.split(/\s+/).filter(word => word.length > 0);
-    const initialFeedback = words.map(word => ({
-      word: word.replace(/[.,!?;:]/g, ''),
-      status: 'unread' as const
-    }));
-    setWordFeedback(initialFeedback);
-  }, [text]);
-
-  // Auto-reading functionality with word tracking using speech events
-  const startAutoReading = () => {
-    setIsAutoReading(true);
-    setIsPaused(false);
-    setCurrentWordIndex(0); // Start highlighting the first word immediately
-
-    const words = text.split(/\s+/).filter(word => word.length > 0);
-    const titleWords = title.split(/\s+/).filter(word => word.length > 0);
-    const fullContent = `${title}. ${text}`;
-
-    // Create word boundary callback for synchronization
-    const handleWordBoundary = (word: string, index: number) => {
-      // Adjust index to account for title words
-      const totalTitleWords = titleWords.length;
-
-      if (index <= totalTitleWords) {
-        // Still reading title - start highlighting first word of text
-        setCurrentWordIndex(0);
-      } else {
-        // Reading main text - adjust index by removing title words and the pause
-        const textWordIndex = index - totalTitleWords - 1;
-        if (textWordIndex >= 0 && textWordIndex < words.length) {
-          setCurrentWordIndex(textWordIndex);
-
-          // Scroll to current word with improved mobile responsiveness
-          setTimeout(() => {
-            const wordElement = document.querySelector(`[data-word-index="${textWordIndex}"]`);
-            if (wordElement) {
-              const elementRect = wordElement.getBoundingClientRect();
-              const headerHeight = window.innerWidth < 640 ? 60 : 80; // Responsive header height
-              const audioBarHeight = window.innerWidth < 640 ? 100 : 120; // Responsive audio bar height
-              const totalOffset = headerHeight + audioBarHeight + 20;
-              const targetY = window.scrollY + elementRect.top - totalOffset;
-
-              window.scrollTo({
-                top: Math.max(0, targetY),
-                behavior: 'smooth'
-              });
-            }
-          }, 50);
-        }
-      }
-    };
-
-    // Immediately start highlighting the first word
-    setTimeout(() => {
-      setCurrentWordIndex(0);
-    }, 100);
-
-    // Start reading with word boundary synchronization
-    playText(fullContent, "en-US", 0, handleWordBoundary);
-
-    toast({
-      title: "🎯 Professor Tommy lendo o texto",
-      description: "Acompanhe as palavras destacadas em tempo real",
-    });
-  };
-
-  const pauseAutoReading = () => {
-    setIsPaused(true);
-    if (isPlaying) {
-      pauseAudio();
+    if (onControlsReady) {
+      onControlsReady(createAudioControls());
     }
-    toast({
-      title: "Professor Tommy pausado",
-      description: "Clique em continuar para retomar",
-    });
-  };
-
-  const resumeAutoReading = () => {
-    if (!isAutoReading) return;
-    setIsPaused(false);
-    
-    // Get the remaining text from current position
-    const words = text.split(/\s+/).filter(word => word.length > 0);
-    const remainingWords = words.slice(currentWordIndex + 1);
-    const remainingText = remainingWords.join(' ');
-    
-    if (remainingText.trim()) {
-      // Create word boundary callback for synchronization from current position
-      const handleWordBoundary = (word: string, index: number) => {
-        const adjustedIndex = currentWordIndex + 1 + index;
-        if (adjustedIndex >= 0 && adjustedIndex < words.length) {
-          setCurrentWordIndex(adjustedIndex);
-
-          // Scroll to current word with improved mobile responsiveness
-          setTimeout(() => {
-            const wordElement = document.querySelector(`[data-word-index="${adjustedIndex}"]`);
-            if (wordElement) {
-              const elementRect = wordElement.getBoundingClientRect();
-              const headerHeight = window.innerWidth < 640 ? 60 : 80; // Responsive header height
-              const audioBarHeight = window.innerWidth < 640 ? 100 : 120; // Responsive audio bar height
-              const totalOffset = headerHeight + audioBarHeight + 20;
-              const targetY = window.scrollY + elementRect.top - totalOffset;
-
-              window.scrollTo({
-                top: Math.max(0, targetY),
-                behavior: 'smooth'
-              });
-            }
-          }, 50);
-        }
-      };
-
-      // Start reading from current position
-      playText(remainingText, "en-US", 0, handleWordBoundary);
-    }
-    
-    toast({
-      title: "🎯 Professor Tommy retomando",
-      description: "Continuando de onde parou",
-    });
-  };
-
-  const stopAutoReading = () => {
-    setIsAutoReading(false);
-    setIsPaused(false);
-    setCurrentWordIndex(0);
-    if (autoReadingTimerRef.current) {
-      clearTimeout(autoReadingTimerRef.current);
-    }
-    // Stop the audio as well
-    if (isPlaying || isAudioPaused) {
-      stopAudio();
-    }
-    toast({
-      title: "Professor Tommy parado",
-      description: "Leitura automática foi interrompida",
-    });
-  };
-
-  // Cleanup timer on unmount
-  useEffect(() => {
-    return () => {
-      if (autoReadingTimerRef.current) {
-        clearTimeout(autoReadingTimerRef.current);
-      }
-    };
-  }, []);
+  }, [createAudioControls, onControlsReady]);
 
   // Função para calcular similaridade entre duas palavras
   const calculateSimilarity = (word1: string, word2: string): number => {
@@ -279,7 +135,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
 
       return newFeedback;
     });
-  }, [text]);
+  }, [text, setWordFeedback]);
 
   // Simular progresso de leitura baseado no texto falado
   const calculateReadingProgress = useCallback((spokenText: string) => {
@@ -295,7 +151,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
       setReadingProgress(progress);
       analyzeTranscript(transcript);
     }
-  }, [transcript, calculateReadingProgress, analyzeTranscript]);
+  }, [transcript, calculateReadingProgress, analyzeTranscript, setReadingProgress]);
 
   const handleTextSelection = () => {
     const selection = window.getSelection();
@@ -331,7 +187,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     // Get click/touch position to show icon
     const rect = (event.target as HTMLElement).getBoundingClientRect();
     const isMobile = window.innerWidth < 640;
-    
+
     setIconPosition({
       x: rect.left + rect.width / 2,
       y: rect.bottom + window.scrollY + (isMobile ? 10 : 5)
@@ -361,152 +217,13 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
 
-    // Handle tab visibility changes to maintain sync
-    const handleVisibilityChange = () => {
-      if (document.hidden && isAutoReading && !isPaused) {
-        pauseAutoReading();
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [isAutoReading, isPaused]);
-
-  const playFullText = () => {
-    const fullContent = `${title}. ${text}`;
-    playText(fullContent);
-    toast({
-      title: "🎯 Reproduzindo texto completo",
-      description: "Professor Tommy está lendo o texto...",
-    });
-  };
-
-  const toggleReadingMode = () => {
-    if (isReadingMode) {
-      stopListening();
-      setIsReadingMode(false);
-
-      if (readingProgress >= 80) {
-        toast({
-          title: "🎉 Parabéns!",
-          description: "Você leu o texto com sucesso!",
-        });
-        onComplete?.();
-      }
-    } else {
-      if (isSupported) {
-        setIsReadingMode(true);
-        resetTranscript();
-        setReadingProgress(0);
-        startListening();
-        toast({
-          title: "🎤 Modo de leitura ativado",
-          description: "Comece a ler o texto em voz alta...",
-        });
-      } else {
-        toast({
-          title: "❌ Recurso não disponível",
-          description: "Seu navegador não suporta reconhecimento de voz.",
-          variant: "destructive"
-        });
-      }
-    }
-  };
-
-  const resetReading = () => {
-    resetTranscript();
-    setReadingProgress(0);
-    const words = text.split(/\s+/).filter(word => word.length > 0);
-    const resetFeedback = words.map(word => ({
-      word: word.replace(/[.,!?;:]/g, ''),
-      status: 'unread' as const
-    }));
-    setWordFeedback(resetFeedback);
-    toast({
-      title: "🔄 Leitura reiniciada",
-      description: "Comece novamente a leitura do texto.",
-    });
-  };
+  }, []);
 
   return (
     <div className="max-w-4xl mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6 pt-20">
-      {/* Controles de Áudio e Leitura - Acima do Painel de Texto */}
-      <Card className="border-2 border-cartoon-gray bg-white shadow-lg">
-        <CardContent className="p-3 sm:p-4">
-          {/* Botões lado a lado */}
-          <div className="flex flex-wrap gap-2 sm:gap-3 justify-center items-center">
-            {/* Leitura Guiada */}
-            <div className="flex items-center gap-2">
-              {!isAutoReading ? (
-                <Button
-                  onClick={startAutoReading}
-                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                  title="Iniciar leitura guiada"
-                >
-                  <Play size={16} className="sm:w-5 sm:h-5" />
-                </Button>
-              ) : (
-                <>
-                  {isPaused ? (
-                    <Button
-                      onClick={resumeAutoReading}
-                      className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                      title="Continuar leitura guiada"
-                    >
-                      <Play size={16} className="sm:w-5 sm:h-5" />
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={pauseAutoReading}
-                      className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                      title="Pausar leitura guiada"
-                    >
-                      <Pause size={16} className="sm:w-5 sm:h-5" />
-                    </Button>
-                  )}
-                  <Button
-                    onClick={stopAutoReading}
-                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                    title="Parar leitura guiada"
-                  >
-                    <VolumeX size={16} className="sm:w-5 sm:h-5" />
-                  </Button>
-                </>
-              )}
-            </div>
-
-            {/* Reconhecimento de Voz */}
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={toggleReadingMode}
-                className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full ${
-                  isReadingMode 
-                    ? "bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700" 
-                    : "bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
-                } text-white shadow-lg hover:shadow-xl transition-all duration-200`}
-                title={isReadingMode ? "Parar reconhecimento" : "Iniciar reconhecimento de voz"}
-              >
-                {isReadingMode ? <MicOff size={16} className="sm:w-5 sm:h-5" /> : <Mic size={16} className="sm:w-5 sm:h-5" />}
-              </Button>
-
-              {/* Reset Button */}
-              <Button
-                onClick={resetReading}
-                disabled={!transcript}
-                className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 disabled:from-gray-300 disabled:to-gray-400 text-white shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
-                title="Reiniciar leitura"
-              >
-                <RotateCcw size={16} className="sm:w-5 sm:h-5" />
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Área de Texto */}
       <Card className="border-2 border-cartoon-gray">
         <CardHeader className="pb-3 sm:pb-6">

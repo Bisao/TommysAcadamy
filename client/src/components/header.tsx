@@ -20,9 +20,11 @@ interface HeaderProps {
     totalXP: number;
     level: number;
   };
+  audioControls?: React.ReactNode;
+  showAudioControls?: boolean;
 }
 
-export default function Header({ user }: HeaderProps) {
+export default function Header({ user, audioControls, showAudioControls }: HeaderProps) {
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -84,6 +86,17 @@ export default function Header({ user }: HeaderProps) {
             <h1 className="text-lg sm:text-xl lg:text-2xl font-bold gradient-text hidden sm:block">Tommy's Academy</h1>
             <h1 className="text-base font-bold gradient-text sm:hidden">Tommy's</h1>
           </motion.div>
+
+          {/* Audio Controls for Reading Lesson */}
+          {showAudioControls && audioControls && (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex items-center"
+            >
+              {audioControls}
+            </motion.div>
+          )}
 
           {/* User Stats and Profile */}
           <motion.div 
