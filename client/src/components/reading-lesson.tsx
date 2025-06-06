@@ -36,6 +36,8 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
   const [isReadingMode, setIsReadingMode] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
   const [wordFeedback, setWordFeedback] = useState<WordFeedback[]>([]);
+  const [showAudioIcon, setShowAudioIcon] = useState(false);
+  const [iconPosition, setIconPosition] = useState({ x: 0, y: 0 });
   const textRef = useRef<HTMLDivElement>(null);
   
   const { playText, stopAudio, isPlaying } = useAudio();
@@ -152,19 +154,51 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
   const handleTextSelection = () => {
     const selection = window.getSelection();
     if (selection && selection.toString().trim()) {
-      setSelectedText(selection.toString().trim());
+      const selectedTextContent = selection.toString().trim();
+      setSelectedText(selectedTextContent);
+      
+      // Get selection position to show icon
+      if (selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        setIconPosition({
+          x: rect.left + rect.width / 2,
+          y: rect.bottom + window.scrollY + 5
+        });
+        setShowAudioIcon(true);
+      }
+    } else {
+      setSelectedText("");
+      setShowAudioIcon(false);
     }
   };
 
   const playSelectedText = () => {
     if (selectedText) {
       playText(selectedText);
+      setShowAudioIcon(false);
+      setSelectedText("");
       toast({
         title: "🔊 Reproduzindo seleção",
         description: "Ouvindo o texto selecionado...",
       });
     }
   };
+
+  const handleClickOutside = (e: MouseEvent) => {
+    if (textRef.current && !textRef.current.contains(e.target as Node)) {
+      setShowAudioIcon(false);
+      setSelectedText("");
+    }
+  };
+
+  // Add click outside listener
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const playFullText = () => {
     playText(text);
@@ -259,12 +293,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
             </Button>
           </div>
 
-          {selectedText && (
-            <div className="mt-4 p-3 bg-cartoon-mint/20 rounded-lg border border-cartoon-teal">
-              <p className="text-sm text-gray-600 mb-1">Texto selecionado:</p>
-              <p className="font-medium text-cartoon-dark">"{selectedText}"</p>
-            </div>
-          )}
+          
         </CardContent>
       </Card>
 
@@ -273,12 +302,9 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
         <CardHeader>
           <div className="text-center mb-4">
             <CardTitle className="text-2xl text-cartoon-dark mb-2">{title}</CardTitle>
-            <p className="text-sm text-gray-600">
-              Selecione palavras ou frases para ouvir a pronúncia do Professor Tommy
-            </p>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="relative">
           <div
             ref={textRef}
             className="text-lg leading-relaxed p-4 bg-white rounded-lg border border-gray-200 cursor-text select-text break-words whitespace-pre-wrap overflow-wrap-anywhere"
@@ -314,6 +340,24 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
               );
             })}
           </div>
+
+          {/* Floating Audio Icon */}
+          {showAudioIcon && selectedText && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              className="fixed z-50 bg-cartoon-blue text-white rounded-full p-2 shadow-lg cursor-pointer hover:bg-cartoon-blue/80 transition-colors"
+              style={{
+                left: `${iconPosition.x - 20}px`,
+                top: `${iconPosition.y}px`,
+                transform: 'translateX(-50%)'
+              }}
+              onClick={playSelectedText}
+            >
+              🔈
+            </motion.div>
+          )}
           
           {/* Legenda das Cores */}
           {isReadingMode && (
