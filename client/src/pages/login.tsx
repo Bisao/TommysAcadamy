@@ -258,13 +258,13 @@ export default function Login() {
       >
         {/* Header */}
         <div className="text-center mb-6 sm:mb-8">
-          <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-3 mb-4">
+          <div className="flex flex-col items-center justify-center space-y-4 mb-4">
             <img 
               src={tommyLogoPath} 
               alt="Tommy's Academy Logo" 
-              className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 object-contain"
+              className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-contain"
             />
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-cartoon-dark text-center sm:text-left">Tommy's Academy</h1>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-cartoon-dark text-center">Tommy's Academy</h1>
           </div>
 
           <p className="text-sm sm:text-base text-gray-600 px-2">
