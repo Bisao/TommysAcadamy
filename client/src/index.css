@@ -3,28 +3,33 @@
 @tailwind utilities;
 
 :root {
-  --background: 240 10% 98%;
-  --foreground: 240 10% 4%;
-  --muted: 240 5% 96%;
-  --muted-foreground: 240 4% 46%;
+  --background: 210 11% 98%;
+  --foreground: 210 22% 22%;
+  --muted: 220 14% 96%;
+  --muted-foreground: 220 13% 46%;
   --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 4%;
+  --popover-foreground: 210 22% 22%;
   --card: 0 0% 100%;
-  --card-foreground: 240 10% 4%;
-  --border: 240 6% 90%;
-  --input: 240 6% 90%;
-  --primary: 195 100% 60%;
+  --card-foreground: 210 22% 22%;
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
+  --primary: 205 77% 70%;
   --primary-foreground: 0 0% 98%;
-  --secondary: 240 5% 96%;
-  --secondary-foreground: 240 6% 10%;
-  --accent: 240 5% 96%;
-  --accent-foreground: 240 6% 10%;
+  --secondary: 220 14% 96%;
+  --secondary-foreground: 210 22% 22%;
+  --accent: 220 14% 96%;
+  --accent-foreground: 210 22% 22%;
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 98%;
-  --ring: 240 10% 4%;
-  --radius: 0.5rem;
+  --ring: 210 22% 22%;
+  --radius: 0.75rem;
 
-  /* Cartoon theme colors */
+  /* Modern gradient backgrounds */
+  --gradient-primary: linear-gradient(135deg, hsl(205 77% 70%) 0%, hsl(177 70% 60%) 100%);
+  --gradient-secondary: linear-gradient(135deg, hsl(11 89% 72%) 0%, hsl(45 93% 70%) 100%);
+  --gradient-surface: linear-gradient(135deg, hsl(210 11% 98%) 0%, hsl(220 14% 96%) 100%);
+
+  /* Enhanced cartoon theme colors */
   --cartoon-red: 11 91% 69%;
   --cartoon-teal: 177 70% 60%;
   --cartoon-yellow: 45 93% 70%;
@@ -35,28 +40,35 @@
   --cartoon-dark: 210 22% 22%;
   --cartoon-orange: 14 91% 60%;
   --cartoon-purple: 262 73% 66%;
+  --cartoon-green: 142 71% 45%;
+  --cartoon-pink: 330 81% 60%;
 }
 
 .dark {
-  --background: 240 10% 4%;
-  --foreground: 0 0% 98%;
-  --muted: 240 4% 16%;
-  --muted-foreground: 240 5% 65%;
-  --popover: 240 10% 4%;
-  --popover-foreground: 0 0% 98%;
-  --card: 240 10% 4%;
-  --card-foreground: 0 0% 98%;
-  --border: 240 4% 16%;
-  --input: 240 4% 16%;
-  --primary: 195 100% 60%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 240 4% 16%;
-  --secondary-foreground: 0 0% 98%;
-  --accent: 240 4% 16%;
-  --accent-foreground: 0 0% 98%;
-  --destructive: 0 63% 31%;
+  --background: 210 22% 8%;
+  --foreground: 210 11% 98%;
+  --muted: 210 22% 15%;
+  --muted-foreground: 210 11% 65%;
+  --popover: 210 22% 8%;
+  --popover-foreground: 210 11% 98%;
+  --card: 210 22% 10%;
+  --card-foreground: 210 11% 98%;
+  --border: 210 22% 18%;
+  --input: 210 22% 18%;
+  --primary: 205 77% 70%;
+  --primary-foreground: 210 22% 8%;
+  --secondary: 210 22% 15%;
+  --secondary-foreground: 210 11% 98%;
+  --accent: 210 22% 15%;
+  --accent-foreground: 210 11% 98%;
+  --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 98%;
-  --ring: 240 5% 84%;
+  --ring: 210 11% 84%;
+
+  /* Dark mode gradients */
+  --gradient-primary: linear-gradient(135deg, hsl(205 77% 60%) 0%, hsl(177 70% 50%) 100%);
+  --gradient-secondary: linear-gradient(135deg, hsl(11 89% 62%) 0%, hsl(45 93% 60%) 100%);
+  --gradient-surface: linear-gradient(135deg, hsl(210 22% 10%) 0%, hsl(210 22% 15%) 100%);
 }
 
 @layer base {
@@ -66,8 +78,9 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    background: linear-gradient(135deg, hsl(var(--cartoon-blue) / 0.1), hsl(var(--cartoon-teal) / 0.1));
+    background: var(--gradient-surface);
     min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   /* Ensure scrollbars don't overlap the header */
@@ -104,15 +117,45 @@
 
 @layer components {
   .cartoon-button {
-    @apply bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold py-3 px-6 rounded-full shadow-lg transform transition-all duration-200 hover:scale-105 hover:shadow-xl;
+    background: var(--gradient-secondary);
+    @apply text-white font-bold py-3 px-6 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  .cartoon-button:hover {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   }
 
   .cartoon-button-secondary {
-    @apply bg-gradient-to-r from-teal-500 to-blue-500 text-white font-bold py-2 px-4 rounded-full shadow-lg transform transition-all duration-200 hover:scale-105 hover:shadow-xl;
+    background: var(--gradient-primary);
+    @apply text-white font-bold py-2 px-4 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95;
   }
 
   .cartoon-card {
-    @apply bg-white rounded-2xl shadow-lg border-4 border-solid transition-all duration-300 hover:shadow-xl hover:scale-105;
+    @apply bg-card dark:bg-card rounded-2xl shadow-lg border border-border transition-all duration-300 hover:shadow-xl hover:scale-[1.02] backdrop-blur-sm;
+    background: var(--gradient-surface);
+    border-width: 1px;
+  }
+
+  .cartoon-card:hover {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+
+  .glass-card {
+    @apply backdrop-blur-md bg-white/80 dark:bg-gray-800/80 border border-white/20 dark:border-gray-700/20 rounded-2xl shadow-2xl;
+  }
+
+  .floating-card {
+    @apply transform hover:scale-105 transition-all duration-300 hover:shadow-2xl;
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
   .progress-ring {
