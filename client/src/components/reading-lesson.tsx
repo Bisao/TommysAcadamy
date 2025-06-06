@@ -71,9 +71,9 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     setIsAutoReading(true);
     setIsPaused(false);
     setCurrentWordIndex(0);
-
+    
     const words = text.split(/\s+/).filter(word => word.length > 0);
-
+    
     const readNextWord = (index: number) => {
       if (index >= words.length) {
         // Reading completed
@@ -88,7 +88,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
       }
 
       setCurrentWordIndex(index);
-
+      
       // Scroll to current word if needed
       setTimeout(() => {
         const wordElement = document.querySelector(`[data-word-index="${index}"]`);
@@ -105,7 +105,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     };
 
     readNextWord(0);
-
+    
     toast({
       title: "Leitura automática iniciada",
       description: "Acompanhe as palavras destacadas",
@@ -125,10 +125,10 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
 
   const resumeAutoReading = () => {
     if (!isAutoReading) return;
-
+    
     setIsPaused(false);
     const words = text.split(/\s+/).filter(word => word.length > 0);
-
+    
     const readNextWord = (index: number) => {
       if (index >= words.length || isPaused) {
         if (index >= words.length) {
@@ -144,7 +144,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
       }
 
       setCurrentWordIndex(index);
-
+      
       setTimeout(() => {
         const wordElement = document.querySelector(`[data-word-index="${index}"]`);
         if (wordElement) {
@@ -160,7 +160,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     };
 
     readNextWord(currentWordIndex);
-
+    
     toast({
       title: "Leitura retomada",
       description: "Continuando de onde parou",
@@ -439,7 +439,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
                     <span className="ml-2">Continuar Áudio</span>
                   </Button>
                 )}
-
+                
                 {(isPlaying || isAudioPaused) && (
                   <Button
                     onClick={stopAudio}
@@ -451,41 +451,40 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
                 )}
               </div>
 
-              
+              {/* Auto Reading Controls */}
               <div className="flex justify-center">
                 {!isAutoReading ? (
                   <Button
                     onClick={startAutoReading}
-                    size="sm"
-                    className="cartoon-button bg-cartoon-mint hover:bg-cartoon-mint/80"
+                    className="cartoon-button bg-cartoon-mint hover:bg-cartoon-mint/80 flex-1 sm:flex-none"
                   >
-                    <Play size={16} />
+                    <Play size={20} />
+                    <span className="ml-2">Leitura Guiada</span>
                   </Button>
                 ) : (
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 w-full sm:w-auto">
                     {isPaused ? (
                       <Button
                         onClick={resumeAutoReading}
-                        size="sm"
-                        className="cartoon-button bg-green-500 hover:bg-green-600"
+                        className="cartoon-button bg-green-500 hover:bg-green-600 flex-1 sm:flex-none"
                       >
-                        <Play size={16} />
+                        <Play size={20} />
+                        <span className="ml-2 hidden sm:inline">Continuar</span>
                       </Button>
                     ) : (
                       <Button
                         onClick={pauseAutoReading}
-                        size="sm"
-                        className="cartoon-button bg-yellow-500 hover:bg-yellow-600"
+                        className="cartoon-button bg-yellow-500 hover:bg-yellow-600 flex-1 sm:flex-none"
                       >
-                        <Pause size={16} />
+                        <Pause size={20} />
+                        <span className="ml-2 hidden sm:inline">Pausar</span>
                       </Button>
                     )}
                     <Button
                       onClick={stopAutoReading}
-                      size="sm"
                       className="cartoon-button bg-red-500 hover:bg-red-600"
                     >
-                      <VolumeX size={16} />
+                      <VolumeX size={20} />
                     </Button>
                   </div>
                 )}
