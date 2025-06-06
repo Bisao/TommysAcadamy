@@ -63,7 +63,7 @@ export default function Header({ user }: HeaderProps) {
             className="flex items-center space-x-3"
           >
             <img 
-              src="/attached_assets/Tommy%20logo.png" 
+              src="/tommy-logo.png" 
               alt="Tommy's Academy Logo" 
               className="w-12 h-12 object-contain"
             />
