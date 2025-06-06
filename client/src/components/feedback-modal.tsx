@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
+import { CheckCircle, XCircle, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle } from "lucide-react";
+import { useAudio } from "@/hooks/use-audio";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface FeedbackModalProps {
   isCorrect: boolean;
@@ -23,11 +25,37 @@ export default function FeedbackModal({
       className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
     >
       <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.8, opacity: 0 }}
-        className="bg-white rounded-2xl shadow-2xl border-4 border-cartoon-mint max-w-md w-full text-center p-8"
+        className="bg-white rounded-2xl shadow-2xl border-4 border-cartoon-yellow max-w-md w-full text-center p-8"
       >
+        {/* Teacher Tommy Avatar */}
+        <motion.div
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.1 }}
+          className="flex justify-center mb-4"
+        >
+          <Avatar className="w-16 h-16 border-4 border-cartoon-teal">
+            <AvatarImage src="/teacher-tommy.png" alt="Teacher Tommy" />
+            <AvatarFallback className="bg-cartoon-yellow text-cartoon-dark text-xl font-bold">
+              T
+            </AvatarFallback>
+          </Avatar>
+        </motion.div>
+
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1, rotate: isCorrect ? 360 : 0 }}
+          transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+          className={`w-32 h-32 rounded-full flex items-center justify-center mx-auto mb-4 ${
+            isCorrect ? 'bg-green-500' : 'bg-red-500'
+          }`}
+        >
+          {isCorrect ? (
+            <CheckCircle className="text-white" size={64} />
+          ) : (
+            <XCircle className="text-white" size={64} />
+          )}
+        </motion.div>
         {isCorrect ? (
           <div>
             <motion.div
