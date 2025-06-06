@@ -28,6 +28,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import Header from "@/components/header";
 
 export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
@@ -115,7 +116,9 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 to-teal-50 pt-16 sm:pt-20 p-4 sm:p-6 lg:p-8">
+    <>
+      <Header user={user} />
+      <div className="min-h-screen bg-gradient-to-br from-sky-50 to-teal-50 pt-20 sm:pt-24 pb-4 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <motion.div
@@ -466,5 +469,6 @@ export default function Profile() {
         </motion.div>
       </div>
     </div>
+    </>
   );
 }
