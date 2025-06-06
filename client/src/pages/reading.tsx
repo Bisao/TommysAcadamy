@@ -89,32 +89,18 @@ When school finished, my mom was waiting for me at the gate. I told her all abou
         showAudioControls={true}
       />
       
-      {/* Barra de controles de áudio fixa */}
-      <div className="fixed top-16 sm:top-20 left-0 right-0 z-[150] bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-8 py-2 sm:py-3">
-          <div className="flex items-center justify-between">
-            <Button 
-              onClick={goBack}
-              variant="ghost" 
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100"
-            >
-              <ArrowLeft size={16} />
-              Voltar às Aulas
-            </Button>
-            
-            {/* Controles de áudio sempre visíveis */}
-            <div className="flex items-center gap-2">
-              {audioControls || (
-                <div className="text-sm text-gray-500 dark:text-gray-400">
-                  Carregando controles...
-                </div>
-              )}
-            </div>
-          </div>
+      <main className="pt-20 sm:pt-24">
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-8 mb-4">
+          <Button 
+            onClick={goBack}
+            variant="ghost" 
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100"
+          >
+            <ArrowLeft size={16} />
+            Voltar às Aulas
+          </Button>
         </div>
-      </div>
-      
-      <main className="pt-24 sm:pt-28">
+
         <ReadingLesson
           title={lessonTitle}
           text={lessonText}
