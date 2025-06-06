@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
-import { GraduationCap, User, Lock, Mail } from "lucide-react";
+import { GraduationCap, User, Lock, Mail, Maximize, Minimize } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -25,9 +25,66 @@ export default function Login() {
   const [rememberUsername, setRememberUsername] = useState(false);
   const [autoLogin, setAutoLogin] = useState(false);
   const [error, setError] = useState("");
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
+
+  // Fullscreen functions
+  const enterFullscreen = () => {
+    const element = document.documentElement;
+    if (element.requestFullscreen) {
+      element.requestFullscreen().then(() => setIsFullscreen(true));
+    } else if ((element as any).webkitRequestFullscreen) {
+      (element as any).webkitRequestFullscreen();
+      setIsFullscreen(true);
+    } else if ((element as any).msRequestFullscreen) {
+      (element as any).msRequestFullscreen();
+      setIsFullscreen(true);
+    }
+  };
+
+  const exitFullscreen = () => {
+    if (document.exitFullscreen) {
+      document.exitFullscreen().then(() => setIsFullscreen(false));
+    } else if ((document as any).webkitExitFullscreen) {
+      (document as any).webkitExitFullscreen();
+      setIsFullscreen(false);
+    } else if ((document as any).msExitFullscreen) {
+      (document as any).msExitFullscreen();
+      setIsFullscreen(false);
+    }
+  };
+
+  const toggleFullscreen = () => {
+    if (isFullscreen) {
+      exitFullscreen();
+    } else {
+      enterFullscreen();
+    }
+  };
+
+  // Listen for fullscreen changes
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isCurrentlyFullscreen = !!(
+        document.fullscreenElement ||
+        (document as any).webkitFullscreenElement ||
+        (document as any).msFullscreenElement
+      );
+      setIsFullscreen(isCurrentlyFullscreen);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('msfullscreenchange', handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('msfullscreenchange', handleFullscreenChange);
+    };
+  }, []);
 
   // Load saved data on component mount
   useEffect(() => {
@@ -79,12 +136,20 @@ export default function Login() {
 
       toast({
         title: "Login realizado com sucesso!",
-        description: "Bem-vindo de volta ao Tommy's Academy!",
+        description: "Entrando em modo fullscreen...",
       });
+      
+      // Enter fullscreen mode
+      setTimeout(() => {
+        enterFullscreen();
+      }, 500);
+      
       // Invalidate user query to refetch user data
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
-      // Redirect to home
-      setLocation("/home");
+      // Redirect to home after a delay to allow fullscreen to activate
+      setTimeout(() => {
+        setLocation("/home");
+      }, 1000);
     },
     onError: (error: any) => {
       setError("Usuário ou senha incorretos");
@@ -99,12 +164,20 @@ export default function Login() {
     onSuccess: () => {
       toast({
         title: "Conta criada com sucesso!",
-        description: "Bem-vindo ao Tommy's Academy!",
+        description: "Entrando em modo fullscreen...",
       });
+      
+      // Enter fullscreen mode
+      setTimeout(() => {
+        enterFullscreen();
+      }, 500);
+      
       // Invalidate user query to refetch user data
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
-      // Redirect to home
-      setLocation("/home");
+      // Redirect to home after a delay to allow fullscreen to activate
+      setTimeout(() => {
+        setLocation("/home");
+      }, 1000);
     },
     onError: (error: any) => {
       setError("Erro ao criar conta. Tente outro nome de usuário.");
@@ -140,6 +213,16 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-50 to-teal-50 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+      {/* Fullscreen Toggle Button */}
+      <Button
+        onClick={toggleFullscreen}
+        className="fixed top-4 right-4 z-50 cartoon-button-secondary p-2"
+        size="sm"
+        title={isFullscreen ? "Sair do modo fullscreen" : "Entrar em modo fullscreen"}
+      >
+        {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
+      </Button>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
