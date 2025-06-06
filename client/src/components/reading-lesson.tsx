@@ -212,34 +212,36 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     const spokenWords = transcript.toLowerCase().split(/\s+/).filter(word => word.length > 0);
     const textWords = text.split(/\s+/).filter(word => word.length > 0);
 
-    const newFeedback = [...wordFeedback];
+    setWordFeedback(prevFeedback => {
+      const newFeedback = [...prevFeedback];
 
-    // Para cada palavra falada, encontrar a melhor correspondência no texto
-    spokenWords.forEach(spokenWord => {
-      let bestMatch = -1;
-      let bestSimilarity = 0;
+      // Para cada palavra falada, encontrar a melhor correspondência no texto
+      spokenWords.forEach(spokenWord => {
+        let bestMatch = -1;
+        let bestSimilarity = 0;
 
-      textWords.forEach((textWord, index) => {
-        const similarity = calculateSimilarity(textWord, spokenWord);
-        if (similarity > bestSimilarity && similarity > 0.3) {
-          bestSimilarity = similarity;
-          bestMatch = index;
+        textWords.forEach((textWord, index) => {
+          const similarity = calculateSimilarity(textWord, spokenWord);
+          if (similarity > bestSimilarity && similarity > 0.3) {
+            bestSimilarity = similarity;
+            bestMatch = index;
+          }
+        });
+
+        if (bestMatch !== -1 && newFeedback[bestMatch]) {
+          if (bestSimilarity >= 0.9) {
+            newFeedback[bestMatch].status = 'correct';
+          } else if (bestSimilarity >= 0.6) {
+            newFeedback[bestMatch].status = 'close';
+          } else {
+            newFeedback[bestMatch].status = 'incorrect';
+          }
         }
       });
 
-      if (bestMatch !== -1 && newFeedback[bestMatch]) {
-        if (bestSimilarity >= 0.9) {
-          newFeedback[bestMatch].status = 'correct';
-        } else if (bestSimilarity >= 0.6) {
-          newFeedback[bestMatch].status = 'close';
-        } else {
-          newFeedback[bestMatch].status = 'incorrect';
-        }
-      }
+      return newFeedback;
     });
-
-    setWordFeedback(newFeedback);
-  }, [text, wordFeedback]);
+  }, [text]);
 
   // Simular progresso de leitura baseado no texto falado
   const calculateReadingProgress = useCallback((spokenText: string) => {
