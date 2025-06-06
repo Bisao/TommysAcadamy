@@ -109,22 +109,42 @@ export function useAudio() {
       utterance.voice = americanVoice;
     }
 
-    // Sistema de sincronização de palavra melhorado
+    // Sistema de sincronização PERFEITA entre voz e highlight
     if (onWordBoundary) {
       let currentWordIndex = 0;
       let boundaryEventsWorking = false;
-      let boundaryCheckTimeout: NodeJS.Timeout | null = null;
       
-      // Calcular duração por palavra com base na velocidade e comprimento
-      const averageCharsPerWord = textToPlay.length / words.length;
-      const baseWordDuration = Math.max(300, 400 + (averageCharsPerWord * 50)); // Ajustar baseado no comprimento médio
-      const rateFactor = 1 / (utterance.rate || 0.8);
-      const adjustedWordDuration = baseWordDuration * rateFactor;
+      console.log(`Setting up word boundary sync - Words: ${words.length}`);
       
-      console.log(`Audio sync setup - Mobile: ${isMobile}, Words: ${words.length}, Avg chars/word: ${averageCharsPerWord.toFixed(1)}, Duration per word: ${adjustedWordDuration}ms`);
-      
+      // Handler para eventos de boundary do navegador
+      utterance.onboundary = (event: SpeechSynthesisEvent) => {
+        if (event.name === 'word') {
+          boundaryEventsWorking = true;
+          const globalWordIndex = fromPosition + currentWordIndex;
+          const wordToHighlight = words[currentWordIndex] || '';
+          
+          console.log(`Boundary event highlighting word ${globalWordIndex}: "${wordToHighlight}"`);
+          
+          // Disparar callback IMEDIATAMENTE com a voz
+          onWordBoundary(wordToHighlight, globalWordIndex);
+          currentWordIndex++;
+          
+          // Limpar timer fallback se boundary events estão funcionando
+          if (wordTimerRef.current) {
+            console.log("Boundary event detected - clearing timer fallback");
+            clearInterval(wordTimerRef.current);
+            wordTimerRef.current = null;
+          }
+        }
+      };
+
+      // Timer fallback apenas se boundary events não funcionarem
       const startWordTimer = () => {
-        console.log("Starting word timer fallback");
+        console.log("Starting word timer fallback for sync");
+        const baseWordDuration = 600; // Duração base mais conservadora
+        const rateFactor = 1 / (utterance.rate || 0.8);
+        const adjustedWordDuration = baseWordDuration * rateFactor;
+        
         wordTimerRef.current = setInterval(() => {
           if (currentWordIndex < words.length && !speechSynthesis.paused && speechSynthesis.speaking) {
             const globalWordIndex = fromPosition + currentWordIndex;
@@ -134,6 +154,21 @@ export function useAudio() {
             currentWordIndex++;
           } else if (currentWordIndex >= words.length || !speechSynthesis.speaking) {
             console.log("Timer completed or speech stopped");
+            if (wordTimerRef.current) {
+              clearInterval(wordTimerRef.current);
+              wordTimerRef.current = null;
+            }
+          }
+        }, adjustedWordDuration);
+      };
+
+      // Verificar se boundary events funcionam após pequeno delay
+      setTimeout(() => {
+        if (!boundaryEventsWorking && speechSynthesis.speaking) {
+          console.log("Boundary events not working, starting timer fallback");
+          startWordTimer();
+        }
+      }, 1000);topped");
             if (wordTimerRef.current) {
               clearInterval(wordTimerRef.current);
               wordTimerRef.current = null;

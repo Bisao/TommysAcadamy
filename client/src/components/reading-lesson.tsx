@@ -79,7 +79,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
 
     setIsAutoReading(true);
     setIsPaused(false);
-    setCurrentWordIndex(0);
+    setCurrentWordIndex(-1); // Iniciar sem destaque
 
     const titleWords = title.split(/\s+/).filter(word => word.length > 0);
     const textWords = text.split(/\s+/).filter(word => word.length > 0);
@@ -92,14 +92,9 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
       return;
     }
 
-    // Função para scroll automático melhorada com throttling
-    let scrollTimeout: NodeJS.Timeout | null = null;
+    // Função para scroll automático
     const scrollToWord = (wordIndex: number, isTitle: boolean) => {
-      if (scrollTimeout) {
-        clearTimeout(scrollTimeout);
-      }
-      
-      scrollTimeout = setTimeout(() => {
+      requestAnimationFrame(() => {
         const selector = isTitle ? `[data-word-index="title-${wordIndex}"]` : `[data-word-index="text-${wordIndex}"]`;
         const wordElement = document.querySelector(selector);
 
@@ -111,42 +106,38 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
           const totalOffset = headerHeight + audioBarHeight + 20;
           const targetY = window.scrollY + elementRect.top - totalOffset;
 
-          // Usar requestAnimationFrame para melhor performance
-          requestAnimationFrame(() => {
-            window.scrollTo({
-              top: Math.max(0, targetY),
-              behavior: 'smooth'
-            });
+          window.scrollTo({
+            top: Math.max(0, targetY),
+            behavior: 'smooth'
           });
         }
-      }, 50); // Pequeno delay para evitar scroll excessivo
+      });
     };
 
-    // Função unificada para lidar com word boundaries - sincronização perfeita
+    // Função sincronizada para word boundaries - VOZ E HIGHLIGHT JUNTOS
     const handleWordBoundary = (word: string, wordIndex: number) => {
-      // Verificar se ainda está em modo de leitura automática
-      if (!isAutoReading) {
-        console.log("Auto reading was stopped, ignoring word boundary");
-        return;
-      }
-
+      console.log(`Word boundary triggered: "${word}" at index ${wordIndex}`);
+      
       const totalTitleWords = titleWords.length;
 
-      // Sincronizar highlight imediatamente quando a palavra é falada
+      // Sincronizar highlight EXATAMENTE quando a palavra é falada
       if (wordIndex < totalTitleWords) {
         // Está no título
         setCurrentWordIndex(wordIndex);
         scrollToWord(wordIndex, true);
+        console.log(`Highlighting title word ${wordIndex}: "${word}"`);
       } else {
-        // Está no texto principal (ajustar índice para compensar o ponto)
+        // Está no texto principal (compensar pelo ponto após título)
         const textWordIndex = wordIndex - totalTitleWords - 1;
         if (textWordIndex >= 0 && textWordIndex < textWords.length) {
           const globalIndex = totalTitleWords + textWordIndex;
           setCurrentWordIndex(globalIndex);
           scrollToWord(textWordIndex, false);
+          console.log(`Highlighting text word ${globalIndex}: "${word}"`);
 
-          // Verificar se é a última palavra e finalizar automaticamente
+          // Auto-finalizar quando chegar na última palavra
           if (textWordIndex >= textWords.length - 1) {
+            console.log("Last word reached, finishing reading");
             setTimeout(() => {
               setIsAutoReading(false);
               setIsPaused(false);
@@ -155,20 +146,28 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
                 title: "🎉 Leitura concluída!",
                 description: "Professor Tommy terminou de ler o texto.",
               });
-            }, 800); // Aumentado para dar tempo da última palavra ser destacada
+            }, 1000);
           }
         }
       }
     };
 
-    // Iniciar leitura com primeira palavra destacada imediatamente
-    setCurrentWordIndex(0);
+    console.log("Starting auto reading with word boundary sync");
     
     try {
+      // Iniciar áudio E highlight JUNTOS
       playText(fullContent, "en-US", 0, handleWordBoundary);
+      
+      // Destacar primeira palavra imediatamente quando o áudio começar
+      setTimeout(() => {
+        setCurrentWordIndex(0);
+        scrollToWord(0, true);
+        console.log("First word highlighted at start");
+      }, 100);
+      
       toast({
         title: "🎯 Professor Tommy lendo o texto",
-        description: "Acompanhe as palavras destacadas em tempo real",
+        description: "Voz e destaque sincronizados",
       });
     } catch (error) {
       console.error("Error starting auto reading:", error);
@@ -183,48 +182,64 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
   }, [title, text, playText, toast, isAutoReading]);
 
   const pauseAutoReading = useCallback(() => {
-    // Pausar imediatamente tanto o áudio quanto o highlight
+    console.log("Pausing auto reading - maintaining word sync");
+    
+    // Pausar imediatamente tanto o áudio quanto manter o highlight
     setIsPaused(true);
     if (isPlaying) {
       pauseAudio();
     }
+    
     // Manter o highlight na palavra atual durante a pausa
+    console.log(`Paused at word index: ${currentWordIndex}`);
+    
     toast({
-      title: "Professor Tommy pausado",
-      description: "Clique em continuar para retomar",
+      title: "⏸️ Professor Tommy pausado",
+      description: "Voz e destaque pausados na mesma palavra",
     });
-  }, [isPlaying, pauseAudio, toast]);
+  }, [isPlaying, pauseAudio, currentWordIndex, toast]);
 
   const resumeAutoReading = useCallback(() => {
     if (!isAutoReading) return;
 
-    // Tentar retomar áudio pausado primeiro
+    console.log("Resuming auto reading from word:", currentWordIndex);
+
+    // Tentar retomar áudio pausado MANTENDO sincronização
     if (isPaused && speechSynthesis.paused && speechSynthesis.speaking && currentUtterance) {
       try {
         resumeAudio();
         setIsPaused(false);
+        console.log("Successfully resumed paused speech");
+        
         toast({
-          title: "🎯 Professor Tommy retomando",
-          description: "Continuando de onde parou",
+          title: "▶️ Professor Tommy retomando",
+          description: "Voz e destaque continuando juntos",
         });
         return;
       } catch (error) {
-        console.warn("Erro ao retomar áudio:", error);
-        // Limpar estado antes de reiniciar
-        stopAudio();
-        setIsPaused(false);
+        console.warn("Erro ao retomar áudio pausado:", error);
       }
     }
 
-    // Se não conseguiu retomar, reiniciar do início com mensagem clara
+    // Se não conseguiu retomar, reiniciar do início MANTENDO sincronização
+    console.log("Restarting from beginning due to resume failure");
+    setIsPaused(false);
+    stopAudio();
+    
+    // Pequeno delay para garantir que o áudio parou completamente
+    setTimeout(() => {
+      startAutoReading();
+    }, 200);
+    
     toast({
       title: "🔄 Reiniciando leitura",
-      description: "Começando desde o início",
+      description: "Voz e destaque sincronizados desde o início",
     });
-    startAutoReading();
   }, [isAutoReading, isPaused, currentUtterance, resumeAudio, toast, stopAudio, startAutoReading]);
 
   const stopAutoReading = useCallback(() => {
+    console.log("Stopping auto reading - full reset");
+    
     // Parar tudo imediatamente e sincronizadamente
     setIsAutoReading(false);
     setIsPaused(false);
@@ -240,9 +255,11 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
       stopAudio();
     }
 
+    console.log("Auto reading stopped - voz e highlight resetados");
+
     toast({
-      title: "Professor Tommy parado",
-      description: "Leitura automática foi interrompida",
+      title: "⏹️ Professor Tommy parado",
+      description: "Leitura automática interrompida",
     });
   }, [isPlaying, isAudioPaused, stopAudio, toast]);
 
