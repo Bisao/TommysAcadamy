@@ -208,6 +208,23 @@
   }
 }
 
+/* Header spacing utilities */
+.content-with-header {
+  padding-top: 5rem; /* 80px */
+}
+
+@media (min-width: 640px) {
+  .content-with-header {
+    padding-top: 6rem; /* 96px */
+  }
+}
+
+@media (min-width: 1024px) {
+  .content-with-header {
+    padding-top: 7rem; /* 112px */
+  }
+}
+
 /* Custom utility classes for cartoon theme */
 .text-cartoon-red { color: hsl(var(--cartoon-red)); }
 .text-cartoon-teal { color: hsl(var(--cartoon-teal)); }
