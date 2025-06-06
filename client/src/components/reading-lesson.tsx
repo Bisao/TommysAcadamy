@@ -173,6 +173,24 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     }
   };
 
+  // Handle word click for single word selection
+  const handleWordClick = (word: string, event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Clean the word from punctuation
+    const cleanWord = word.replace(/[.,!?;:]/g, '');
+    setSelectedText(cleanWord);
+    
+    // Get click position to show icon
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    setIconPosition({
+      x: rect.left + rect.width / 2,
+      y: rect.bottom + window.scrollY + 5
+    });
+    setShowAudioIcon(true);
+  };
+
   const playSelectedText = () => {
     if (selectedText) {
       playText(selectedText);
@@ -201,7 +219,8 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
   }, []);
 
   const playFullText = () => {
-    playText(text);
+    const fullContent = `${title}. ${text}`;
+    playText(fullContent);
     toast({
       title: "🎯 Reproduzindo texto completo",
       description: "Professor Tommy está lendo o texto...",
@@ -264,12 +283,11 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
         <CardContent className="p-6">
           <div className="flex flex-wrap gap-4 justify-center">
             <Button
-              onClick={playFullText}
-              disabled={isPlaying}
+              onClick={isPlaying ? stopAudio : playFullText}
               className="cartoon-button bg-cartoon-blue hover:bg-cartoon-blue/80"
             >
-              {isPlaying ? <VolumeX size={20} /> : <Volume2 size={20} />}
-              {isPlaying ? "Parando..." : "Ouvir Texto Completo"}
+              {isPlaying ? <Pause size={20} /> : <Volume2 size={20} />}
+              {isPlaying ? "Parar Áudio" : "Ouvir Texto Completo"}
             </Button>
 
             <Button
@@ -302,16 +320,6 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
             >
               <RotateCcw size={20} />
               Recomeçar
-            </Button>
-
-            <Button
-              onClick={stopAudio}
-              disabled={!isPlaying}
-              variant="outline"
-              className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
-            >
-              <Pause size={20} />
-              Parar
             </Button>
           </div>
 
@@ -376,8 +384,9 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
               return (
                 <span
                   key={index}
-                  className={`${colorClass} px-1 py-0.5 rounded transition-colors duration-300 mr-1 inline-block`}
+                  className={`${colorClass} px-1 py-0.5 rounded transition-colors duration-300 mr-1 inline-block cursor-pointer hover:bg-blue-100`}
                   style={{ wordBreak: 'break-word' }}
+                  onClick={(e) => handleWordClick(word, e)}
                 >
                   {word}
                 </span>
