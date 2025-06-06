@@ -74,6 +74,10 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
 
     const words = text.split(/\s+/).filter(word => word.length > 0);
 
+    // Start reading with teacher's voice
+    const fullContent = `${title}. ${text}`;
+    playText(fullContent);
+
     const readNextWord = (index: number) => {
       if (index >= words.length) {
         // Reading completed
@@ -107,7 +111,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     readNextWord(0);
 
     toast({
-      title: "Leitura automática iniciada",
+      title: "🎯 Professor Tommy lendo o texto",
       description: "Acompanhe as palavras destacadas",
     });
   };
@@ -117,8 +121,12 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     if (autoReadingTimerRef.current) {
       clearTimeout(autoReadingTimerRef.current);
     }
+    // Pause the audio as well
+    if (isPlaying) {
+      pauseAudio();
+    }
     toast({
-      title: "Leitura pausada",
+      title: "Professor Tommy pausado",
       description: "Clique em continuar para retomar",
     });
   };
@@ -128,6 +136,11 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
 
     setIsPaused(false);
     const words = text.split(/\s+/).filter(word => word.length > 0);
+
+    // Resume audio if it was paused
+    if (isAudioPaused) {
+      resumeAudio();
+    }
 
     const readNextWord = (index: number) => {
       if (index >= words.length || isPaused) {
@@ -162,7 +175,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     readNextWord(currentWordIndex);
 
     toast({
-      title: "Leitura retomada",
+      title: "🎯 Professor Tommy retomando",
       description: "Continuando de onde parou",
     });
   };
@@ -174,9 +187,13 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     if (autoReadingTimerRef.current) {
       clearTimeout(autoReadingTimerRef.current);
     }
+    // Stop the audio as well
+    if (isPlaying || isAudioPaused) {
+      stopAudio();
+    }
     toast({
-      title: "Leitura interrompida",
-      description: "Leitura automática foi parada",
+      title: "Professor Tommy parado",
+      description: "Leitura automática foi interrompida",
     });
   };
 
@@ -406,7 +423,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
 
 
       {/* Controles de Áudio e Leitura */}
-      <Card className="border-2 border-cartoon-gray">
+      <Card className="border-2 border-cartoon-gray sticky top-4 z-50 bg-white shadow-lg">
         <CardContent className="p-3 sm:p-6">
           {/* Mobile-optimized layout */}
           <div className="space-y-4">
@@ -607,7 +624,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
       </Card>
 
       {/* Área de Texto */}
-      <Card className="border-2 border-cartoon-gray">
+      <Card className="border-2 border-cartoon-gray mt-4">
         <CardHeader className="pb-3 sm:pb-6">
           <div className="text-center">
             <CardTitle className="text-xl sm:text-2xl text-cartoon-dark">{title}</CardTitle>
