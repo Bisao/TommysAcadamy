@@ -477,153 +477,131 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6 pt-20 pr-24">
+    <div className="max-w-4xl mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6 pt-20">
 
-
-      {/* Controles de Áudio e Leitura - Lateral Direita */}
-      <Card className="border-2 border-cartoon-gray fixed top-20 right-4 z-50 bg-white shadow-lg w-20">
-        <CardContent className="p-3">
-          {/* Botões empilhados verticalmente */}
-          <div className="flex flex-col gap-3">
-            {/* Audio Control with Pause/Resume */}
-            {!isPlaying && !isAudioPaused ? (
-              <Button
-                onClick={playFullText}
-                className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
-              >
-                <Volume2 size={20} />
-              </Button>
-            ) : isPlaying ? (
-              <Button
-                onClick={pauseAudio}
-                className="w-14 h-14 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
-              >
-                <Pause size={20} />
-              </Button>
-            ) : (
-              <Button
-                onClick={resumeAudio}
-                className="w-14 h-14 rounded-full bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
-              >
-                <Play size={20} />
-              </Button>
-            )}
-
-            {(isPlaying || isAudioPaused) && (
-              <Button
-                onClick={stopAudio}
-                className="w-14 h-14 rounded-full bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
-              >
-                <VolumeX size={20} />
-              </Button>
-            )}
-
-            {/* Auto Reading Controls */}
-            {!isAutoReading ? (
-              <Button
-                onClick={startAutoReading}
-                className="w-14 h-14 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
-              >
-                <Play size={20} />
-              </Button>
-            ) : (
-              <>
-                {isPaused ? (
-                  <Button
-                    onClick={resumeAutoReading}
-                    className="w-14 h-14 rounded-full bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
-                  >
-                    <Play size={20} />
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={pauseAutoReading}
-                    className="w-14 h-14 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
-                  >
-                    <Pause size={20} />
-                  </Button>
-                )}
+      {/* Controles de Áudio e Leitura - Acima do Painel de Texto */}
+      <Card className="border-2 border-cartoon-gray bg-white shadow-lg">
+        <CardContent className="p-3 sm:p-4">
+          {/* Botões lado a lado */}
+          <div className="flex flex-wrap gap-2 sm:gap-3 justify-center items-center">
+            {/* Professor Tommy Audio Controls */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-blue-700 hidden sm:block">🎯 Professor Tommy:</span>
+              {!isPlaying && !isAudioPaused ? (
                 <Button
-                  onClick={stopAutoReading}
-                  className="w-14 h-14 rounded-full bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white"
+                  onClick={playFullText}
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                  title="Reproduzir texto completo"
                 >
-                  <VolumeX size={20} />
+                  <Volume2 size={16} className="sm:w-5 sm:h-5" />
                 </Button>
-              </>
-            )}
+              ) : isPlaying ? (
+                <Button
+                  onClick={pauseAudio}
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                  title="Pausar áudio"
+                >
+                  <Pause size={16} className="sm:w-5 sm:h-5" />
+                </Button>
+              ) : (
+                <Button
+                  onClick={resumeAudio}
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                  title="Retomar áudio"
+                >
+                  <Play size={16} className="sm:w-5 sm:h-5" />
+                </Button>
+              )}
 
-            {/* Reading Mode Control */}
-            <Button
-              onClick={toggleReadingMode}
-              className={`w-14 h-14 rounded-full ${
-                isReadingMode 
-                  ? "bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700" 
-                  : "bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
-              } text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white`}
-            >
-              {isReadingMode ? <MicOff size={20} /> : <Mic size={20} />}
-            </Button>
-
-            {/* Reset Button */}
-            <Button
-              onClick={resetReading}
-              disabled={!transcript}
-              className="w-14 h-14 rounded-full bg-gradient-to-br from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 disabled:from-gray-300 disabled:to-gray-400 text-white shadow-lg hover:shadow-xl transition-all duration-200 border-4 border-white disabled:opacity-50"
-            >
-              <RotateCcw size={20} />
-            </Button>
-          </div>
-
-          {/* Speed Control for Auto Reading */}
-          {isAutoReading && (
-            <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <div className="flex flex-col gap-3">
-                <span className="text-sm font-semibold text-blue-700 text-center">
-                  Velocidade da Marcação:
-                </span>
-                <div className="flex gap-1 justify-center">
-                  <Button
-                    onClick={() => setAutoReadingSpeed(700)}
-                    variant={autoReadingSpeed === 700 ? "default" : "outline"}
-                    size="sm"
-                    className="text-xs flex-1"
-                  >
-                    Lenta
-                  </Button>
-                  <Button
-                    onClick={() => setAutoReadingSpeed(500)}
-                    variant={autoReadingSpeed === 500 ? "default" : "outline"}
-                    size="sm"
-                    className="text-xs flex-1"
-                  >
-                    Normal
-                  </Button>
-                  <Button
-                    onClick={() => setAutoReadingSpeed(300)}
-                    variant={autoReadingSpeed === 300 ? "default" : "outline"}
-                    size="sm"
-                    className="text-xs flex-1"
-                  >
-                    Rápida
-                  </Button>
-                </div>
-                <div className="text-xs text-center text-blue-600">
-                  Sincronizado com a voz do Professor Tommy
-                </div>
-              </div>
+              {(isPlaying || isAudioPaused) && (
+                <Button
+                  onClick={stopAudio}
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                  title="Parar áudio"
+                >
+                  <VolumeX size={16} className="sm:w-5 sm:h-5" />
+                </Button>
+              )}
             </div>
-          )}
+
+            {/* Leitura Guiada */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-teal-700 hidden sm:block">📖 Leitura Guiada:</span>
+              {!isAutoReading ? (
+                <Button
+                  onClick={startAutoReading}
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                  title="Iniciar leitura guiada"
+                >
+                  <Play size={16} className="sm:w-5 sm:h-5" />
+                </Button>
+              ) : (
+                <>
+                  {isPaused ? (
+                    <Button
+                      onClick={resumeAutoReading}
+                      className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                      title="Continuar leitura guiada"
+                    >
+                      <Play size={16} className="sm:w-5 sm:h-5" />
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={pauseAutoReading}
+                      className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                      title="Pausar leitura guiada"
+                    >
+                      <Pause size={16} className="sm:w-5 sm:h-5" />
+                    </Button>
+                  )}
+                  <Button
+                    onClick={stopAutoReading}
+                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                    title="Parar leitura guiada"
+                  >
+                    <VolumeX size={16} className="sm:w-5 sm:h-5" />
+                  </Button>
+                </>
+              )}
+            </div>
+
+            {/* Reconhecimento de Voz */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-orange-700 hidden sm:block">🎤 Sua Leitura:</span>
+              <Button
+                onClick={toggleReadingMode}
+                className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full ${
+                  isReadingMode 
+                    ? "bg-gradient-to-br from-red-500 to-red-600 hover:from-red-600 hover:to-red-700" 
+                    : "bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
+                } text-white shadow-lg hover:shadow-xl transition-all duration-200`}
+                title={isReadingMode ? "Parar reconhecimento" : "Iniciar reconhecimento de voz"}
+              >
+                {isReadingMode ? <MicOff size={16} className="sm:w-5 sm:h-5" /> : <Mic size={16} className="sm:w-5 sm:h-5" />}
+              </Button>
+
+              {/* Reset Button */}
+              <Button
+                onClick={resetReading}
+                disabled={!transcript}
+                className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 disabled:from-gray-300 disabled:to-gray-400 text-white shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
+                title="Reiniciar leitura"
+              >
+                <RotateCcw size={16} className="sm:w-5 sm:h-5" />
+              </Button>
+            </div>
+          </div>
 
           {/* Progresso da Leitura */}
           {(isReadingMode || isAutoReading) && (
-            <div className="space-y-2 mt-4">
+            <div className="space-y-3 mt-4 pt-4 border-t border-gray-200">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">
-                  {isAutoReading ? "Progresso da Leitura Guiada" : "Progresso da Leitura"}
+                <span className="text-gray-600 font-medium">
+                  {isAutoReading ? "🎯 Progresso da Leitura Guiada" : "🎤 Progresso da Sua Leitura"}
                 </span>
-                <span className="font-semibold text-cartoon-coral">
+                <span className="font-semibold text-blue-600">
                   {isAutoReading ? 
-                    `${Math.round((currentWordIndex / text.split(/\s+/).length) * 100)}%` :
+                    `${Math.round(currentWordIndex === -1 ? 5 : ((currentWordIndex + 1) / text.split(/\s+/).length) * 95 + 5)}%` :
                     `${Math.round(readingProgress)}%`
                   }
                 </span>
@@ -652,9 +630,49 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
                       >
                         <Play size={16} />
                       </motion.div>
-                      {currentWordIndex === -1 ? 'Lendo título' : `Lendo palavra ${currentWordIndex + 1} de ${text.split(/\s+/).length}`}
+                      {currentWordIndex === -1 ? 'Professor Tommy lendo título' : `Lendo palavra ${currentWordIndex + 1} de ${text.split(/\s+/).length}`}
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* Speed Control for Auto Reading */}
+              {isAutoReading && (
+                <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="flex flex-col gap-2">
+                    <span className="text-sm font-semibold text-blue-700 text-center">
+                      ⚡ Velocidade da Marcação:
+                    </span>
+                    <div className="flex gap-2 justify-center">
+                      <Button
+                        onClick={() => setAutoReadingSpeed(700)}
+                        variant={autoReadingSpeed === 700 ? "default" : "outline"}
+                        size="sm"
+                        className="text-xs"
+                      >
+                        🐢 Lenta
+                      </Button>
+                      <Button
+                        onClick={() => setAutoReadingSpeed(500)}
+                        variant={autoReadingSpeed === 500 ? "default" : "outline"}
+                        size="sm"
+                        className="text-xs"
+                      >
+                        🚶 Normal
+                      </Button>
+                      <Button
+                        onClick={() => setAutoReadingSpeed(300)}
+                        variant={autoReadingSpeed === 300 ? "default" : "outline"}
+                        size="sm"
+                        className="text-xs"
+                      >
+                        🏃 Rápida
+                      </Button>
+                    </div>
+                    <div className="text-xs text-center text-blue-600">
+                      Sincronizado com Professor Tommy (🇺🇸)
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -662,10 +680,10 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="flex items-center gap-2 text-green-600 font-semibold"
+                  className="flex items-center justify-center gap-2 text-green-600 font-semibold"
                 >
                   <CheckCircle size={20} />
-                  Excelente! Continue assim!
+                  🎉 Excelente! Continue assim!
                 </motion.div>
               )}
             </div>

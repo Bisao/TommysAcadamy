@@ -44,29 +44,32 @@ export function useAudio() {
       voice.lang.includes('pt')
     );
 
-    // If text is in English, try to find an American English voice
-    const isEnglishText = /^[a-zA-Z\s.,!?;:'"()-]+$/.test(text);
-    if (isEnglishText) {
-      const americanMaleVoice = voices.find(voice => 
-        voice.lang.includes('en-US') && 
-        (voice.name.toLowerCase().includes('male') || 
-         voice.name.toLowerCase().includes('david') ||
-         voice.name.toLowerCase().includes('mark') ||
-         voice.name.toLowerCase().includes('alex') ||
-         voice.name.toLowerCase().includes('daniel'))
-      );
-      
-      const americanVoice = voices.find(voice => voice.lang.includes('en-US'));
-      
-      if (americanMaleVoice) {
-        utterance.voice = americanMaleVoice;
-        utterance.lang = "en-US";
-      } else if (americanVoice) {
-        utterance.voice = americanVoice;
-        utterance.lang = "en-US";
-      }
-    } else {
-      // For Portuguese text, use Portuguese voice
+    // Always prioritize American English male voice for Professor Tommy
+    const americanMaleVoice = voices.find(voice => 
+      voice.lang.includes('en-US') && 
+      (voice.name.toLowerCase().includes('male') || 
+       voice.name.toLowerCase().includes('david') ||
+       voice.name.toLowerCase().includes('mark') ||
+       voice.name.toLowerCase().includes('alex') ||
+       voice.name.toLowerCase().includes('daniel') ||
+       voice.name.toLowerCase().includes('fred') ||
+       voice.name.toLowerCase().includes('paul') ||
+       voice.name.toLowerCase().includes('jorge'))
+    );
+    
+    const americanVoice = voices.find(voice => voice.lang.includes('en-US'));
+    
+    // Professor Tommy always uses American English voice
+    if (americanMaleVoice) {
+      utterance.voice = americanMaleVoice;
+      utterance.lang = "en-US";
+    } else if (americanVoice) {
+      utterance.voice = americanVoice;
+      utterance.lang = "en-US";
+    }
+    
+    // If no English voice available, fallback to Portuguese
+    if (!utterance.voice) {
       if (brazilianVoice) {
         utterance.voice = brazilianVoice;
       } else if (portugueseVoice) {
@@ -103,26 +106,29 @@ export function useAudio() {
           voice.lang.includes('pt')
         );
         
-        if (isEnglishText) {
-          const updatedAmericanMaleVoice = updatedVoices.find(voice => 
-            voice.lang.includes('en-US') && 
-            (voice.name.toLowerCase().includes('male') || 
-             voice.name.toLowerCase().includes('david') ||
-             voice.name.toLowerCase().includes('mark') ||
-             voice.name.toLowerCase().includes('alex') ||
-             voice.name.toLowerCase().includes('daniel'))
-          );
-          
-          const updatedAmericanVoice = updatedVoices.find(voice => voice.lang.includes('en-US'));
-          
-          if (updatedAmericanMaleVoice) {
-            utterance.voice = updatedAmericanMaleVoice;
-            utterance.lang = "en-US";
-          } else if (updatedAmericanVoice) {
-            utterance.voice = updatedAmericanVoice;
-            utterance.lang = "en-US";
-          }
+        // Always prioritize American English male voice for Professor Tommy
+        const updatedAmericanMaleVoice = updatedVoices.find(voice => 
+          voice.lang.includes('en-US') && 
+          (voice.name.toLowerCase().includes('male') || 
+           voice.name.toLowerCase().includes('david') ||
+           voice.name.toLowerCase().includes('mark') ||
+           voice.name.toLowerCase().includes('alex') ||
+           voice.name.toLowerCase().includes('daniel') ||
+           voice.name.toLowerCase().includes('fred') ||
+           voice.name.toLowerCase().includes('paul') ||
+           voice.name.toLowerCase().includes('jorge'))
+        );
+        
+        const updatedAmericanVoice = updatedVoices.find(voice => voice.lang.includes('en-US'));
+        
+        if (updatedAmericanMaleVoice) {
+          utterance.voice = updatedAmericanMaleVoice;
+          utterance.lang = "en-US";
+        } else if (updatedAmericanVoice) {
+          utterance.voice = updatedAmericanVoice;
+          utterance.lang = "en-US";
         } else {
+          // Fallback to Portuguese only if no English voice available
           if (updatedBrazilianVoice) {
             utterance.voice = updatedBrazilianVoice;
           } else if (updatedPortugueseVoice) {
