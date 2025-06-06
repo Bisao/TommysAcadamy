@@ -1,4 +1,3 @@
-
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -82,7 +81,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
     const scrollToWord = (wordIndex: number, isTitle: boolean) => {
       const selector = isTitle ? `[data-word-index="title-${wordIndex}"]` : `[data-word-index="text-${wordIndex}"]`;
       const wordElement = document.querySelector(selector);
-      
+
       if (wordElement) {
         const elementRect = wordElement.getBoundingClientRect();
         const headerHeight = window.innerWidth < 640 ? 60 : 80;
@@ -100,7 +99,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
     // Função unificada para lidar com word boundaries - sincronização perfeita
     const handleWordBoundary = (word: string, wordIndex: number) => {
       const totalTitleWords = titleWords.length;
-      
+
       // Sincronizar highlight imediatamente quando a palavra é falada
       if (wordIndex < totalTitleWords) {
         // Está no título
@@ -155,7 +154,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
 
   const resumeAutoReading = useCallback(() => {
     if (!isAutoReading) return;
-    
+
     // Tentar retomar áudio pausado primeiro
     if (isPaused && speechSynthesis.paused && speechSynthesis.speaking && currentUtterance) {
       try {
@@ -173,7 +172,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
         setIsPaused(false);
       }
     }
-    
+
     // Se não conseguiu retomar, reiniciar do início com mensagem clara
     toast({
       title: "🔄 Reiniciando leitura",
@@ -187,17 +186,17 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
     setIsAutoReading(false);
     setIsPaused(false);
     setCurrentWordIndex(-1); // Reset para não destacar nenhuma palavra
-    
+
     // Limpar qualquer timer pendente
     if (autoReadingTimerRef.current) {
       clearTimeout(autoReadingTimerRef.current);
     }
-    
+
     // Parar áudio se estiver tocando ou pausado
     if (isPlaying || isAudioPaused) {
       stopAudio();
     }
-    
+
     toast({
       title: "Professor Tommy parado",
       description: "Leitura automática foi interrompida",
