@@ -107,48 +107,73 @@ export default function Header({ user, audioControls, showAudioControls }: Heade
             {/* Show stats only on home page */}
             {isHomePage && (
               <>
-                {/* Streak */}
-                <motion.div 
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="flex items-center space-x-1 bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded-full border border-orange-200 dark:border-orange-800"
-                >
-                  <Flame className="w-4 h-4 text-orange-500 dark:text-orange-400" />
-                  <span className="text-orange-700 dark:text-orange-300 font-bold text-sm">{user.streak}</span>
-                </motion.div>
+                {/* Stats for larger screens */}
+                <div className="hidden sm:flex items-center space-x-3">
+                  {/* Streak */}
+                  <motion.div 
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="flex items-center space-x-1 bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded-full border border-orange-200 dark:border-orange-800"
+                  >
+                    <Flame className="w-4 h-4 text-orange-500 dark:text-orange-400" />
+                    <span className="text-orange-700 dark:text-orange-300 font-bold text-sm">{user.streak}</span>
+                  </motion.div>
 
-                {/* XP */}
-                <motion.div 
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.1 }}
-                  className="flex items-center space-x-1 bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded-full border border-blue-200 dark:border-blue-800"
-                >
-                  <Star className="w-4 h-4 text-blue-500 dark:text-blue-400" />
-                  <span className="text-blue-700 dark:text-blue-300 font-bold text-sm">{user.totalXP}</span>
-                </motion.div>
+                  {/* XP */}
+                  <motion.div 
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.1 }}
+                    className="flex items-center space-x-1 bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded-full border border-blue-200 dark:border-blue-800"
+                  >
+                    <Star className="w-4 h-4 text-blue-500 dark:text-blue-400" />
+                    <span className="text-blue-700 dark:text-blue-300 font-bold text-sm">{user.totalXP}</span>
+                  </motion.div>
 
-                {/* Level */}
-                <motion.div 
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="flex items-center space-x-1 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full border border-green-200 dark:border-green-800"
-                >
-                  <Trophy className="w-4 h-4 text-green-500 dark:text-green-400" />
-                  <span className="text-green-700 dark:text-green-300 font-bold text-sm">{user.level}</span>
-                </motion.div>
+                  {/* Level */}
+                  <motion.div 
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className="flex items-center space-x-1 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full border border-green-200 dark:border-green-800"
+                  >
+                    <Trophy className="w-4 h-4 text-green-500 dark:text-green-400" />
+                    <span className="text-green-700 dark:text-green-300 font-bold text-sm">{user.level}</span>
+                  </motion.div>
 
-                {/* Notifications */}
+                  {/* Theme Toggle */}
+                  <ThemeToggle />
+                </div>
+
+                {/* Compact stats for mobile screens */}
+                <div className="flex sm:hidden items-center space-x-2">
+                  {/* Combined streak/XP display for mobile */}
+                  <motion.div 
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="flex items-center space-x-2 bg-white/10 dark:bg-black/10 px-2 py-1 rounded-full border border-white/20 dark:border-gray-700/20 backdrop-blur-sm"
+                  >
+                    <div className="flex items-center space-x-1">
+                      <Flame className="w-3 h-3 text-orange-500" />
+                      <span className="text-orange-700 dark:text-orange-300 font-bold text-xs">{user.streak}</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Star className="w-3 h-3 text-blue-500" />
+                      <span className="text-blue-700 dark:text-blue-300 font-bold text-xs">{user.totalXP}</span>
+                    </div>
+                  </motion.div>
+
+                  {/* Theme Toggle for mobile */}
+                  <ThemeToggle />
+                </div>
+
+                {/* Notifications for all screen sizes */}
                 <NotificationSystem
                   notifications={notifications}
                   onMarkRead={markAsRead}
                   onDismiss={dismissNotification}
                   onClearAll={clearAllNotifications}
                 />
-
-                {/* Theme Toggle */}
-                <ThemeToggle />
               </>
             )}
 
