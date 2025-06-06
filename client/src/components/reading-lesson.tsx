@@ -66,7 +66,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     setWordFeedback(initialFeedback);
   }, [text]);
 
-  // Auto-reading functionality
+  // Auto-reading functionality with word tracking
   const startAutoReading = () => {
     setIsAutoReading(true);
     setIsPaused(false);
@@ -77,6 +77,10 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     // Start reading with teacher's voice
     const fullContent = `${title}. ${text}`;
     playText(fullContent);
+
+    // Calculate timing based on speech synthesis
+    const estimatedWordsPerMinute = 150; // Typical reading speed
+    const msPerWord = (60 / estimatedWordsPerMinute) * 1000;
 
     const readNextWord = (index: number) => {
       if (index >= words.length) {
@@ -108,18 +112,39 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
         }
       }, 100);
 
+      // Calculate dynamic timing based on word length and punctuation
+      let wordDelay = msPerWord;
+      const currentWord = words[index];
+      
+      // Adjust timing for punctuation and word length
+      if (currentWord.match(/[.!?]$/)) {
+        wordDelay += 500; // Pause longer for sentence endings
+      } else if (currentWord.match(/[,;:]$/)) {
+        wordDelay += 250; // Pause for commas and semicolons
+      }
+      
+      // Adjust for word length
+      if (currentWord.length > 8) {
+        wordDelay += 200; // Longer words need more time
+      } else if (currentWord.length <= 3) {
+        wordDelay -= 100; // Short words can be faster
+      }
+
       autoReadingTimerRef.current = setTimeout(() => {
         if (!isPaused) {
           readNextWord(index + 1);
         }
-      }, autoReadingSpeed);
+      }, Math.max(wordDelay, 200)); // Minimum 200ms per word
     };
 
-    readNextWord(0);
+    // Start with the title pause
+    setTimeout(() => {
+      readNextWord(0);
+    }, 1000); // Give time for title to be read
 
     toast({
       title: "🎯 Professor Tommy lendo o texto",
-      description: "Acompanhe as palavras destacadas",
+      description: "Acompanhe as palavras destacadas em tempo real",
     });
   };
 
@@ -533,35 +558,38 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
           {/* Speed Control for Auto Reading */}
           {isAutoReading && (
             <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <span className="text-sm font-semibold text-blue-700 text-center sm:text-left">
-                  Velocidade da Leitura:
+              <div className="flex flex-col gap-3">
+                <span className="text-sm font-semibold text-blue-700 text-center">
+                  Velocidade da Marcação:
                 </span>
-                <div className="flex gap-2 justify-center">
+                <div className="flex gap-1 justify-center">
+                  <Button
+                    onClick={() => setAutoReadingSpeed(700)}
+                    variant={autoReadingSpeed === 700 ? "default" : "outline"}
+                    size="sm"
+                    className="text-xs flex-1"
+                  >
+                    Lenta
+                  </Button>
                   <Button
                     onClick={() => setAutoReadingSpeed(500)}
                     variant={autoReadingSpeed === 500 ? "default" : "outline"}
                     size="sm"
-                    className="text-xs flex-1 sm:flex-none"
+                    className="text-xs flex-1"
                   >
-                    Lenta
+                    Normal
                   </Button>
                   <Button
                     onClick={() => setAutoReadingSpeed(300)}
                     variant={autoReadingSpeed === 300 ? "default" : "outline"}
                     size="sm"
-                    className="text-xs flex-1 sm:flex-none"
-                  >
-                    Normal
-                  </Button>
-                  <Button
-                    onClick={() => setAutoReadingSpeed(150)}
-                    variant={autoReadingSpeed === 150 ? "default" : "outline"}
-                    size="sm"
-                    className="text-xs flex-1 sm:flex-none"
+                    className="text-xs flex-1"
                   >
                     Rápida
                   </Button>
+                </div>
+                <div className="text-xs text-center text-blue-600">
+                  Sincronizado com a voz do Professor Tommy
                 </div>
               </div>
             </div>
@@ -647,7 +675,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
 
               // Priority: Current word highlighting > feedback status
               if (isCurrentWord) {
-                colorClass = 'bg-blue-500 text-white shadow-lg scale-110 font-bold';
+                colorClass = 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-xl scale-110 font-bold border-2 border-blue-300 transform';
               } else {
                 switch (feedback?.status) {
                   case 'correct':
@@ -672,11 +700,15 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
                   style={{ wordBreak: 'break-word' }}
                   onClick={(e) => handleWordClick(word, e)}
                   animate={isCurrentWord ? {
-                    scale: [1, 1.1, 1],
-                    backgroundColor: ['#3b82f6', '#1d4ed8', '#3b82f6']
+                    scale: [1.1, 1.15, 1.1],
+                    boxShadow: [
+                      '0 4px 15px rgba(59, 130, 246, 0.4)',
+                      '0 6px 20px rgba(59, 130, 246, 0.6)',
+                      '0 4px 15px rgba(59, 130, 246, 0.4)'
+                    ]
                   } : {}}
                   transition={{
-                    duration: 0.5,
+                    duration: 0.8,
                     repeat: isCurrentWord ? Infinity : 0,
                     ease: "easeInOut"
                   }}
