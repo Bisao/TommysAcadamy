@@ -363,9 +363,16 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
         <CardContent className="relative">
           <div
             ref={textRef}
-            className="text-lg leading-relaxed p-4 bg-white rounded-lg border border-gray-200 cursor-text select-text break-words whitespace-pre-wrap overflow-wrap-anywhere"
+            className="text-lg leading-relaxed p-4 bg-white rounded-lg border border-gray-200 cursor-text break-words whitespace-pre-wrap overflow-wrap-anywhere"
             onMouseUp={handleTextSelection}
-            style={{ userSelect: 'text', wordBreak: 'break-word', overflowWrap: 'break-word' }}
+            style={{ 
+              userSelect: 'text', 
+              WebkitUserSelect: 'text',
+              MozUserSelect: 'text',
+              msUserSelect: 'text',
+              wordBreak: 'break-word', 
+              overflowWrap: 'break-word' 
+            }}
           >
             {text.split(/\s+/).map((word, index) => {
               const feedback = wordFeedback[index];
