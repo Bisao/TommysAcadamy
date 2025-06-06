@@ -11,6 +11,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import Mascot from "@/components/mascot";
+import tommyLogoPath from "@assets/Tommy logo.png";
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true);
@@ -102,7 +103,7 @@ export default function Login() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-3 mb-4">
             <img 
-              src="/tommy-logo.png" 
+              src={tommyLogoPath} 
               alt="Tommy's Academy Logo" 
               className="w-16 h-16 object-contain"
             />
