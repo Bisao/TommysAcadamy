@@ -71,9 +71,9 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     setIsAutoReading(true);
     setIsPaused(false);
     setCurrentWordIndex(0);
-    
+
     const words = text.split(/\s+/).filter(word => word.length > 0);
-    
+
     const readNextWord = (index: number) => {
       if (index >= words.length) {
         // Reading completed
@@ -88,7 +88,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
       }
 
       setCurrentWordIndex(index);
-      
+
       // Scroll to current word if needed
       setTimeout(() => {
         const wordElement = document.querySelector(`[data-word-index="${index}"]`);
@@ -105,7 +105,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     };
 
     readNextWord(0);
-    
+
     toast({
       title: "Leitura automática iniciada",
       description: "Acompanhe as palavras destacadas",
@@ -125,10 +125,10 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
 
   const resumeAutoReading = () => {
     if (!isAutoReading) return;
-    
+
     setIsPaused(false);
     const words = text.split(/\s+/).filter(word => word.length > 0);
-    
+
     const readNextWord = (index: number) => {
       if (index >= words.length || isPaused) {
         if (index >= words.length) {
@@ -144,7 +144,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
       }
 
       setCurrentWordIndex(index);
-      
+
       setTimeout(() => {
         const wordElement = document.querySelector(`[data-word-index="${index}"]`);
         if (wordElement) {
@@ -160,7 +160,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     };
 
     readNextWord(currentWordIndex);
-    
+
     toast({
       title: "Leitura retomada",
       description: "Continuando de onde parou",
@@ -417,36 +417,37 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
                 {!isPlaying && !isAudioPaused ? (
                   <Button
                     onClick={playFullText}
-                    className="cartoon-button bg-cartoon-blue hover:bg-cartoon-blue/80 flex-1 sm:flex-none"
+                    size="sm"
+                    className="cartoon-button bg-cartoon-blue hover:bg-cartoon-blue/80"
                   >
-                    <Volume2 size={20} />
-                    <span className="ml-2">Ouvir Texto Completo</span>
+                    <Volume2 size={16} />
                   </Button>
                 ) : isPlaying ? (
                   <Button
                     onClick={pauseAudio}
-                    className="cartoon-button bg-yellow-500 hover:bg-yellow-600 flex-1 sm:flex-none"
+                    size="sm"
+                    className="cartoon-button bg-yellow-500 hover:bg-yellow-600"
                   >
-                    <Pause size={20} />
-                    <span className="ml-2">Pausar Áudio</span>
+                    <Pause size={16} />
                   </Button>
                 ) : (
                   <Button
                     onClick={resumeAudio}
-                    className="cartoon-button bg-green-500 hover:bg-green-600 flex-1 sm:flex-none"
+                    size="sm"
+                    className="cartoon-button bg-green-500 hover:bg-green-600"
                   >
-                    <Play size={20} />
-                    <span className="ml-2">Continuar Áudio</span>
+                    <Play size={16} />
                   </Button>
                 )}
-                
+
                 {(isPlaying || isAudioPaused) && (
                   <Button
                     onClick={stopAudio}
+                    size="sm"
                     variant="outline"
                     className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
                   >
-                    <VolumeX size={20} />
+                    <VolumeX size={16} />
                   </Button>
                 )}
               </div>
@@ -456,35 +457,36 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
                 {!isAutoReading ? (
                   <Button
                     onClick={startAutoReading}
-                    className="cartoon-button bg-cartoon-mint hover:bg-cartoon-mint/80 flex-1 sm:flex-none"
+                    size="sm"
+                    className="cartoon-button bg-cartoon-mint hover:bg-cartoon-mint/80"
                   >
-                    <Play size={20} />
-                    <span className="ml-2">Leitura Guiada</span>
+                    <Play size={16} />
                   </Button>
                 ) : (
-                  <div className="flex gap-2 w-full sm:w-auto">
+                  <div className="flex gap-2">
                     {isPaused ? (
                       <Button
                         onClick={resumeAutoReading}
-                        className="cartoon-button bg-green-500 hover:bg-green-600 flex-1 sm:flex-none"
+                        size="sm"
+                        className="cartoon-button bg-green-500 hover:bg-green-600"
                       >
-                        <Play size={20} />
-                        <span className="ml-2 hidden sm:inline">Continuar</span>
+                        <Play size={16} />
                       </Button>
                     ) : (
                       <Button
                         onClick={pauseAutoReading}
-                        className="cartoon-button bg-yellow-500 hover:bg-yellow-600 flex-1 sm:flex-none"
+                        size="sm"
+                        className="cartoon-button bg-yellow-500 hover:bg-yellow-600"
                       >
-                        <Pause size={20} />
-                        <span className="ml-2 hidden sm:inline">Pausar</span>
+                        <Pause size={16} />
                       </Button>
                     )}
                     <Button
                       onClick={stopAutoReading}
+                      size="sm"
                       className="cartoon-button bg-red-500 hover:bg-red-600"
                     >
-                      <VolumeX size={20} />
+                      <VolumeX size={16} />
                     </Button>
                   </div>
                 )}
