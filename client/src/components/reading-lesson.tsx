@@ -1,4 +1,3 @@
-
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -39,7 +38,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
   const [showAudioIcon, setShowAudioIcon] = useState(false);
   const [iconPosition, setIconPosition] = useState({ x: 0, y: 0 });
   const textRef = useRef<HTMLDivElement>(null);
-  
+
   const { playText, stopAudio, isPlaying } = useAudio();
   const { 
     isListening, 
@@ -49,7 +48,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     resetTranscript,
     isSupported 
   } = useSpeechRecognition();
-  
+
   const { toast } = useToast();
 
   // Initialize word feedback array
@@ -66,9 +65,9 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
   const calculateSimilarity = (word1: string, word2: string): number => {
     const w1 = word1.toLowerCase().replace(/[.,!?;:]/g, '');
     const w2 = word2.toLowerCase().replace(/[.,!?;:]/g, '');
-    
+
     if (w1 === w2) return 1;
-    
+
     // Levenshtein distance simplified
     const len1 = w1.length;
     const len2 = w2.length;
@@ -105,14 +104,14 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
   const analyzeTranscript = useCallback((transcript: string) => {
     const spokenWords = transcript.toLowerCase().split(/\s+/).filter(word => word.length > 0);
     const textWords = text.split(/\s+/).filter(word => word.length > 0);
-    
+
     const newFeedback = [...wordFeedback];
-    
+
     // Para cada palavra falada, encontrar a melhor correspondência no texto
     spokenWords.forEach(spokenWord => {
       let bestMatch = -1;
       let bestSimilarity = 0;
-      
+
       textWords.forEach((textWord, index) => {
         const similarity = calculateSimilarity(textWord, spokenWord);
         if (similarity > bestSimilarity && similarity > 0.3) {
@@ -120,7 +119,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
           bestMatch = index;
         }
       });
-      
+
       if (bestMatch !== -1 && newFeedback[bestMatch]) {
         if (bestSimilarity >= 0.9) {
           newFeedback[bestMatch].status = 'correct';
@@ -131,7 +130,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
         }
       }
     });
-    
+
     setWordFeedback(newFeedback);
   }, [text, wordFeedback]);
 
@@ -156,7 +155,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     if (selection && selection.toString().trim()) {
       const selectedTextContent = selection.toString().trim();
       setSelectedText(selectedTextContent);
-      
+
       // Get selection position to show icon
       if (selection.rangeCount > 0) {
         const range = selection.getRangeAt(0);
@@ -177,11 +176,11 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
   const handleWordClick = (word: string, event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
-    
+
     // Clean the word from punctuation
     const cleanWord = word.replace(/[.,!?;:]/g, '');
     setSelectedText(cleanWord);
-    
+
     // Get click position to show icon
     const rect = (event.target as HTMLElement).getBoundingClientRect();
     setIconPosition({
@@ -191,7 +190,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     setShowAudioIcon(true);
   };
 
-  const playSelectedText = () => {
+  const playSelectedText = (e: any) => {
     if (selectedText) {
       playText(selectedText);
       setShowAudioIcon(false);
@@ -231,7 +230,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     if (isReadingMode) {
       stopListening();
       setIsReadingMode(false);
-      
+
       if (readingProgress >= 80) {
         toast({
           title: "🎉 Parabéns!",
@@ -276,7 +275,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
-      
+
 
       {/* Controles de Áudio e Leitura */}
       <Card className="border-2 border-cartoon-gray">
@@ -333,7 +332,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
                 </span>
               </div>
               <Progress value={readingProgress} className="h-3" />
-              
+
               {readingProgress >= 80 && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
@@ -366,7 +365,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
             {text.split(/\s+/).map((word, index) => {
               const feedback = wordFeedback[index];
               let colorClass = '';
-              
+
               switch (feedback?.status) {
                 case 'correct':
                   colorClass = 'bg-green-200 text-green-800';
@@ -380,7 +379,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
                 default:
                   colorClass = 'text-gray-800';
               }
-              
+
               return (
                 <span
                   key={index}
@@ -416,12 +415,12 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
                 top: `${iconPosition.y}px`,
                 transform: 'translateX(-50%)'
               }}
-              onClick={playSelectedText}
+              onClick={(e) => playSelectedText(e)}
             >
               <Volume2 size={24} className="drop-shadow-sm" />
             </motion.div>
           )}
-          
+
           {/* Legenda das Cores */}
           {isReadingMode && (
             <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">

@@ -3,7 +3,7 @@ import { useState, useCallback } from "react";
 export function useAudio() {
   const [isPlaying, setIsPlaying] = useState(false);
 
-  const playText = useCallback((text: string, lang: string = "en-US") => {
+  const playText = useCallback((text: string, lang: string = "pt-BR") => {
     if (!('speechSynthesis' in window)) {
       console.warn("Speech synthesis not supported");
       return;
@@ -20,7 +20,10 @@ export function useAudio() {
 
     utterance.onstart = () => setIsPlaying(true);
     utterance.onend = () => setIsPlaying(false);
-    utterance.onerror = () => setIsPlaying(false);
+    utterance.onerror = (event) => {
+      console.error("Speech synthesis error:", event);
+      setIsPlaying(false);
+    };
 
     speechSynthesis.speak(utterance);
   }, []);
