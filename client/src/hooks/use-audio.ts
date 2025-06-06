@@ -97,6 +97,14 @@ export function useAudio() {
 
     // Add word boundary event for synchronization
     if (onWordBoundary) {
+      // Call immediately for the first word when speech starts
+      utterance.onstart = () => {
+        setIsPlaying(true);
+        setIsPaused(false);
+        // Trigger first word immediately
+        onWordBoundary('', 0);
+      };
+      
       utterance.onboundary = (event) => {
         if (event.name === 'word') {
           const words = textToPlay.split(' ');
@@ -114,6 +122,11 @@ export function useAudio() {
           
           onWordBoundary(words[currentWordIndex - fromPosition] || '', currentWordIndex);
         }
+      };
+    } else {
+      utterance.onstart = () => {
+        setIsPlaying(true);
+        setIsPaused(false);
       };
     }
 

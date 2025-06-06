@@ -70,7 +70,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
   const startAutoReading = () => {
     setIsAutoReading(true);
     setIsPaused(false);
-    setCurrentWordIndex(-1); // Start with -1 to highlight title first
+    setCurrentWordIndex(0); // Start highlighting the first word immediately
 
     const words = text.split(/\s+/).filter(word => word.length > 0);
     const titleWords = title.split(/\s+/).filter(word => word.length > 0);
@@ -82,21 +82,21 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
       const totalTitleWords = titleWords.length;
 
       if (index <= totalTitleWords) {
-        // Still reading title or just finished
-        setCurrentWordIndex(-1);
+        // Still reading title - start highlighting first word of text
+        setCurrentWordIndex(0);
       } else {
         // Reading main text - adjust index by removing title words and the pause
         const textWordIndex = index - totalTitleWords - 1;
         if (textWordIndex >= 0 && textWordIndex < words.length) {
           setCurrentWordIndex(textWordIndex);
 
-          // Scroll to current word
+          // Scroll to current word with improved mobile responsiveness
           setTimeout(() => {
             const wordElement = document.querySelector(`[data-word-index="${textWordIndex}"]`);
             if (wordElement) {
               const elementRect = wordElement.getBoundingClientRect();
-              const headerHeight = 80;
-              const audioBarHeight = 120;
+              const headerHeight = window.innerWidth < 640 ? 60 : 80; // Responsive header height
+              const audioBarHeight = window.innerWidth < 640 ? 100 : 120; // Responsive audio bar height
               const totalOffset = headerHeight + audioBarHeight + 20;
               const targetY = window.scrollY + elementRect.top - totalOffset;
 
@@ -109,6 +109,11 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
         }
       }
     };
+
+    // Immediately start highlighting the first word
+    setTimeout(() => {
+      setCurrentWordIndex(0);
+    }, 100);
 
     // Start reading with word boundary synchronization
     playText(fullContent, "en-US", 0, handleWordBoundary);
@@ -146,13 +151,13 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
         if (adjustedIndex >= 0 && adjustedIndex < words.length) {
           setCurrentWordIndex(adjustedIndex);
 
-          // Scroll to current word
+          // Scroll to current word with improved mobile responsiveness
           setTimeout(() => {
             const wordElement = document.querySelector(`[data-word-index="${adjustedIndex}"]`);
             if (wordElement) {
               const elementRect = wordElement.getBoundingClientRect();
-              const headerHeight = 80;
-              const audioBarHeight = 120;
+              const headerHeight = window.innerWidth < 640 ? 60 : 80; // Responsive header height
+              const audioBarHeight = window.innerWidth < 640 ? 100 : 120; // Responsive audio bar height
               const totalOffset = headerHeight + audioBarHeight + 20;
               const targetY = window.scrollY + elementRect.top - totalOffset;
 
