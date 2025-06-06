@@ -95,32 +95,91 @@ export function useAudio() {
       setCurrentUtterance(null);
     };
 
-    // Add word boundary event for synchronization
+    // Add word boundary event for synchronization with mobile fallback
     if (onWordBoundary) {
-      // Call immediately for the first word when speech starts
+      let wordTimer: NodeJS.Timeout | null = null;
+      let currentWordIndex = 0;
+      const words = textToPlay.split(' ');
+      const averageWordDuration = Math.max(400, (1 / (utterance.rate || 0.8)) * 400); // Estimated milliseconds per word
+      
       utterance.onstart = () => {
         setIsPlaying(true);
         setIsPaused(false);
         // Trigger first word immediately
         onWordBoundary('', 0);
+        currentWordIndex = 0;
+        
+        // Fallback timer for mobile devices that don't support word boundary events
+        const startWordTimer = () => {
+          wordTimer = setInterval(() => {
+            if (currentWordIndex < words.length) {
+              onWordBoundary(words[currentWordIndex] || '', currentWordIndex);
+              currentWordIndex++;
+            } else {
+              if (wordTimer) clearInterval(wordTimer);
+            }
+          }, averageWordDuration);
+        };
+        
+        // Detect mobile devices
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+        
+        // Start fallback timer immediately on mobile, or after a delay on desktop
+        if (isMobile) {
+          startWordTimer();
+        } else {
+          setTimeout(() => {
+            if (currentWordIndex === 0) {
+              startWordTimer();
+            }
+          }, averageWordDuration / 2);
+        }
       };
       
       utterance.onboundary = (event) => {
         if (event.name === 'word') {
+          // Clear fallback timer if boundary events are working
+          if (wordTimer) {
+            clearInterval(wordTimer);
+            wordTimer = null;
+          }
+          
           const words = textToPlay.split(' ');
           const charIndex = event.charIndex;
-          let currentWordIndex = 0;
+          let wordIndex = 0;
           let charCount = 0;
           
           for (let i = 0; i < words.length; i++) {
             if (charCount + words[i].length >= charIndex) {
-              currentWordIndex = i + fromPosition;
+              wordIndex = i + fromPosition;
               break;
             }
             charCount += words[i].length + 1; // +1 for space
           }
           
-          onWordBoundary(words[currentWordIndex - fromPosition] || '', currentWordIndex);
+          currentWordIndex = wordIndex - fromPosition + 1;
+          onWordBoundary(words[wordIndex - fromPosition] || '', wordIndex);
+        }
+      };
+      
+      utterance.onend = () => {
+        setIsPlaying(false);
+        setIsPaused(false);
+        setCurrentUtterance(null);
+        if (wordTimer) {
+          clearInterval(wordTimer);
+          wordTimer = null;
+        }
+      };
+      
+      utterance.onerror = (event) => {
+        console.error("Speech synthesis error:", event);
+        setIsPlaying(false);
+        setIsPaused(false);
+        setCurrentUtterance(null);
+        if (wordTimer) {
+          clearInterval(wordTimer);
+          wordTimer = null;
         }
       };
     } else {
