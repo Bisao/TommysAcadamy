@@ -86,9 +86,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
         if (textWordIndex >= 0 && textWordIndex < words.length) {
           setCurrentWordIndex(textWordIndex);
 
-          // Verificar se chegou ao final do texto
           if (textWordIndex >= words.length - 1) {
-            // Aguardar um pouco para mostrar a última palavra destacada
             setTimeout(() => {
               setIsAutoReading(false);
               setIsPaused(false);
@@ -145,13 +143,8 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
   const resumeAutoReading = useCallback(async () => {
     if (!isAutoReading) return;
     
-    console.log("Resuming auto reading - isPaused:", isPaused, "isAudioPaused:", isAudioPaused, "currentWordIndex:", currentWordIndex);
-    console.log("speechSynthesis.speaking:", speechSynthesis.speaking, "speechSynthesis.paused:", speechSynthesis.paused);
-    
-    // Primeiro tenta retomar o áudio atual se estiver pausado
     if (isPaused && speechSynthesis.paused && speechSynthesis.speaking && currentUtterance) {
       try {
-        console.log("Tentando retomar áudio pausado...");
         resumeAudio();
         setIsPaused(false);
         toast({
@@ -161,18 +154,14 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
         return;
       } catch (error) {
         console.warn("Erro ao retomar áudio:", error);
-        // Se falhar, cancela tudo e reinicia
         stopAudio();
       }
     }
     
-    // Se não há áudio pausado válido, reinicia do ponto atual
-    console.log("Não há áudio pausado válido, reiniciando...");
     setIsPaused(false);
     
     const words = text.split(/\s+/).filter(word => word.length > 0);
     
-    // Se estamos no final, não há nada para retomar
     if (currentWordIndex >= words.length - 1) {
       setIsAutoReading(false);
       setIsPaused(false);
@@ -184,9 +173,6 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
       return;
     }
     
-    console.log("Reiniciando leitura da palavra:", currentWordIndex);
-    
-    // Continuar da palavra atual (não da próxima)
     const startIndex = Math.max(0, currentWordIndex);
     const remainingWords = words.slice(startIndex);
     const remainingText = remainingWords.join(' ');
@@ -197,7 +183,6 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
         if (adjustedIndex >= 0 && adjustedIndex < words.length) {
           setCurrentWordIndex(adjustedIndex);
 
-          // Verificar se chegou ao final do texto
           if (adjustedIndex >= words.length - 1) {
             setTimeout(() => {
               setIsAutoReading(false);
@@ -235,7 +220,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
         description: "Continuando de onde parou",
       });
     }
-  }, [isAutoReading, isPaused, isAudioPaused, currentWordIndex, text, playText, resumeAudio, toast]);
+  }, [isAutoReading, isPaused, isAudioPaused, currentWordIndex, text, playText, resumeAudio, toast, currentUtterance, stopAudio]);
 
   const stopAutoReading = useCallback(() => {
     setIsAutoReading(false);
@@ -415,7 +400,6 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
     setWordFeedback(prevFeedback => {
       const newFeedback = [...prevFeedback];
 
-      // Para cada palavra falada, encontrar a melhor correspondência no texto
       spokenWords.forEach(spokenWord => {
         let bestMatch = -1;
         let bestSimilarity = 0;
@@ -465,7 +449,6 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
       const selectedTextContent = selection.toString().trim();
       setSelectedText(selectedTextContent);
 
-      // Get selection position to show icon
       if (selection.rangeCount > 0) {
         const range = selection.getRangeAt(0);
         const rect = range.getBoundingClientRect();
@@ -481,16 +464,13 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
     }
   };
 
-  // Handle word click for single word selection with mobile touch support
   const handleWordClick = (word: string, event: React.MouseEvent | React.TouchEvent) => {
     event.preventDefault();
     event.stopPropagation();
 
-    // Clean the word from punctuation
     const cleanWord = word.replace(/[.,!?;:]/g, '');
     setSelectedText(cleanWord);
 
-    // Get click/touch position to show icon
     const rect = (event.target as HTMLElement).getBoundingClientRect();
     const isMobile = window.innerWidth < 640;
 
@@ -522,13 +502,11 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
 
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
-
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
 
-  // Cleanup timer on unmount
   useEffect(() => {
     return () => {
       if (autoReadingTimerRef.current) {
@@ -557,7 +535,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
         <CardContent className="relative p-3 sm:p-6">
           <div
             ref={textRef}
-            className="text-base sm:text-lg leading-relaxed p-3 sm:p-4 bg-white dark:bg-gray-50 rounded-lg border border-gray-200 dark:border-gray-300 cursor-text select-text break-words whitespace-pre-wrap overflow-wrap-anywhere min-h-[200px] sm:min-h-[300px] mobile-scroll"
+            className="text-base sm:text-lg leading-relaxed p-3 sm:p-4 bg-white dark:bg-gray-50 rounded-lg border border-gray-200 dark:border-gray-300 cursor-text select-text break-words whitespace-pre-wrap overflow-wrap-anywhere min-h-[200px] sm:min-h-[300px]"
             onMouseUp={handleTextSelection}
             onTouchEnd={handleTextSelection}
             style={{ 
@@ -573,7 +551,6 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
               const isCurrentWord = isAutoReading && currentWordIndex === index;
               let colorClass = '';
 
-              // Priority: Current word highlighting > feedback status
               if (isCurrentWord) {
                 colorClass = 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg sm:shadow-xl scale-105 sm:scale-110 font-bold border-2 border-blue-300 transform animate-pulse';
               } else {
@@ -596,11 +573,11 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
                 <span
                   key={index}
                   data-word-index={index}
-                  className={`${colorClass} px-1 sm:px-2 py-0.5 sm:py-1 rounded-md transition-all duration-200 mr-1 sm:mr-2 mb-1 inline-block cursor-pointer touch-target touch-manipulation select-none min-h-[32px] sm:min-h-[36px] flex items-center justify-center text-center`}
+                  className={`${colorClass} px-1 sm:px-2 py-0.5 sm:py-1 rounded-md transition-all duration-200 mr-1 sm:mr-2 mb-1 inline-block cursor-pointer touch-manipulation select-none min-h-[28px] sm:min-h-[32px] flex items-center justify-center text-center`}
                   style={{ 
                     wordBreak: 'break-word', 
                     userSelect: 'none',
-                    minWidth: '24px',
+                    minWidth: '20px',
                     WebkitTapHighlightColor: 'transparent'
                   }}
                   onClick={(e) => handleWordClick(word, e)}
@@ -632,7 +609,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
                   ease: "easeInOut"
                 }
               }}
-              className="fixed z-50 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full p-2 sm:p-3 shadow-2xl cursor-pointer hover:from-blue-600 hover:to-blue-700 transition-all border-2 border-white touch-target"
+              className="fixed z-50 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full p-2 sm:p-3 shadow-2xl cursor-pointer hover:from-blue-600 hover:to-blue-700 transition-all border-2 border-white"
               style={{
                 left: `${Math.max(20, Math.min(window.innerWidth - 60, iconPosition.x - 20))}px`,
                 top: `${Math.max(80, iconPosition.y)}px`,
@@ -645,7 +622,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
                 playSelectedText(e);
               }}
             >
-              <Volume2 size={20} className="sm:w-6 sm:h-6 drop-shadow-sm" />
+              <Volume2 size={18} className="sm:w-5 sm:h-5 drop-shadow-sm" />
             </motion.div>
           )}
 
@@ -684,7 +661,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
 
       {/* Status do Microfone */}
       {isListening && (
-        <Card className="border-2 border-cartoon-coral mt-4">
+        <Card className="border-2 border-cartoon-coral">
           <CardContent className="p-3 sm:p-4">
             <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 text-cartoon-coral">
               <motion.div
@@ -705,7 +682,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
 
       {/* Transcript e Progresso */}
       {transcript && (
-        <Card className="border-2 border-blue-200 dark:border-blue-300 mt-4">
+        <Card className="border-2 border-blue-200 dark:border-blue-300">
           <CardContent className="p-3 sm:p-4">
             <div className="space-y-3">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -727,7 +704,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
 
       {/* Aviso de Compatibilidade */}
       {!isSupported && (
-        <Card className="border-2 border-yellow-200 dark:border-yellow-300 mt-4">
+        <Card className="border-2 border-yellow-200 dark:border-yellow-300">
           <CardContent className="p-3 sm:p-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
               <div className="text-yellow-600 text-lg">⚠️</div>
