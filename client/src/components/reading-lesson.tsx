@@ -441,7 +441,6 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
 
             {/* Reconhecimento de Voz */}
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-orange-700 hidden sm:block">🎤 Sua Leitura:</span>
               <Button
                 onClick={toggleReadingMode}
                 className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full ${
