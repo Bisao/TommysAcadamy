@@ -196,10 +196,6 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
       playText(selectedText);
       setShowAudioIcon(false);
       setSelectedText("");
-      // Clear text selection
-      if (window.getSelection) {
-        window.getSelection()?.removeAllRanges();
-      }
       toast({
         title: "🔊 Reproduzindo seleção",
         description: "Ouvindo o texto selecionado...",
@@ -363,16 +359,9 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
         <CardContent className="relative">
           <div
             ref={textRef}
-            className="reading-text-area text-lg leading-relaxed p-4 bg-white rounded-lg border border-gray-200 cursor-text break-words whitespace-pre-wrap overflow-wrap-anywhere"
+            className="text-lg leading-relaxed p-4 bg-white rounded-lg border border-gray-200 cursor-text select-text break-words whitespace-pre-wrap overflow-wrap-anywhere"
             onMouseUp={handleTextSelection}
-            style={{ 
-              userSelect: 'text', 
-              WebkitUserSelect: 'text',
-              MozUserSelect: 'text',
-              msUserSelect: 'text',
-              wordBreak: 'break-word', 
-              overflowWrap: 'break-word' 
-            }}
+            style={{ userSelect: 'text', wordBreak: 'break-word', overflowWrap: 'break-word' }}
           >
             {text.split(/\s+/).map((word, index) => {
               const feedback = wordFeedback[index];
@@ -425,18 +414,9 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
               style={{
                 left: `${iconPosition.x - 24}px`,
                 top: `${iconPosition.y}px`,
-                transform: 'translateX(-50%)',
-                pointerEvents: 'auto'
+                transform: 'translateX(-50%)'
               }}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                playSelectedText();
-              }}
-              onMouseDown={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
+              onClick={playSelectedText}
             >
               <Volume2 size={24} className="drop-shadow-sm" />
             </motion.div>

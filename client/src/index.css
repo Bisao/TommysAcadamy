@@ -62,22 +62,6 @@
 @layer base {
   * {
     @apply border-border;
-    /* Disable default text selection globally */
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-  }
-
-  /* Custom selection styling for reading area */
-  .reading-text-area ::selection {
-    background-color: #60a5fa; /* Light blue similar to the image */
-    color: white;
-  }
-  
-  .reading-text-area ::-moz-selection {
-    background-color: #60a5fa;
-    color: white;
   }
 
   body {
