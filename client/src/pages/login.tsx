@@ -110,9 +110,7 @@ export default function Login() {
             />
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-cartoon-dark text-center sm:text-left">Tommy's Academy</h1>
           </div>
-          <div className="flex justify-center mb-4">
-            <Mascot />
-          </div>
+
           <p className="text-sm sm:text-base text-gray-600 px-2">
             {isLogin ? "Entre na sua conta" : "Crie sua conta"} e continue sua jornada de aprendizado!
           </p>
