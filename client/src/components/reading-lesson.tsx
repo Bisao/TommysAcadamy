@@ -350,11 +350,6 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
 
       {/* Área de Texto */}
       <Card className="border-2 border-cartoon-gray">
-        <CardHeader>
-          <div className="text-center mb-4">
-            <CardTitle className="text-2xl text-cartoon-dark mb-2">{title}</CardTitle>
-          </div>
-        </CardHeader>
         <CardContent className="relative">
           <div
             ref={textRef}
