@@ -66,7 +66,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     setWordFeedback(initialFeedback);
   }, [text]);
 
-  // Auto-reading functionality with word tracking
+  // Auto-reading functionality with word tracking using speech events
   const startAutoReading = () => {
     setIsAutoReading(true);
     setIsPaused(false);
@@ -74,88 +74,44 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
 
     const words = text.split(/\s+/).filter(word => word.length > 0);
     const titleWords = title.split(/\s+/).filter(word => word.length > 0);
-
-    // Start reading with teacher's voice
     const fullContent = `${title}. ${text}`;
-    playText(fullContent);
 
-    // Calculate timing based on speech synthesis - slower to match audio
-    const estimatedWordsPerMinute = 120; // Slower reading speed to match audio
-    const msPerWord = (60 / estimatedWordsPerMinute) * 1000;
+    // Create word boundary callback for synchronization
+    const handleWordBoundary = (word: string, index: number) => {
+      // Adjust index to account for title words
+      const totalTitleWords = titleWords.length + 1; // +1 for pause after title
+      
+      if (index < totalTitleWords) {
+        // Still reading title
+        setCurrentWordIndex(-1);
+      } else {
+        // Reading main text
+        const textWordIndex = index - totalTitleWords;
+        if (textWordIndex < words.length) {
+          setCurrentWordIndex(textWordIndex);
+          
+          // Scroll to current word
+          setTimeout(() => {
+            const wordElement = document.querySelector(`[data-word-index="${textWordIndex}"]`);
+            if (wordElement) {
+              const elementRect = wordElement.getBoundingClientRect();
+              const headerHeight = 80;
+              const audioBarHeight = 120;
+              const totalOffset = headerHeight + audioBarHeight + 20;
+              const targetY = window.scrollY + elementRect.top - totalOffset;
 
-    const readNextWord = (index: number) => {
-      // If we're still reading the title (index < 0)
-      if (index < 0) {
-        setCurrentWordIndex(index);
-        
-        // Calculate title reading duration - longer to match audio
-        const titleDuration = titleWords.length * msPerWord + 1000; // Longer pause after title
-        
-        autoReadingTimerRef.current = setTimeout(() => {
-          if (!isPaused) {
-            readNextWord(0); // Start with first word of text
-          }
-        }, titleDuration);
-        
-        return;
-      }
-
-      if (index >= words.length) {
-        // Reading completed
-        setIsAutoReading(false);
-        setCurrentWordIndex(words.length - 1); // Keep highlight on last word
-        // Removed completion toast message
-        return;
-      }
-
-      setCurrentWordIndex(index);
-
-      // Scroll to current word if needed, considering fixed panel
-      setTimeout(() => {
-        const wordElement = document.querySelector(`[data-word-index="${index}"]`);
-        if (wordElement) {
-          const elementRect = wordElement.getBoundingClientRect();
-          const headerHeight = 80; // Header height
-          const audioBarHeight = 120; // Audio controls panel height
-          const totalOffset = headerHeight + audioBarHeight + 20; // Extra padding
-          const targetY = window.scrollY + elementRect.top - totalOffset;
-
-          window.scrollTo({
-            top: Math.max(0, targetY),
-            behavior: 'smooth'
-          });
+              window.scrollTo({
+                top: Math.max(0, targetY),
+                behavior: 'smooth'
+              });
+            }
+          }, 50);
         }
-      }, 100);
-
-      // Calculate dynamic timing based on word length and punctuation
-      let wordDelay = msPerWord;
-      const currentWord = words[index];
-
-      // Adjust timing for punctuation and word length
-      if (currentWord.match(/[.!?]$/)) {
-        wordDelay += 500; // Pause longer for sentence endings
-      } else if (currentWord.match(/[,;:]$/)) {
-        wordDelay += 250; // Pause for commas and semicolons
       }
-
-      // Adjust for word length
-      if (currentWord.length > 8) {
-        wordDelay += 200; // Longer words need more time
-      } else if (currentWord.length <= 3) {
-        wordDelay -= 100; // Short words can be faster
-      }
-
-      autoReadingTimerRef.current = setTimeout(() => {
-        if (!isPaused) {
-          readNextWord(index + 1);
-        }
-      }, Math.max(wordDelay, 200)); // Minimum 200ms per word
     };
 
-    // Start with a small delay to allow audio to begin
-    setTimeout(() => {
-      readNextWord(-1);
-    }, 500); // 500ms delay to sync with audio start
+    // Start reading with word boundary synchronization
+    playText(fullContent, "en-US", 0, handleWordBoundary);
 
     toast({
       title: "🎯 Professor Tommy lendo o texto",
@@ -165,10 +121,6 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
 
   const pauseAutoReading = () => {
     setIsPaused(true);
-    if (autoReadingTimerRef.current) {
-      clearTimeout(autoReadingTimerRef.current);
-    }
-    // Pause the audio as well
     if (isPlaying) {
       pauseAudio();
     }
@@ -180,56 +132,10 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
 
   const resumeAutoReading = () => {
     if (!isAutoReading) return;
-
     setIsPaused(false);
-    const words = text.split(/\s+/).filter(word => word.length > 0);
-
-    // Resume audio if it was paused
     if (isAudioPaused) {
       resumeAudio();
     }
-
-    const readNextWord = (index: number) => {
-      if (index >= words.length || isPaused) {
-        if (index >= words.length) {
-          setIsAutoReading(false);
-          setCurrentWordIndex(0);
-          toast({
-            title: "Leitura concluída!",
-            description: "Texto completo foi lido com sucesso.",
-          });
-          onComplete?.();
-        }
-        return;
-      }
-
-      setCurrentWordIndex(index);
-
-      setTimeout(() => {
-        const wordElement = document.querySelector(`[data-word-index="${index}"]`);
-        if (wordElement) {
-          const elementRect = wordElement.getBoundingClientRect();
-          const headerHeight = 80; // Header height
-          const audioBarHeight = 120; // Audio controls panel height
-          const totalOffset = headerHeight + audioBarHeight + 20; // Extra padding
-          const targetY = window.scrollY + elementRect.top - totalOffset;
-
-          window.scrollTo({
-            top: Math.max(0, targetY),
-            behavior: 'smooth'
-          });
-        }
-      }, 100);
-
-      autoReadingTimerRef.current = setTimeout(() => {
-        if (!isPaused) {
-          readNextWord(index + 1);
-        }
-      }, autoReadingSpeed);
-    };
-
-    readNextWord(currentWordIndex);
-
     toast({
       title: "🎯 Professor Tommy retomando",
       description: "Continuando de onde parou",
@@ -410,13 +316,25 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
     }
   };
 
-  // Add click outside listener
+  // Add click outside listener and tab visibility handling
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
+    
+    // Handle tab visibility changes to maintain sync
+    const handleVisibilityChange = () => {
+      if (document.hidden && isAutoReading && !isPaused) {
+        // Tab became hidden, pause to maintain sync
+        pauseAutoReading();
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, []);
+  }, [isAutoReading, isPaused]);
 
   const playFullText = () => {
     const fullContent = `${title}. ${text}`;

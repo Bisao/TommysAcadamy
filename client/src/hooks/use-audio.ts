@@ -7,7 +7,7 @@ export function useAudio() {
   const [remainingText, setRemainingText] = useState("");
   const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
 
-  const playText = useCallback((text: string, lang: string = "pt-BR", fromPosition: number = 0) => {
+  const playText = useCallback((text: string, lang: string = "pt-BR", fromPosition: number = 0, onWordBoundary?: (word: string, index: number) => void) => {
     if (!('speechSynthesis' in window)) {
       console.warn("Speech synthesis not supported");
       return;
@@ -81,17 +81,41 @@ export function useAudio() {
       setIsPlaying(true);
       setIsPaused(false);
     };
+    
     utterance.onend = () => {
       setIsPlaying(false);
       setIsPaused(false);
       setCurrentUtterance(null);
     };
+    
     utterance.onerror = (event) => {
       console.error("Speech synthesis error:", event);
       setIsPlaying(false);
       setIsPaused(false);
       setCurrentUtterance(null);
     };
+
+    // Add word boundary event for synchronization
+    if (onWordBoundary) {
+      utterance.onboundary = (event) => {
+        if (event.name === 'word') {
+          const words = textToPlay.split(' ');
+          const charIndex = event.charIndex;
+          let currentWordIndex = 0;
+          let charCount = 0;
+          
+          for (let i = 0; i < words.length; i++) {
+            if (charCount + words[i].length >= charIndex) {
+              currentWordIndex = i + fromPosition;
+              break;
+            }
+            charCount += words[i].length + 1; // +1 for space
+          }
+          
+          onWordBoundary(words[currentWordIndex - fromPosition] || '', currentWordIndex);
+        }
+      };
+    }
 
     // Wait for voices to load if not available yet
     if (voices.length === 0) {
