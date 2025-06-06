@@ -76,7 +76,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
 
     const titleWords = title.split(/\s+/).filter(word => word.length > 0);
     const textWords = text.split(/\s+/).filter(word => word.length > 0);
-    const fullContent = `${title}. ${text}`;
+    const fullContent = `${title}... ${text}`;
 
     // Função para scroll automático melhorada
     const scrollToWord = (wordIndex: number, isTitle: boolean) => {
