@@ -1,0 +1,25 @@
+[vite] connecting...
+[vite] connected.
+Lesson is not defined
+Lesson is not defined
+The above error occurred in the <Router> component:
+
+    at Router (https://2a617c1d-6a99-4c2b-a7e1-988547d8edb1-00-1kd8l43av5qqf.picard.replit.dev/src/App.tsx?v=_AJE9_r3ye8v8gSb1jNgz:60:317)
+    at Provider (https://2a617c1d-6a99-4c2b-a7e1-988547d8edb1-00-1kd8l43av5qqf.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-XIZKKOCE.js?v=242f31bd:22:15)
+    at TooltipProvider (https://2a617c1d-6a99-4c2b-a7e1-988547d8edb1-00-1kd8l43av5qqf.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=242f31bd:2223:5)
+    at QueryClientProvider (https://2a617c1d-6a99-4c2b-a7e1-988547d8edb1-00-1kd8l43av5qqf.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=242f31bd:2805:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+Lesson is not defined
+at Router (https://2a617c1d-6a99-4c2b-a7e1-988547d8edb1-00-1kd8l43av5qqf.picard.replit.dev/src/App.tsx?v=_AJE9_r3ye8v8gSb1jNgz:60:317)
+at renderWithHooks (https://2a617c1d-6a99-4c2b-a7e1-988547d8edb1-00-1kd8l43av5qqf.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-WERSD76P.js?v=242f31bd:11548:26)
+at mountIndeterminateComponent (https://2a617c1d-6a99-4c2b-a7e1-988547d8edb1-00-1kd8l43av5qqf.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-WERSD76P.js?v=242f31bd:14926:21)
+at beginWork (https://2a617c1d-6a99-4c2b-a7e1-988547d8edb1-00-1kd8l43av5qqf.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-WERSD76P.js?v=242f31bd:15914:22)
+at beginWork$1 (https://2a617c1d-6a99-4c2b-a7e1-988547d8edb1-00-1kd8l43av5qqf.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-WERSD76P.js?v=242f31bd:19753:22)
+at performUnitOfWork (https://2a617c1d-6a99-4c2b-a7e1-988547d8edb1-00-1kd8l43av5qqf.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-WERSD76P.js?v=242f31bd:19198:20)
+at workLoopSync (https://2a617c1d-6a99-4c2b-a7e1-988547d8edb1-00-1kd8l43av5qqf.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-WERSD76P.js?v=242f31bd:19137:13)
+at renderRootSync (https://2a617c1d-6a99-4c2b-a7e1-988547d8edb1-00-1kd8l43av5qqf.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-WERSD76P.js?v=242f31bd:19116:15)
+at recoverFromConcurrentError (https://2a617c1d-6a99-4c2b-a7e1-988547d8edb1-00-1kd8l43av5qqf.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-WERSD76P.js?v=242f31bd:18736:28)
+at performConcurrentWorkOnRoot (https://2a617c1d-6a99-4c2b-a7e1-988547d8edb1-00-1kd8l43av5qqf.picard.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-WERSD76P.js?v=242f31bd:18684:30)
