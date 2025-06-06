@@ -397,18 +397,28 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
           {/* Floating Audio Icon */}
           {showAudioIcon && selectedText && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              className="fixed z-50 bg-cartoon-blue text-white rounded-full p-2 shadow-lg cursor-pointer hover:bg-cartoon-blue/80 transition-colors"
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ 
+                opacity: 1, 
+                scale: [1, 1.2, 1],
+              }}
+              exit={{ opacity: 0, scale: 0.5 }}
+              transition={{
+                scale: {
+                  duration: 0.6,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }
+              }}
+              className="fixed z-50 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full p-3 shadow-2xl cursor-pointer hover:from-blue-600 hover:to-blue-700 transition-all border-2 border-white"
               style={{
-                left: `${iconPosition.x - 20}px`,
+                left: `${iconPosition.x - 24}px`,
                 top: `${iconPosition.y}px`,
                 transform: 'translateX(-50%)'
               }}
               onClick={playSelectedText}
             >
-              🔈
+              <Volume2 size={24} className="drop-shadow-sm" />
             </motion.div>
           )}
           
