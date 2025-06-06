@@ -133,52 +133,7 @@ export default function Home() {
         </motion.div>
 
         {/* Quick Stats Dashboard */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
-        >
-          <Card className="cartoon-card">
-            <CardContent className="p-4 text-center">
-              <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-2">
-                <Flame className="text-white" size={24} />
-              </div>
-              <p className="text-2xl font-bold text-foreground">{(user as any)?.streak || 0}</p>
-              <p className="text-sm text-muted-foreground">Dias seguidos</p>
-            </CardContent>
-          </Card>
-
-          <Card className="cartoon-card">
-            <CardContent className="p-4 text-center">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-2">
-                <Star className="text-white" size={24} />
-              </div>
-              <p className="text-2xl font-bold text-foreground">{(user as any)?.totalXP || 0}</p>
-              <p className="text-sm text-muted-foreground">XP Total</p>
-            </CardContent>
-          </Card>
-
-          <Card className="cartoon-card">
-            <CardContent className="p-4 text-center">
-              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-2">
-                <Trophy className="text-white" size={24} />
-              </div>
-              <p className="text-2xl font-bold text-foreground">{(user as any)?.level || 1}</p>
-              <p className="text-sm text-muted-foreground">Nível</p>
-            </CardContent>
-          </Card>
-
-          <Card className="cartoon-card">
-            <CardContent className="p-4 text-center">
-              <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full flex items-center justify-center mx-auto mb-2">
-                <Brain className="text-white" size={24} />
-              </div>
-              <p className="text-2xl font-bold text-foreground">{Array.isArray(lessons) ? (lessons as any[]).filter((l: any) => l.completed).length : 0}</p>
-              <p className="text-sm text-muted-foreground">Lições</p>
-            </CardContent>
-          </Card>
-        </motion.div>
+        
 
         {/* Main Navigation Cards */}
         <motion.div 
