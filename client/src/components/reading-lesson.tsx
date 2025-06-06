@@ -223,23 +223,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
-      {/* Header com Tommy */}
-      <Card className="border-4 border-cartoon-teal bg-gradient-to-r from-cartoon-mint/20 to-cartoon-teal/20">
-        <CardHeader>
-          <div className="flex items-center space-x-4">
-            <Avatar className="w-16 h-16 border-4 border-cartoon-teal">
-              <AvatarImage src="/teacher-tommy.png" alt="Teacher Tommy" />
-              <AvatarFallback className="bg-cartoon-yellow text-cartoon-dark text-xl font-bold">
-                🧑‍🏫
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <CardTitle className="text-2xl text-cartoon-dark">{title}</CardTitle>
-              <p className="text-gray-600">Lição de Leitura com Professor Tommy</p>
-            </div>
-          </div>
-        </CardHeader>
-      </Card>
+      
 
       {/* Controles de Áudio */}
       <Card className="border-2 border-cartoon-gray">
@@ -288,7 +272,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
       <Card className="border-2 border-cartoon-gray">
         <CardHeader>
           <div className="text-center mb-4">
-            <CardTitle className="text-2xl text-cartoon-dark mb-2">{title}</CardTitle>
+            <CardTitle className="text-2xl text-cartoon-dark mb-2">Como Vamos Comer em 2021?</CardTitle>
             <p className="text-sm text-gray-600">
               Selecione palavras ou frases para ouvir a pronúncia do Professor Tommy
             </p>
