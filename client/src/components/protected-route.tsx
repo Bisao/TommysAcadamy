@@ -14,7 +14,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { data: user, isLoading, error } = useQuery({
     queryKey: ["/api/user"],
     queryFn: async () => {
-      const response = await apiRequest("GET", "/api/user", {});
+      const response = await apiRequest("GET", "/api/user");
       if (!response.ok) {
         throw new Error("User not authenticated");
       }
