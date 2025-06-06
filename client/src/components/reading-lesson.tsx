@@ -44,7 +44,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
   const textRef = useRef<HTMLDivElement>(null);
   const autoReadingTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const { playText, stopAudio, isPlaying } = useAudio();
+  const { playText, pauseAudio, resumeAudio, stopAudio, isPlaying, isPaused: isAudioPaused } = useAudio();
   const { 
     isListening, 
     transcript, 
@@ -408,84 +408,123 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
       {/* Controles de Áudio e Leitura */}
       <Card className="border-2 border-cartoon-gray">
         <CardContent className="p-6">
-          <div className="flex flex-wrap gap-4 justify-center">
-            <Button
-              onClick={isPlaying ? stopAudio : playFullText}
-              className="cartoon-button bg-cartoon-blue hover:bg-cartoon-blue/80"
-            >
-              {isPlaying ? <Pause size={20} /> : <Volume2 size={20} />}
-              {isPlaying ? "Parar Áudio" : "Ouvir Texto Completo"}
-            </Button>
-
-            <Button
-              onClick={playSelectedText}
-              disabled={!selectedText || isPlaying}
-              variant="outline"
-              className="border-cartoon-teal text-cartoon-teal hover:bg-cartoon-teal hover:text-white"
-            >
-              <Play size={20} />
-              Ouvir Seleção
-            </Button>
-
-            {/* Auto Reading Controls */}
-            {!isAutoReading ? (
-              <Button
-                onClick={startAutoReading}
-                className="cartoon-button bg-cartoon-mint hover:bg-cartoon-mint/80"
-              >
-                <Play size={20} />
-                Leitura Guiada
-              </Button>
-            ) : (
-              <div className="flex gap-2">
-                {isPaused ? (
+          {/* Mobile-optimized layout */}
+          <div className="space-y-4">
+            {/* Primary Controls Row */}
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:justify-center">
+              {/* Audio Control with Pause/Resume */}
+              <div className="flex gap-2 justify-center">
+                {!isPlaying && !isAudioPaused ? (
                   <Button
-                    onClick={resumeAutoReading}
-                    className="cartoon-button bg-green-500 hover:bg-green-600"
+                    onClick={playFullText}
+                    className="cartoon-button bg-cartoon-blue hover:bg-cartoon-blue/80 flex-1 sm:flex-none"
                   >
-                    <Play size={20} />
-                    Continuar
+                    <Volume2 size={20} />
+                    <span className="ml-2">Ouvir Texto Completo</span>
+                  </Button>
+                ) : isPlaying ? (
+                  <Button
+                    onClick={pauseAudio}
+                    className="cartoon-button bg-yellow-500 hover:bg-yellow-600 flex-1 sm:flex-none"
+                  >
+                    <Pause size={20} />
+                    <span className="ml-2">Pausar Áudio</span>
                   </Button>
                 ) : (
                   <Button
-                    onClick={pauseAutoReading}
-                    className="cartoon-button bg-yellow-500 hover:bg-yellow-600"
+                    onClick={resumeAudio}
+                    className="cartoon-button bg-green-500 hover:bg-green-600 flex-1 sm:flex-none"
                   >
-                    <Pause size={20} />
-                    Pausar
+                    <Play size={20} />
+                    <span className="ml-2">Continuar Áudio</span>
                   </Button>
                 )}
-                <Button
-                  onClick={stopAutoReading}
-                  className="cartoon-button bg-red-500 hover:bg-red-600"
-                >
-                  <VolumeX size={20} />
-                  Parar
-                </Button>
+                
+                {(isPlaying || isAudioPaused) && (
+                  <Button
+                    onClick={stopAudio}
+                    variant="outline"
+                    className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                  >
+                    <VolumeX size={20} />
+                  </Button>
+                )}
               </div>
-            )}
 
-            <Button
-              onClick={toggleReadingMode}
-              className={`cartoon-button ${
-                isReadingMode 
-                  ? "bg-red-500 hover:bg-red-600" 
-                  : "bg-cartoon-coral hover:bg-cartoon-coral/80"
-              }`}
-            >
-              {isReadingMode ? <MicOff size={20} /> : <Mic size={20} />}
-              {isReadingMode ? "Parar Gravação" : "Começar a Ler"}
-            </Button>
+              {/* Auto Reading Controls */}
+              <div className="flex justify-center">
+                {!isAutoReading ? (
+                  <Button
+                    onClick={startAutoReading}
+                    className="cartoon-button bg-cartoon-mint hover:bg-cartoon-mint/80 flex-1 sm:flex-none"
+                  >
+                    <Play size={20} />
+                    <span className="ml-2">Leitura Guiada</span>
+                  </Button>
+                ) : (
+                  <div className="flex gap-2 w-full sm:w-auto">
+                    {isPaused ? (
+                      <Button
+                        onClick={resumeAutoReading}
+                        className="cartoon-button bg-green-500 hover:bg-green-600 flex-1 sm:flex-none"
+                      >
+                        <Play size={20} />
+                        <span className="ml-2 hidden sm:inline">Continuar</span>
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={pauseAutoReading}
+                        className="cartoon-button bg-yellow-500 hover:bg-yellow-600 flex-1 sm:flex-none"
+                      >
+                        <Pause size={20} />
+                        <span className="ml-2 hidden sm:inline">Pausar</span>
+                      </Button>
+                    )}
+                    <Button
+                      onClick={stopAutoReading}
+                      className="cartoon-button bg-red-500 hover:bg-red-600"
+                    >
+                      <VolumeX size={20} />
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
 
-            <Button
-              onClick={resetReading}
-              variant="outline"
-              disabled={!transcript}
-              className="border-cartoon-coral text-cartoon-coral hover:bg-cartoon-coral hover:text-white"
-            >
-              <RotateCcw size={20} />
-              Recomeçar
-            </Button>
+            {/* Secondary Controls Row */}
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:justify-center">
+              <Button
+                onClick={playSelectedText}
+                disabled={!selectedText || isPlaying}
+                variant="outline"
+                className="border-cartoon-teal text-cartoon-teal hover:bg-cartoon-teal hover:text-white"
+              >
+                <Play size={20} />
+                <span className="ml-2">Ouvir Seleção</span>
+              </Button>
+
+              <Button
+                onClick={toggleReadingMode}
+                className={`cartoon-button ${
+                  isReadingMode 
+                    ? "bg-red-500 hover:bg-red-600" 
+                    : "bg-cartoon-coral hover:bg-cartoon-coral/80"
+                }`}
+              >
+                {isReadingMode ? <MicOff size={20} /> : <Mic size={20} />}
+                <span className="ml-2">{isReadingMode ? "Parar Gravação" : "Começar a Ler"}</span>
+              </Button>
+
+              <Button
+                onClick={resetReading}
+                variant="outline"
+                disabled={!transcript}
+                className="border-cartoon-coral text-cartoon-coral hover:bg-cartoon-coral hover:text-white"
+              >
+                <RotateCcw size={20} />
+                <span className="ml-2 hidden sm:inline">Recomeçar</span>
+              </Button>
+            </div>
           </div>
 
           {/* Speed Control for Auto Reading */}

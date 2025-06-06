@@ -2,8 +2,12 @@ import { useState, useCallback } from "react";
 
 export function useAudio() {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [currentText, setCurrentText] = useState("");
+  const [remainingText, setRemainingText] = useState("");
+  const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
 
-  const playText = useCallback((text: string, lang: string = "en-US") => {
+  const playText = useCallback((text: string, lang: string = "en-US", fromPosition: number = 0) => {
     if (!('speechSynthesis' in window)) {
       console.warn("Speech synthesis not supported");
       return;
@@ -12,11 +16,20 @@ export function useAudio() {
     // Stop any currently playing speech
     speechSynthesis.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(text);
+    // Split text into words to track position
+    const words = text.split(' ');
+    const textToPlay = words.slice(fromPosition).join(' ');
+    
+    setCurrentText(text);
+    setRemainingText(textToPlay);
+
+    const utterance = new SpeechSynthesisUtterance(textToPlay);
     utterance.lang = lang;
     utterance.rate = 0.8;
     utterance.pitch = 0.9; // Slightly lower pitch for male voice
     utterance.volume = 1;
+    
+    setCurrentUtterance(utterance);
 
     // Try to select an American English male voice
     const voices = speechSynthesis.getVoices();
@@ -38,11 +51,20 @@ export function useAudio() {
       utterance.voice = americanVoice;
     }
 
-    utterance.onstart = () => setIsPlaying(true);
-    utterance.onend = () => setIsPlaying(false);
+    utterance.onstart = () => {
+      setIsPlaying(true);
+      setIsPaused(false);
+    };
+    utterance.onend = () => {
+      setIsPlaying(false);
+      setIsPaused(false);
+      setCurrentUtterance(null);
+    };
     utterance.onerror = (event) => {
       console.error("Speech synthesis error:", event);
       setIsPlaying(false);
+      setIsPaused(false);
+      setCurrentUtterance(null);
     };
 
     // Wait for voices to load if not available yet
@@ -73,10 +95,39 @@ export function useAudio() {
     }
   }, []);
 
+  const pauseAudio = useCallback(() => {
+    if (speechSynthesis.speaking && !speechSynthesis.paused) {
+      speechSynthesis.pause();
+      setIsPaused(true);
+      setIsPlaying(false);
+    }
+  }, []);
+
+  const resumeAudio = useCallback(() => {
+    if (speechSynthesis.paused) {
+      speechSynthesis.resume();
+      setIsPaused(false);
+      setIsPlaying(true);
+    }
+  }, []);
+
   const stopAudio = useCallback(() => {
     speechSynthesis.cancel();
     setIsPlaying(false);
+    setIsPaused(false);
+    setCurrentUtterance(null);
+    setCurrentText("");
+    setRemainingText("");
   }, []);
 
-  return { playText, stopAudio, isPlaying };
+  return { 
+    playText, 
+    pauseAudio, 
+    resumeAudio, 
+    stopAudio, 
+    isPlaying, 
+    isPaused,
+    currentText,
+    remainingText 
+  };
 }
