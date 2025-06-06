@@ -1,11 +1,12 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Flame, Heart, Trophy, LogOut } from "lucide-react";
+import { GraduationCap, Flame, Heart, Trophy, LogOut, Star } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
+import { motion } from "framer-motion";
 import Mascot from "./mascot";
 
 interface HeaderProps {
@@ -61,10 +62,12 @@ export default function Header({ user }: HeaderProps) {
             animate={{ opacity: 1, x: 0 }}
             className="flex items-center space-x-3"
           >
-            <div className="w-12 h-12 bg-cartoon-red rounded-full flex items-center justify-center shadow-lg transform hover:scale-110 transition-transform">
-              <GraduationCap className="text-white" size={24} />
-            </div>
-            <h1 className="text-2xl font-bold text-cartoon-dark">CartoonLingo</h1>
+            <img 
+              src="/attached_assets/Tommy logo.png" 
+              alt="Tommy's Academy Logo" 
+              className="w-12 h-12 object-contain"
+            />
+            <h1 className="text-2xl font-bold text-cartoon-dark">Tommy's Academy</h1>
           </motion.div>
 
           {/* Progress and Stats */}
@@ -105,22 +108,23 @@ export default function Header({ user }: HeaderProps) {
                 {user?.username?.charAt(0).toUpperCase() || "U"}
               </AvatarFallback>
             </Avatar>
+            
             <Badge variant="secondary" className="bg-cartoon-yellow text-cartoon-dark">
-            <Trophy size={16} className="mr-1" />
-            Nível {user.level}
-          </Badge>
+              <Trophy size={16} className="mr-1" />
+              Nível {user.level}
+            </Badge>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleLogout}
-            disabled={logoutMutation.isPending}
-            className="text-gray-600 hover:text-gray-800"
-          >
-            <LogOut size={16} className="mr-1" />
-            Sair
-          </Button>
-        </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              disabled={logoutMutation.isPending}
+              className="text-gray-600 hover:text-gray-800"
+            >
+              <LogOut size={16} className="mr-1" />
+              Sair
+            </Button>
+          </motion.div>
       </div>
     </header>
   );

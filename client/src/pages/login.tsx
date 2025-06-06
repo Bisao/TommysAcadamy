@@ -32,7 +32,7 @@ export default function Login() {
     onSuccess: () => {
       toast({
         title: "Login realizado com sucesso!",
-        description: "Bem-vindo de volta ao CartoonLingo!",
+        description: "Bem-vindo de volta ao Tommy's Academy!",
       });
       // Invalidate user query to refetch user data
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
@@ -52,7 +52,7 @@ export default function Login() {
     onSuccess: () => {
       toast({
         title: "Conta criada com sucesso!",
-        description: "Bem-vindo ao CartoonLingo!",
+        description: "Bem-vindo ao Tommy's Academy!",
       });
       // Invalidate user query to refetch user data
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
@@ -101,10 +101,12 @@ export default function Login() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-3 mb-4">
-            <div className="w-16 h-16 bg-cartoon-red rounded-full flex items-center justify-center shadow-lg">
-              <GraduationCap className="text-white" size={32} />
-            </div>
-            <h1 className="text-3xl font-bold text-cartoon-dark">CartoonLingo</h1>
+            <img 
+              src="/attached_assets/Tommy logo.png" 
+              alt="Tommy's Academy Logo" 
+              className="w-16 h-16 object-contain"
+            />
+            <h1 className="text-3xl font-bold text-cartoon-dark">Tommy's Academy</h1>
           </div>
           <div className="flex justify-center mb-4">
             <Mascot />
