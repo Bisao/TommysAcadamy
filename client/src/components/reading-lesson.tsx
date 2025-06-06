@@ -133,9 +133,42 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
   const resumeAutoReading = () => {
     if (!isAutoReading) return;
     setIsPaused(false);
-    if (isAudioPaused) {
-      resumeAudio();
+    
+    // Get the remaining text from current position
+    const words = text.split(/\s+/).filter(word => word.length > 0);
+    const remainingWords = words.slice(currentWordIndex + 1);
+    const remainingText = remainingWords.join(' ');
+    
+    if (remainingText.trim()) {
+      // Create word boundary callback for synchronization from current position
+      const handleWordBoundary = (word: string, index: number) => {
+        const adjustedIndex = currentWordIndex + 1 + index;
+        if (adjustedIndex >= 0 && adjustedIndex < words.length) {
+          setCurrentWordIndex(adjustedIndex);
+
+          // Scroll to current word
+          setTimeout(() => {
+            const wordElement = document.querySelector(`[data-word-index="${adjustedIndex}"]`);
+            if (wordElement) {
+              const elementRect = wordElement.getBoundingClientRect();
+              const headerHeight = 80;
+              const audioBarHeight = 120;
+              const totalOffset = headerHeight + audioBarHeight + 20;
+              const targetY = window.scrollY + elementRect.top - totalOffset;
+
+              window.scrollTo({
+                top: Math.max(0, targetY),
+                behavior: 'smooth'
+              });
+            }
+          }, 50);
+        }
+      };
+
+      // Start reading from current position
+      playText(remainingText, "en-US", 0, handleWordBoundary);
     }
+    
     toast({
       title: "🎯 Professor Tommy retomando",
       description: "Continuando de onde parou",
