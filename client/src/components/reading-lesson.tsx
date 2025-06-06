@@ -402,12 +402,12 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
+    <div className="max-w-4xl mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6">
 
 
       {/* Controles de Áudio e Leitura */}
       <Card className="border-2 border-cartoon-gray">
-        <CardContent className="p-6">
+        <CardContent className="p-3 sm:p-6">
           {/* Mobile-optimized layout */}
           <div className="space-y-4">
             {/* Primary Controls Row */}
@@ -530,14 +530,16 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
           {/* Speed Control for Auto Reading */}
           {isAutoReading && (
             <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-blue-700">Velocidade da Leitura:</span>
-                <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <span className="text-sm font-semibold text-blue-700 text-center sm:text-left">
+                  Velocidade da Leitura:
+                </span>
+                <div className="flex gap-2 justify-center">
                   <Button
                     onClick={() => setAutoReadingSpeed(500)}
                     variant={autoReadingSpeed === 500 ? "default" : "outline"}
                     size="sm"
-                    className="text-xs"
+                    className="text-xs flex-1 sm:flex-none"
                   >
                     Lenta
                   </Button>
@@ -545,7 +547,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
                     onClick={() => setAutoReadingSpeed(300)}
                     variant={autoReadingSpeed === 300 ? "default" : "outline"}
                     size="sm"
-                    className="text-xs"
+                    className="text-xs flex-1 sm:flex-none"
                   >
                     Normal
                   </Button>
@@ -553,7 +555,7 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
                     onClick={() => setAutoReadingSpeed(150)}
                     variant={autoReadingSpeed === 150 ? "default" : "outline"}
                     size="sm"
-                    className="text-xs"
+                    className="text-xs flex-1 sm:flex-none"
                   >
                     Rápida
                   </Button>
@@ -623,15 +625,15 @@ export default function ReadingLesson({ title, text, onComplete }: ReadingLesson
 
       {/* Área de Texto */}
       <Card className="border-2 border-cartoon-gray">
-        <CardHeader>
-          <div className="text-center mb-4">
-            <CardTitle className="text-2xl text-cartoon-dark mb-2">{title}</CardTitle>
+        <CardHeader className="pb-3 sm:pb-6">
+          <div className="text-center">
+            <CardTitle className="text-xl sm:text-2xl text-cartoon-dark">{title}</CardTitle>
           </div>
         </CardHeader>
-        <CardContent className="relative">
+        <CardContent className="relative p-3 sm:p-6">
           <div
             ref={textRef}
-            className="text-lg leading-relaxed p-4 bg-white rounded-lg border border-gray-200 cursor-text select-text break-words whitespace-pre-wrap overflow-wrap-anywhere"
+            className="text-base sm:text-lg leading-relaxed p-3 sm:p-4 bg-white rounded-lg border border-gray-200 cursor-text select-text break-words whitespace-pre-wrap overflow-wrap-anywhere min-h-[200px] sm:min-h-[300px]"
             onMouseUp={handleTextSelection}
             style={{ userSelect: 'text', wordBreak: 'break-word', overflowWrap: 'break-word' }}
           >
