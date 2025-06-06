@@ -1,0 +1,57 @@
+
+> rest-express@1.0.0 dev
+> NODE_ENV=development tsx server/index.ts
+
+Erro na migração de usuários: error: column "created_at" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async migrateExistingUsers (/home/runner/workspace/server/migrate-users.ts:9:22)
+    at async <anonymous> (/home/runner/workspace/server/index.ts:43:5) {
+  length: 111,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '128',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+5:51:55 AM [express] serving on port 5000
+5:52:03 AM [express] GET /api/user 500 in 110ms :: {"message":"Failed to fetch user"}
+5:52:42 AM [express] GET /api/user 500 in 121ms :: {"message":"Failed to fetch user"}
+Login attempt for username: learner
+Login error: error: column "created_at" does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.authenticateUser (/home/runner/workspace/server/storage.ts:498:20)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:39:20) {
+  length: 111,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '128',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3722',
+  routine: 'errorMissingColumn'
+}
+5:55:22 AM [express] POST /api/auth/login 400 in 2508ms :: {"message":"Invalid request data"}
