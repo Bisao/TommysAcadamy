@@ -17,8 +17,7 @@ import {
   Calendar, 
   Settings, 
   Bell, 
-  Shield, 
-  Heart,
+  Shield,
   Flame,
   Star,
   Camera,
@@ -313,16 +312,6 @@ export default function Profile() {
                   </div>
                   <Badge className="bg-cartoon-blue text-white">
                     {user?.level || 1}
-                  </Badge>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Heart className="text-cartoon-coral" size={20} />
-                    <span className="text-sm font-medium">Vidas</span>
-                  </div>
-                  <Badge className="bg-cartoon-coral text-white">
-                    {user?.hearts || 0}
                   </Badge>
                 </div>
 

@@ -1,6 +1,7 @@
 
 import { db } from "./db";
 import { users } from "@shared/schema";
+import { eq } from "drizzle-orm";
 import { calculateRealisticUserData } from "./user-utils";
 
 export async function migrateExistingUsers() {
@@ -22,7 +23,6 @@ export async function migrateExistingUsers() {
             level: 1,
             streak: 0,
             achievements: [],
-            hearts: 5,
             createdAt: new Date(),
             lastActiveDate: today
           })

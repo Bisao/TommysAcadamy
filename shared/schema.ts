@@ -11,7 +11,6 @@ export const users = pgTable("users", {
   streak: integer("streak").default(0),
   totalXP: integer("total_xp").default(0),
   level: integer("level").default(1),
-  hearts: integer("hearts").default(5),
   dailyGoal: integer("daily_goal").default(15),
   lastActiveDate: text("last_active_date"),
   achievements: text("achievements").array().default([]),

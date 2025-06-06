@@ -75,7 +75,6 @@ export class MemStorage implements IStorage {
       streak: 7,
       totalXP: 1250,
       level: 5,
-      hearts: 3,
       dailyGoal: 15,
       lastActiveDate: new Date().toISOString().split('T')[0],
       achievements: ["first_lesson", "week_warrior", "vocabulary_master"],
@@ -337,7 +336,6 @@ export class MemStorage implements IStorage {
       streak: 0,
       totalXP: 0,
       level: 1,
-      hearts: 5,
       dailyGoal: 15,
       lastActiveDate: null,
       achievements: []
@@ -510,7 +508,6 @@ export class DatabaseStorage implements IStorage {
         totalXP: 0,
         level: 1,
         streak: 0,
-        hearts: 5,
         achievements: [],
         lastActiveDate: new Date().toISOString().split('T')[0]
       })

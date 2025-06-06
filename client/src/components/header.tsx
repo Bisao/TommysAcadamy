@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Flame, Heart, Trophy, LogOut, Star } from "lucide-react";
+import { Flame, Star, Trophy, LogOut } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
@@ -15,7 +15,6 @@ interface HeaderProps {
     username: string;
     streak: number;
     totalXP: number;
-    hearts: number;
     level: number;
   };
 }
@@ -89,26 +88,6 @@ export default function Header({ user }: HeaderProps) {
             <Badge className="bg-cartoon-mint hover:bg-cartoon-mint/80 text-cartoon-dark font-bold px-2 sm:px-3 lg:px-4 py-1 sm:py-2 text-xs sm:text-sm hidden sm:flex">
               <Star className="text-cartoon-yellow mr-1" size={14} />
               <span>{user?.totalXP || 0} XP</span>
-            </Badge>
-
-            {/* Hearts */}
-            <div className="flex items-center space-x-1 hidden md:flex">
-              {[...Array(5)].map((_, i) => (
-                <Heart
-                  key={i}
-                  className={`w-4 h-4 lg:w-5 lg:h-5 ${
-                    i < (user?.hearts || 0)
-                      ? "text-red-500 fill-red-500"
-                      : "text-gray-300"
-                  }`}
-                />
-              ))}
-            </div>
-
-            {/* Mobile Hearts Counter */}
-            <Badge className="bg-red-100 text-red-600 font-bold px-2 py-1 text-xs md:hidden">
-              <Heart className="text-red-500 fill-red-500 mr-1" size={12} />
-              <span>{user?.hearts || 0}</span>
             </Badge>
 
             {/* Profile Avatar */}
