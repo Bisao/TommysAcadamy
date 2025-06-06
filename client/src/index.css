@@ -69,6 +69,37 @@
     background: linear-gradient(135deg, hsl(var(--cartoon-blue) / 0.1), hsl(var(--cartoon-teal) / 0.1));
     min-height: 100vh;
   }
+
+  /* Ensure scrollbars don't overlap the header */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  /* Fix z-index stacking context */
+  [data-radix-popper-content-wrapper] {
+    z-index: 30 !important;
+  }
+
+  [data-radix-select-content] {
+    z-index: 30 !important;
+  }
+
+  [data-radix-dropdown-menu-content] {
+    z-index: 30 !important;
+  }
 }
 
 @layer components {
