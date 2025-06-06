@@ -84,20 +84,20 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-sky-50 to-teal-50">
       <Header user={user} />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Welcome Section */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="text-center mb-8 sm:mb-12"
         >
-          <div className="inline-block mb-4">
+          <div className="inline-block mb-3 sm:mb-4">
             <Mascot />
           </div>
-          <h2 className="text-3xl font-bold text-cartoon-dark mb-2">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-cartoon-dark mb-2 px-2">
             Olá! Vamos aprender inglês hoje? 🎉
           </h2>
-          <p className="text-lg text-gray-600">Continue sua jornada de aprendizado com lições divertidas!</p>
+          <p className="text-sm sm:text-base lg:text-lg text-gray-600 px-4">Continue sua jornada de aprendizado com lições divertidas!</p>
         </motion.div>
 
         {/* Progress Overview */}
@@ -105,42 +105,42 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="cartoon-card border-cartoon-teal mb-8 p-6"
+          className="cartoon-card border-cartoon-teal mb-6 sm:mb-8 p-4 sm:p-6"
         >
-          <h3 className="text-xl font-bold text-cartoon-dark mb-4 flex items-center">
-            <Trophy className="text-cartoon-teal mr-2" />
+          <h3 className="text-lg sm:text-xl font-bold text-cartoon-dark mb-3 sm:mb-4 flex items-center">
+            <Trophy className="text-cartoon-teal mr-2" size={20} />
             Seu Progresso
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             <div className="text-center">
-              <div className="w-20 h-20 mx-auto mb-3 bg-cartoon-red rounded-full flex items-center justify-center shadow-lg">
-                <span className="text-2xl font-bold text-white">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-2 sm:mb-3 bg-cartoon-red rounded-full flex items-center justify-center shadow-lg">
+                <span className="text-lg sm:text-2xl font-bold text-white">
                   {Math.round(dailyProgress)}%
                 </span>
               </div>
-              <p className="font-semibold text-cartoon-dark">Progresso Diário</p>
+              <p className="text-sm sm:text-base font-semibold text-cartoon-dark">Progresso Diário</p>
             </div>
             <div className="text-center">
-              <div className="w-20 h-20 mx-auto mb-3 bg-cartoon-yellow rounded-full flex items-center justify-center shadow-lg">
-                <span className="text-2xl font-bold text-cartoon-dark">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-2 sm:mb-3 bg-cartoon-yellow rounded-full flex items-center justify-center shadow-lg">
+                <span className="text-lg sm:text-2xl font-bold text-cartoon-dark">
                   {progress?.lessonsCompleted || 0}
                 </span>
               </div>
-              <p className="font-semibold text-cartoon-dark">Lições Concluídas</p>
+              <p className="text-sm sm:text-base font-semibold text-cartoon-dark">Lições Concluídas</p>
             </div>
-            <div className="text-center">
-              <div className="w-20 h-20 mx-auto mb-3 bg-cartoon-mint rounded-full flex items-center justify-center shadow-lg">
-                <span className="text-2xl font-bold text-cartoon-dark">
+            <div className="text-center lg:block">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-2 sm:mb-3 bg-cartoon-mint rounded-full flex items-center justify-center shadow-lg">
+                <span className="text-lg sm:text-2xl font-bold text-cartoon-dark">
                   {user?.level || 1}
                 </span>
               </div>
-              <p className="font-semibold text-cartoon-dark">Nível Atual</p>
+              <p className="text-sm sm:text-base font-semibold text-cartoon-dark">Nível Atual</p>
             </div>
           </div>
         </motion.div>
 
         {/* Lesson Categories */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8">
           {categories.map((category, index) => {
             const Icon = category.icon;
             const completedLessons = category.lessons.filter((l: any) => l.completed).length;
@@ -153,29 +153,29 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 + index * 0.1 }}
-                className={`cartoon-card border-${category.color} p-6 cursor-pointer`}
+                className={`cartoon-card border-${category.color} p-4 sm:p-6 cursor-pointer hover:shadow-lg transition-shadow`}
                 onClick={() => {
                   if (category.lessons.length > 0) {
                     openLesson(category.lessons[0].id);
                   }
                 }}
               >
-                <div className="flex items-center mb-4">
-                  <div className={`w-16 h-16 bg-${category.color} rounded-full flex items-center justify-center shadow-lg mr-4`}>
-                    <Icon className="text-white text-2xl" size={32} />
+                <div className="flex items-center mb-3 sm:mb-4">
+                  <div className={`w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-${category.color} rounded-full flex items-center justify-center shadow-lg mr-3 sm:mr-4`}>
+                    <Icon className="text-white" size={24} />
                   </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-cartoon-dark">{category.name}</h3>
-                    <p className="text-gray-600">{category.description}</p>
+                  <div className="flex-1">
+                    <h3 className="text-lg sm:text-xl font-bold text-cartoon-dark">{category.name}</h3>
+                    <p className="text-sm sm:text-base text-gray-600">{category.description}</p>
                   </div>
                 </div>
-                <div className="bg-cartoon-gray rounded-full h-3 mb-2">
+                <div className="bg-cartoon-gray rounded-full h-2 sm:h-3 mb-2">
                   <div 
-                    className={`bg-${category.color} h-3 rounded-full transition-all duration-500`}
+                    className={`bg-${category.color} h-2 sm:h-3 rounded-full transition-all duration-500`}
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-xs sm:text-sm text-gray-600">
                   {completedLessons} de {totalLessons} lições concluídas
                 </p>
               </motion.div>
