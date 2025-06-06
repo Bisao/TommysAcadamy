@@ -567,7 +567,7 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
           >
             {/* Título integrado ao texto */}
             <div className="mb-4 text-center">
-              <h2 className="text-xl sm:text-2xl font-bold text-cartoon-dark mb-3">
+              <h2 className="text-xl sm:text-2xl font-bold text-cartoon-dark mb-3 leading-normal">
                 {title.split(/\s+/).map((word, index) => {
                   const titleWordsCount = title.split(/\s+/).length;
                   const isCurrentWord = isAutoReading && currentWordIndex === index;
@@ -596,11 +596,9 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
                     <span
                       key={`title-${index}`}
                       data-word-index={`title-${index}`}
-                      className={`${colorClass} px-1 sm:px-2 py-0.5 sm:py-1 rounded-md transition-all duration-200 mr-1 sm:mr-2 mb-1 inline-block cursor-pointer touch-manipulation select-none min-h-[28px] sm:min-h-[32px] flex items-center justify-center text-center`}
+                      className={`${colorClass} px-1 sm:px-2 py-0.5 sm:py-1 rounded-md transition-all duration-200 mr-1 sm:mr-2 inline-block cursor-pointer touch-manipulation select-none`}
                       style={{ 
-                        wordBreak: 'break-word', 
                         userSelect: 'none',
-                        minWidth: '20px',
                         WebkitTapHighlightColor: 'transparent'
                       }}
                       onClick={(e) => handleWordClick(word, e)}
