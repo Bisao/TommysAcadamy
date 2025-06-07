@@ -33,7 +33,7 @@ export default function Reading() {
   useEffect(() => {
     return () => {
       // Cleanup when component unmounts (user navigates away)
-      if ('speechSynthesis' in window) {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
         console.log("Reading page unmounting - stopping speech synthesis");
         speechSynthesis.cancel();
       }

@@ -27,7 +27,7 @@ export function useAudio() {
   }, []);
 
   const playText = useCallback(async (text: string, lang: string = "en-US", fromPosition: number = 0, onWordBoundary?: (word: string, index: number) => void) => {
-    if (!('speechSynthesis' in window)) {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
       console.warn("Speech synthesis not supported");
       return;
     }
@@ -324,6 +324,11 @@ export function useAudio() {
   }, [cleanup, isPlaying, isPaused]);
 
   const pauseAudio = useCallback(() => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      console.warn("Speech synthesis not available for pause");
+      return;
+    }
+    
     console.log("pauseAudio called - speechSynthesis.speaking:", speechSynthesis.speaking, "speechSynthesis.paused:", speechSynthesis.paused);
     
     if (speechSynthesis.speaking && !speechSynthesis.paused) {
@@ -343,6 +348,11 @@ export function useAudio() {
   }, []);
 
   const resumeAudio = useCallback(() => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      console.warn("Speech synthesis not available for resume");
+      throw new Error("Speech synthesis not available");
+    }
+    
     console.log("resumeAudio called - speechSynthesis.paused:", speechSynthesis.paused, "speechSynthesis.speaking:", speechSynthesis.speaking);
     console.log("currentUtterance exists:", !!currentUtterance, "isPaused:", isPaused);
     
@@ -379,7 +389,9 @@ export function useAudio() {
   const stopAudio = useCallback(() => {
     console.log("stopAudio called");
     cleanup();
-    speechSynthesis.cancel();
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      speechSynthesis.cancel();
+    }
     setIsPlaying(false);
     setIsPaused(false);
     setCurrentUtterance(null);
