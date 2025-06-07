@@ -266,7 +266,7 @@ export default function Login() {
             <img 
               src={tommyLogoPath} 
               alt="Tommy's Academy Logo" 
-              className="w-48 h-48 sm:w-56 sm:h-56 lg:w-72 lg:h-72 object-contain mb-6"
+              className="w-48 h-48 sm:w-56 sm:h-56 lg:w-96 lg:h-96 xl:w-[30rem] xl:h-[30rem] object-contain mb-6"
             />
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-cartoon-dark mb-4">Tommy's Academy</h1>
             <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-md">
