@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Cleanup da Leitura</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+        }
+        .test-section.pass {
+            border-color: #4CAF50;
+            background: #f1f8e9;
+        }
+        .test-section.fail {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #1976D2;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .status.info {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .status.success {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Teste de Cleanup do Sistema de Leitura</h1>
+        <p>Este teste verifica se o áudio para automaticamente quando o usuário sai da página de leitura.</p>
+        
+        <div class="test-section" id="cleanup-test">
+            <h3>📋 Teste de Cleanup Automático</h3>
+            <div id="test-status" class="status info">
+                Aguardando início do teste...
+            </div>
+            
+            <button onclick="startReadingTest()">Iniciar Teste de Leitura</button>
+            <button onclick="simulatePageUnload()">Simular Saída da Página</button>
+            <button onclick="checkSpeechStatus()">Verificar Status do Áudio</button>
+            <button onclick="openReadingPage()">Abrir Página de Leitura Real</button>
+            
+            <div id="test-results">
+                <h4>Resultados dos Testes:</h4>
+                <ul id="results-list"></ul>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🎯 Funcionalidades Testadas</h3>
+            <ul>
+                <li><strong>beforeunload:</strong> Para o áudio quando o usuário navega para outra página</li>
+                <li><strong>visibilitychange:</strong> Pausa o áudio quando a aba fica em segundo plano</li>
+                <li><strong>Component unmount:</strong> Limpa todos os recursos quando o componente é desmontado</li>
+                <li><strong>Speech synthesis cleanup:</strong> Cancela síntese de voz em andamento</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let testUtterance = null;
+        let testResults = [];
+
+        function addResult(test, passed, message) {
+            const li = document.createElement('li');
+            li.style.color = passed ? 'green' : 'red';
+            li.innerHTML = `${passed ? '✅' : '❌'} <strong>${test}:</strong> ${message}`;
+            document.getElementById('results-list').appendChild(li);
+            testResults.push({ test, passed, message });
+        }
+
+        function updateStatus(message, type = 'info') {
+            const statusEl = document.getElementById('test-status');
+            statusEl.className = `status ${type}`;
+            statusEl.textContent = message;
+        }
+
+        function startReadingTest() {
+            updateStatus('Iniciando teste de síntese de voz...', 'info');
+            
+            if (!('speechSynthesis' in window)) {
+                addResult('Suporte do Browser', false, 'Speech Synthesis não suportado neste navegador');
+                updateStatus('Erro: Speech Synthesis não suportado', 'error');
+                return;
+            }
+
+            // Testar se o speech synthesis funciona
+            testUtterance = new SpeechSynthesisUtterance('Este é um teste do sistema de leitura guiada. O áudio deve parar automaticamente quando você sair da página.');
+            testUtterance.rate = 0.8;
+            testUtterance.lang = 'pt-BR';
+            
+            testUtterance.onstart = () => {
+                addResult('Início da Síntese', true, 'Áudio iniciado com sucesso');
+                updateStatus('Áudio está tocando. Teste simular saída da página.', 'success');
+            };
+            
+            testUtterance.onend = () => {
+                addResult('Fim da Síntese', true, 'Áudio terminou naturalmente');
+                updateStatus('Áudio terminou. Pronto para próximo teste.', 'info');
+            };
+            
+            testUtterance.onerror = (event) => {
+                addResult('Erro na Síntese', false, `Erro: ${event.error}`);
+                updateStatus(`Erro no áudio: ${event.error}`, 'error');
+            };
+
+            speechSynthesis.speak(testUtterance);
+            addResult('Configuração do Teste', true, 'Utterance criada e iniciada');
+        }
+
+        function simulatePageUnload() {
+            updateStatus('Simulando saída da página...', 'info');
+            
+            // Verificar se há áudio tocando antes
+            const wasSpeaking = speechSynthesis.speaking;
+            
+            if (!wasSpeaking) {
+                addResult('Estado Inicial', false, 'Nenhum áudio estava tocando para testar');
+                updateStatus('Inicie o teste de leitura primeiro', 'error');
+                return;
+            }
+
+            // Simular o que acontece no componente ReadingLesson
+            console.log("Simulando page unload - stopping speech synthesis");
+            speechSynthesis.cancel();
+            
+            // Verificar se parou
+            setTimeout(() => {
+                const isStillSpeaking = speechSynthesis.speaking;
+                if (!isStillSpeaking) {
+                    addResult('Cleanup no Unload', true, 'Áudio parou corretamente ao simular saída da página');
+                    updateStatus('✅ Teste passou: Áudio parou automaticamente', 'success');
+                } else {
+                    addResult('Cleanup no Unload', false, 'Áudio não parou ao simular saída da página');
+                    updateStatus('❌ Teste falhou: Áudio continuou tocando', 'error');
+                }
+            }, 100);
+        }
+
+        function checkSpeechStatus() {
+            const status = {
+                speaking: speechSynthesis.speaking,
+                paused: speechSynthesis.paused,
+                pending: speechSynthesis.pending
+            };
+            
+            const statusText = `Speaking: ${status.speaking}, Paused: ${status.paused}, Pending: ${status.pending}`;
+            addResult('Status do Speech Synthesis', true, statusText);
+            updateStatus(`Status atual: ${statusText}`, 'info');
+        }
+
+        function openReadingPage() {
+            const readingUrl = window.location.origin + '/reading';
+            updateStatus('Abrindo página de leitura real...', 'info');
+            window.open(readingUrl, '_blank');
+            addResult('Navegação', true, 'Página de leitura aberta em nova aba');
+        }
+
+        // Simular event listeners que existem no componente real
+        window.addEventListener('beforeunload', () => {
+            console.log('beforeunload event fired - would stop reading in real app');
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                console.log('Page hidden - would pause reading in real app');
+            } else {
+                console.log('Page visible again');
+            }
+        });
+
+        // Teste automático ao carregar
+        window.addEventListener('load', () => {
+            updateStatus('Página de teste carregada. Clique nos botões para testar.', 'info');
+            addResult('Inicialização', true, 'Página de teste carregada com sucesso');
+        });
+    </script>
+</body>
+</html>

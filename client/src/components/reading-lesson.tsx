@@ -559,13 +559,52 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
     };
   }, []);
 
+  // Cleanup when component unmounts or user leaves the page
   useEffect(() => {
+    const handleBeforeUnload = () => {
+      console.log("Page unloading - stopping all reading activities");
+      if (isAutoReading || isPlaying) {
+        stopAudio();
+      }
+      if (isListening) {
+        stopListening();
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        console.log("Page hidden - pausing reading activities");
+        if (isAutoReading && isPlaying) {
+          pauseAutoReading();
+        }
+      }
+    };
+
+    // Stop reading when user navigates away
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
+      console.log("ReadingLesson component unmounting - cleaning up all activities");
+      
+      // Stop all reading activities
+      if (isAutoReading || isPlaying) {
+        stopAudio();
+      }
+      if (isListening) {
+        stopListening();
+      }
+      
+      // Clear timers
       if (autoReadingTimerRef.current) {
         clearTimeout(autoReadingTimerRef.current);
       }
+
+      // Remove event listeners
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, []);
+  }, [isAutoReading, isPlaying, isListening, stopAudio, stopListening, pauseAutoReading]);
 
   return (
     <div className="max-w-4xl mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6">

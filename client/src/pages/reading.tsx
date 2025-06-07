@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/header";
 import ReadingLesson from "@/components/reading-lesson";
@@ -29,10 +29,21 @@ export default function Reading() {
     setAudioControls(controls);
   }, []);
 
+  // Stop any ongoing speech synthesis when navigating away from reading page
+  useEffect(() => {
+    return () => {
+      // Cleanup when component unmounts (user navigates away)
+      if ('speechSynthesis' in window) {
+        console.log("Reading page unmounting - stopping speech synthesis");
+        speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
   if (lessonCompleted) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-sky-50 to-teal-50 pt-16 sm:pt-20">
-        <Header user={user} />
+        <Header user={user as any} />
         
         <main className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
           <Card className="border-2 border-green-200 bg-green-50">
@@ -84,7 +95,7 @@ When school finished, my mom was waiting for me at the gate. I told her all abou
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-50 to-teal-50">
       <Header 
-        user={user} 
+        user={user as any} 
         audioControls={audioControls}
         showAudioControls={true}
       />
