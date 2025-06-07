@@ -251,36 +251,29 @@ export default function Login() {
         {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
       </Button>
 
-      <div className="w-full lg:max-w-7xl mx-auto lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col lg:flex-row items-center lg:items-center lg:justify-between gap-8 lg:gap-16 lg:min-h-[80vh]"
-        >
-          {/* Logo Section - Left side */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex flex-col items-center lg:items-start text-center lg:text-left lg:w-1/2"
-          >
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md mx-auto"
+      >
+        {/* Header */}
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="flex flex-col items-center justify-center space-y-4 mb-4">
             <img 
               src={tommyLogoPath} 
               alt="Tommy's Academy Logo" 
-              className="w-48 h-48 sm:w-56 sm:h-56 lg:w-96 lg:h-96 xl:w-[30rem] xl:h-[30rem] object-contain mb-6"
+              className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 object-contain"
             />
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-cartoon-dark mb-4">Tommy's Academy</h1>
-            <p className="text-base sm:text-lg lg:text-xl xl:text-2xl text-gray-600 max-w-lg">
-              {isLogin ? "Entre na sua conta" : "Crie sua conta"} e continue sua jornada de aprendizado!
-            </p>
-          </motion.div>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-cartoon-dark text-center">Tommy's Academy</h1>
+          </div>
 
-          {/* Login/Register Card - Right side */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="w-full max-w-md lg:w-1/2 lg:max-w-lg lg:flex lg:justify-center"
-          >
-            <Card className="cartoon-card border-cartoon-teal shadow-lg">
+          <p className="text-sm sm:text-base text-gray-600 px-2">
+            {isLogin ? "Entre na sua conta" : "Crie sua conta"} e continue sua jornada de aprendizado!
+          </p>
+        </div>
+
+        {/* Login/Register Card */}
+        <Card className="cartoon-card border-cartoon-teal shadow-lg">
           <CardHeader className="text-center pb-4">
             <CardTitle className="text-xl sm:text-2xl font-bold text-cartoon-dark">
               {isLogin ? "Entrar" : "Criar Conta"}
@@ -445,10 +438,8 @@ export default function Login() {
 
 
           </CardContent>
-            </Card>
-          </motion.div>
-        </motion.div>
-      </div>
+        </Card>
+      </motion.div>
     </div>
   );
 }
