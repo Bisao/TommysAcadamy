@@ -204,6 +204,12 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
 
     console.log("Resuming auto reading from word:", currentWordIndex);
 
+    // Verificar se speechSynthesis está disponível
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      console.warn("Speech synthesis not available for resume");
+      return;
+    }
+
     // Tentar retomar áudio pausado MANTENDO sincronização
     if (isPaused && speechSynthesis.paused && speechSynthesis.speaking && currentUtterance) {
       try {
@@ -250,9 +256,12 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
       clearTimeout(autoReadingTimerRef.current);
     }
 
-    // Parar áudio se estiver tocando ou pausado
-    if (isPlaying || isAudioPaused) {
-      stopAudio();
+    // Verificar se speechSynthesis está disponível antes de parar áudio
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      // Parar áudio se estiver tocando ou pausado
+      if (isPlaying || isAudioPaused) {
+        stopAudio();
+      }
     }
 
     console.log("Auto reading stopped - voz e highlight resetados");
@@ -563,8 +572,10 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
   useEffect(() => {
     const handleBeforeUnload = () => {
       console.log("Page unloading - stopping all reading activities");
-      if (isAutoReading || isPlaying) {
-        stopAudio();
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        if (isAutoReading || isPlaying) {
+          stopAudio();
+        }
       }
       if (isListening) {
         stopListening();
@@ -574,8 +585,10 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
     const handleVisibilityChange = () => {
       if (document.hidden) {
         console.log("Page hidden - pausing reading activities");
-        if (isAutoReading && isPlaying) {
-          pauseAutoReading();
+        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+          if (isAutoReading && isPlaying) {
+            pauseAutoReading();
+          }
         }
       }
     };
@@ -588,8 +601,10 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
       console.log("ReadingLesson component unmounting - cleaning up all activities");
       
       // Stop all reading activities
-      if (isAutoReading || isPlaying) {
-        stopAudio();
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        if (isAutoReading || isPlaying) {
+          stopAudio();
+        }
       }
       if (isListening) {
         stopListening();
@@ -601,8 +616,10 @@ export default function ReadingLesson({ title, text, onComplete, onControlsReady
       }
 
       // Remove event listeners
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('beforeunload', handleBeforeUnload);
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+      }
     };
   }, [isAutoReading, isPlaying, isListening, stopAudio, stopListening, pauseAutoReading]);
 
