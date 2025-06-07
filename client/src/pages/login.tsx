@@ -251,25 +251,25 @@ export default function Login() {
         {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
       </Button>
 
-      <div className="w-full max-w-5xl mx-auto">
+      <div className="w-full lg:max-w-7xl mx-auto lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col lg:flex-row items-center lg:items-start gap-8 lg:gap-12"
+          className="flex flex-col lg:flex-row items-center lg:items-center lg:justify-between gap-8 lg:gap-16 lg:min-h-[80vh]"
         >
           {/* Logo Section - Left side */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex flex-col items-center lg:items-start text-center lg:text-left lg:flex-1"
+            className="flex flex-col items-center lg:items-start text-center lg:text-left lg:w-1/2"
           >
             <img 
               src={tommyLogoPath} 
               alt="Tommy's Academy Logo" 
               className="w-48 h-48 sm:w-56 sm:h-56 lg:w-96 lg:h-96 xl:w-[30rem] xl:h-[30rem] object-contain mb-6"
             />
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-cartoon-dark mb-4">Tommy's Academy</h1>
-            <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-md">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-cartoon-dark mb-4">Tommy's Academy</h1>
+            <p className="text-base sm:text-lg lg:text-xl xl:text-2xl text-gray-600 max-w-lg">
               {isLogin ? "Entre na sua conta" : "Crie sua conta"} e continue sua jornada de aprendizado!
             </p>
           </motion.div>
@@ -278,7 +278,7 @@ export default function Login() {
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="w-full max-w-md lg:flex-shrink-0"
+            className="w-full max-w-md lg:w-1/2 lg:max-w-lg lg:flex lg:justify-center"
           >
             <Card className="cartoon-card border-cartoon-teal shadow-lg">
           <CardHeader className="text-center pb-4">
